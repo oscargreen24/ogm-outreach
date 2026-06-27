@@ -113,6 +113,7 @@
         <select id="f-industry" onchange="renderLeads()" style="background:#111;border:1px solid #333;color:#fff;font-size:13px;padding:8px 12px;border-radius:8px;"><option value="">All industries</option><option value="corporate">Corporate &amp; Finance</option><option value="realestate">Real Estate</option><option value="construction">Construction</option><option value="automotive">Automotive</option></select>
         <select id="f-status" onchange="renderLeads()" style="background:#111;border:1px solid #333;color:#fff;font-size:13px;padding:8px 12px;border-radius:8px;"><option value="">All statuses</option><option value="new">New</option><option value="contacted">Contacted</option><option value="followup1_due">Follow-up 1 due</option><option value="followup1_sent">Follow-up 1 sent</option><option value="followup2_due">Follow-up 2 due</option><option value="followup2_sent">Follow-up 2 sent</option><option value="replied">Replied</option><option value="meeting">Meeting booked</option><option value="won">Won</option><option value="not_interested">Not interested</option></select>
         <input id="f-search" oninput="renderLeads()" placeholder="Search..." style="background:#111;border:1px solid #333;color:#fff;font-size:13px;padding:8px 12px;border-radius:8px;flex:1;min-width:160px;" />
+        <button onclick="runGenerateNow()" id="gen-btn" style="background:#fff;color:#000;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">⚡ Run now</button>
         <button onclick="expandAll(true)"  style="background:none;border:1px solid #333;color:#71717a;font-size:12px;padding:8px 12px;border-radius:8px;cursor:pointer;">Expand all</button>
         <button onclick="expandAll(false)" style="background:none;border:1px solid #333;color:#71717a;font-size:12px;padding:8px 12px;border-radius:8px;cursor:pointer;">Collapse all</button>
         <button onclick="exportCSV()" style="background:none;border:1px solid #333;color:#71717a;font-size:12px;padding:8px 12px;border-radius:8px;cursor:pointer;">&#8681; Export CSV</button>
@@ -896,6 +897,23 @@ function idb(){
 function idbAdd(item){return idb().then(db=>new Promise((res,rej)=>{const tx=db.transaction('items','readwrite');tx.objectStore('items').put(item);tx.oncomplete=()=>res();tx.onerror=e=>rej(e.target.error);}));}
 function idbByIndustry(ind){return idb().then(db=>new Promise((res,rej)=>{const tx=db.transaction('items','readonly');const req=tx.objectStore('items').index('industry').getAll(ind);req.onsuccess=()=>res(req.result||[]);req.onerror=e=>rej(e.target.error);}));}
 function idbDelete(id){return idb().then(db=>new Promise((res,rej)=>{const tx=db.transaction('items','readwrite');tx.objectStore('items').delete(id);tx.oncomplete=()=>res();tx.onerror=e=>rej(e.target.error);}));}
+
+// MANUAL LEAD GENERATION TRIGGER
+async function runGenerateNow(){
+  const btn=document.getElementById('gen-btn');
+  if(btn){btn.textContent='⏳ Generating...';btn.disabled=true;}
+  try{
+    const r=await fetch(API+'/api/generate-leads',{method:'POST'});
+    const d=await r.json();
+    if(d.ok){
+      toast(d.added+' new lead'+(d.added!==1?'s':'')+' added from Hunter.');
+      await syncLeads();
+    } else {
+      toast('Error: '+(d.error||'Unknown error'));
+    }
+  }catch(e){toast('Could not reach server.');}
+  if(btn){btn.textContent='⚡ Run now';btn.disabled=false;}
+}
 
 // INIT — render from cache immediately, then sync fresh data from server
 loadSettings();updateNavBadge();renderDashboard();renderLeads();
