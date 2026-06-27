@@ -697,7 +697,7 @@ function renderLeads(){
       const na=nextAction(l);const due=na.date&&isOverdue(na.date);
       return '<div class="lead-row" onclick="openDetail(\''+l.id+'\')">'+
         '<div style="flex:2;min-width:0;"><div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(l.firstName+' '+l.lastName)+'</div>'+
-        '<div style="font-size:11px;color:#52525b;margin-top:1px;">'+(l.channel==='email'?'&#9993;&#65039;':'&#128248;')+' '+esc(l.hunterEmail||l.contact||'No contact yet')+'</div></div>'+
+        '<div style="font-size:11px;color:#52525b;margin-top:1px;">'+(l.channel==='email'?'&#9993;&#65039;':'&#128248;')+' '+esc(l.hunterEmail||l.contact||'No contact yet')+(l.notes&&l.notes.startsWith('Title:')?'<span style="color:#52525b;"> &middot; </span><span style="color:#71717a;">'+esc(l.notes.replace('Title:','').trim())+'</span>':'')+'</div></div>'+
         '<div style="flex:1.5;padding:0 12px;"><span style="font-size:11px;padding:3px 9px;border-radius:999px;'+(STATUS_STYLE[l.status]||'')+'">'+(STATUS_LABEL[l.status]||l.status)+'</span></div>'+
         '<div style="flex:1.5;font-size:12px;'+(due?'color:#fbbf24;font-weight:500;':'color:#52525b;')+'">'+na.label+(na.date?' &middot; '+fmtDate(na.date)+(due?' &#9888;&#65039;':''):'')+'</div>'+
         '<div style="color:#3f3f46;font-size:12px;">&#8594;</div></div>';
