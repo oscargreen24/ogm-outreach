@@ -35,6 +35,8 @@ db.exec(`
     companyDesc       TEXT DEFAULT '',
     status            TEXT DEFAULT 'new',
     reelId            TEXT DEFAULT '',
+    monthlyValue      REAL DEFAULT 0,
+    timeline          TEXT DEFAULT '[]',
     contactedDate     TEXT DEFAULT NULL,
     followup1SentDate TEXT DEFAULT NULL,
     followup2SentDate TEXT DEFAULT NULL,
@@ -81,10 +83,10 @@ app.post('/api/leads', (req, res) => {
     const l = req.body;
     db.prepare(`
       INSERT INTO leads (id,firstName,lastName,company,website,industry,channel,contact,
-        hunterEmail,notes,researchNotes,companyDesc,status,reelId,contactedDate,
+        hunterEmail,notes,researchNotes,companyDesc,status,reelId,monthlyValue,timeline,contactedDate,
         followup1SentDate,followup2SentDate,createdAt,updatedAt)
       VALUES (@id,@firstName,@lastName,@company,@website,@industry,@channel,@contact,
-        @hunterEmail,@notes,@researchNotes,@companyDesc,@status,@reelId,@contactedDate,
+        @hunterEmail,@notes,@researchNotes,@companyDesc,@status,@reelId,@monthlyValue,@timeline,@contactedDate,
         @followup1SentDate,@followup2SentDate,@createdAt,@updatedAt)
     `).run({ ...l, updatedAt: now(), createdAt: l.createdAt || now() });
     res.json({ ok: true, id: l.id });
@@ -102,7 +104,8 @@ app.put('/api/leads/:id', (req, res) => {
         firstName=@firstName, lastName=@lastName, company=@company, website=@website,
         industry=@industry, channel=@channel, contact=@contact, hunterEmail=@hunterEmail,
         notes=@notes, researchNotes=@researchNotes, companyDesc=@companyDesc,
-        status=@status, reelId=@reelId, contactedDate=@contactedDate,
+        status=@status, reelId=@reelId, monthlyValue=@monthlyValue, timeline=@timeline,
+        contactedDate=@contactedDate,
         followup1SentDate=@followup1SentDate, followup2SentDate=@followup2SentDate,
         updatedAt=@updatedAt
       WHERE id=@id
@@ -129,10 +132,10 @@ app.post('/api/leads/bulk', (req, res) => {
     const { leads } = req.body;
     const upsert = db.prepare(`
       INSERT INTO leads (id,firstName,lastName,company,website,industry,channel,contact,
-        hunterEmail,notes,researchNotes,companyDesc,status,reelId,contactedDate,
+        hunterEmail,notes,researchNotes,companyDesc,status,reelId,monthlyValue,timeline,contactedDate,
         followup1SentDate,followup2SentDate,createdAt,updatedAt)
       VALUES (@id,@firstName,@lastName,@company,@website,@industry,@channel,@contact,
-        @hunterEmail,@notes,@researchNotes,@companyDesc,@status,@reelId,@contactedDate,
+        @hunterEmail,@notes,@researchNotes,@companyDesc,@status,@reelId,@monthlyValue,@timeline,@contactedDate,
         @followup1SentDate,@followup2SentDate,@createdAt,@updatedAt)
       ON CONFLICT(id) DO NOTHING
     `);
