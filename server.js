@@ -292,5 +292,16 @@ app.get('/api/health', (req, res) => {
   res.json({ ok: true, ts: now(), hunterConfigured: !!hunterKey() });
 });
 
+// ── SERVE THE OUTREACH TOOL ───────────────────────────────────────────────────
+// Serves OGM_Outreach.html at the root URL
+app.get('/', (req, res) => {
+  const filePath = path.join(__dirname, 'OGM_Outreach.html');
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).send('OGM_Outreach.html not found. Make sure it is in the root of the repo.');
+  }
+});
+
 // ── START ─────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => console.log(`OGM backend running on port ${PORT}`));
