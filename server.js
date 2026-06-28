@@ -139,6 +139,14 @@ function isValidSession(token) {
   if (Date.now() > s.expires) { sessions.delete(token); return false; }
   return true;
 }
+
+// Clean up expired sessions every hour to prevent memory buildup
+setInterval(() => {
+  const now = Date.now();
+  for (const [token, s] of sessions.entries()) {
+    if (now > s.expires) sessions.delete(token);
+  }
+}, 60 * 60 * 1000);
 function parseCookies(req) {
   const list = {};
   const rc = req.headers.cookie;
@@ -157,8 +165,19 @@ function requireAuth(req, res, next) {
 }
 
 // ── Middleware ─────────────────────────────────────────────────────────────────
-app.use(cors());
-app.use(express.json());
+// Security headers
+app.use((req, res, next) => {
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
+// Lock CORS to same-origin only (the app is served from this same server)
+const ALLOWED_ORIGIN = process.env.RAILWAY_PUBLIC_DOMAIN
+  ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+  : true;
+app.use(cors({ origin: ALLOWED_ORIGIN, credentials: true }));
+app.use(express.json({ limit: '1mb' }));
 app.use(requireAuth);
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -186,13 +205,45 @@ app.get('/login', (req, res) => {
 </body></html>`);
 });
 
+// Track failed login attempts per-IP to slow brute force
+const loginAttempts = new Map();
+function checkLoginAttempts(ip) {
+  const now = Date.now();
+  const record = loginAttempts.get(ip) || { count: 0, lockUntil: 0 };
+  if (now < record.lockUntil) return false; // locked out
+  return true;
+}
+function recordFailedLogin(ip) {
+  const now = Date.now();
+  const record = loginAttempts.get(ip) || { count: 0, lockUntil: 0 };
+  record.count++;
+  // After 5 failed attempts, lock for 15 minutes
+  if (record.count >= 5) { record.lockUntil = now + 15 * 60 * 1000; record.count = 0; }
+  loginAttempts.set(ip, record);
+}
+function clearLoginAttempts(ip) { loginAttempts.delete(ip); }
+
+// Timing-safe string comparison to prevent timing attacks
+function safeEqual(a, b) {
+  const bufA = Buffer.from(String(a));
+  const bufB = Buffer.from(String(b));
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
+
 app.post('/api/login', (req, res) => {
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+  if (!checkLoginAttempts(ip)) {
+    return res.status(429).json({ ok: false, error: 'Too many attempts. Try again in 15 minutes.' });
+  }
   const { username, password } = req.body || {};
-  if (username === AUTH_USER && password === AUTH_PASS) {
+  if (safeEqual(username, AUTH_USER) && safeEqual(password, AUTH_PASS)) {
+    clearLoginAttempts(ip);
     const token = createSession();
-    res.setHeader('Set-Cookie', `ogm_session=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${1 * 24 * 60 * 60}`);
+    res.setHeader('Set-Cookie', `ogm_session=${token}; Path=/; HttpOnly; SameSite=Strict; Secure; Max-Age=${1 * 24 * 60 * 60}`);
     return res.json({ ok: true });
   }
+  recordFailedLogin(ip);
   res.status(401).json({ ok: false, error: 'Invalid credentials' });
 });
 
@@ -633,8 +684,20 @@ app.post('/api/morning-brief', async (req, res) => {
 });
 
 // ── ANTHROPIC PROXY (for Jarvis) ─────────────────────────────────────────────
+// Simple in-memory rate limit: max 30 calls per minute
+const jarvisRateLimit = { count: 0, resetAt: Date.now() + 60000 };
 app.post('/api/jarvis/chat', async (req, res) => {
   try {
+    // Rate limit check
+    if (Date.now() > jarvisRateLimit.resetAt) {
+      jarvisRateLimit.count = 0;
+      jarvisRateLimit.resetAt = Date.now() + 60000;
+    }
+    if (jarvisRateLimit.count >= 30) {
+      return res.status(429).json({ error: 'Rate limit reached — please wait a moment.' });
+    }
+    jarvisRateLimit.count++;
+
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) return res.status(400).json({ error: 'ANTHROPIC_API_KEY not set in Railway environment variables.' });
     const r = await fetch('https://api.anthropic.com/v1/messages', {
@@ -669,10 +732,6 @@ app.get('/', (req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' });
     res.end(html);
   } catch(e) { res.status(500).send('Error: ' + e.message); }
-});
-
-app.get('/debug-files', (req, res) => {
-  res.json({ files: fs.readdirSync(__dirname), cwd: __dirname });
 });
 
 // ── START ─────────────────────────────────────────────────────────────────────
