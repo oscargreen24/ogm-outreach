@@ -673,7 +673,14 @@ function toast(msg,dur=3000){const t=document.getElementById('toast');t.textCont
 function updateNavBadge(){const b=document.getElementById('nav-badge');if(leads.length>0){b.textContent=leads.length;b.style.display='inline-block';}else b.style.display='none';}
 
 // SETTINGS
-function loadSettings(){document.getElementById('s-name').value=cfg.name||'';document.getElementById('s-email').value=cfg.email||'';document.getElementById('s-instagram').value=cfg.instagram||'';document.getElementById('s-signature').value=cfg.signature||'';document.getElementById('s-hunter').value=cfg.hunterKey||'';renderReels();}
+function loadSettings(){
+  const sn=document.getElementById('s-name');if(sn)sn.value=cfg.name||'';
+  const se=document.getElementById('s-email');if(se)se.value=cfg.email||'';
+  const si=document.getElementById('s-instagram');if(si)si.value=cfg.instagram||'';
+  const ss=document.getElementById('s-signature');if(ss)ss.value=cfg.signature||'';
+  const sh=document.getElementById('s-hunter');if(sh)sh.value=cfg.hunterKey||'';
+  renderReels();
+}
 function saveSettings(){cfg.name=document.getElementById('s-name').value.trim();cfg.email=document.getElementById('s-email').value.trim();cfg.instagram=document.getElementById('s-instagram').value.trim();cfg.signature=document.getElementById('s-signature').value;saveCfg();const s=document.getElementById('settings-saved');s.style.display='inline';setTimeout(()=>s.style.display='none',2000);}
 
 // REELS
