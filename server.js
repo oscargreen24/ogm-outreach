@@ -85,7 +85,40 @@ async function setupSchema() {
       preview TEXT DEFAULT ''
     )
   `);
+  await query(`
+    CREATE TABLE IF NOT EXISTS jarvis_memory (
+      id SERIAL PRIMARY KEY,
+      role TEXT NOT NULL,
+      content TEXT NOT NULL,
+      "createdAt" TEXT NOT NULL
+    )
+  `);
   console.log('[db] Schema ready.');
+}
+
+// ── JARVIS MEMORY ─────────────────────────────────────────────────────────────
+async function addJarvisEndpoints(app) {
+  app.get('/api/jarvis/memory', async (req, res) => {
+    try {
+      const r = await query(`SELECT role, content FROM jarvis_memory ORDER BY id DESC LIMIT 40`);
+      res.json({ messages: r.rows.reverse() });
+    } catch(e) { res.status(500).json({ error: e.message }); }
+  });
+  app.post('/api/jarvis/memory', async (req, res) => {
+    try {
+      const { role, content } = req.body;
+      await query(`INSERT INTO jarvis_memory (role, content, "createdAt") VALUES ($1,$2,$3)`,
+        [role, content, new Date().toISOString()]);
+      await query(`DELETE FROM jarvis_memory WHERE id NOT IN (SELECT id FROM jarvis_memory ORDER BY id DESC LIMIT 40)`);
+      res.json({ ok: true });
+    } catch(e) { res.status(500).json({ error: e.message }); }
+  });
+  app.delete('/api/jarvis/memory', async (req, res) => {
+    try {
+      await query('DELETE FROM jarvis_memory');
+      res.json({ ok: true });
+    } catch(e) { res.status(500).json({ error: e.message }); }
+  });
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
@@ -479,6 +512,7 @@ app.get('/debug-files', (req, res) => {
 
 // ── START ─────────────────────────────────────────────────────────────────────
 setupSchema().then(() => {
+  addJarvisEndpoints(app);
   app.listen(PORT, () => console.log(`OGM backend running on port ${PORT}`));
 }).catch(e => {
   console.error('Failed to set up schema:', e.message);
