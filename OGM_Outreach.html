@@ -66,7 +66,11 @@
         Settings
       </div>
       <div style="margin:8px 10px 4px;font-size:10px;letter-spacing:2px;color:#3f3f46;text-transform:uppercase;">Business</div>
-      <div class="nav-link" id="nav-revenue" onclick="showPage('revenue')">
+      <div class="nav-link" id="nav-bookings" onclick="showPage('bookings')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"/><line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="10" x2="21" y2="10" stroke-width="2" stroke-linecap="round"/></svg>
+        Bookings
+      </div>
+      <div class="nav-link" id="nav-revenue" onclick="showPage('revenue')">>
         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23" stroke-width="2" stroke-linecap="round"/><path stroke-width="2" stroke-linecap="round" d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
         Revenue
       </div>
@@ -236,6 +240,27 @@
             <button onclick="addReel()" style="background:#fff;color:#000;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">+ Add reel</button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- BOOKINGS -->
+    <div id="page-bookings" class="page" style="padding:40px;">
+      <div style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;">
+        <div><h1 style="font-size:24px;font-weight:700;">Bookings</h1><p style="color:#71717a;font-size:14px;margin-top:4px;">Shoot days booked via your Google Calendar appointment page.</p></div>
+        <button onclick="syncBookings().then(()=>toast('Synced.'))" style="background:none;border:1px solid #333;color:#71717a;font-size:13px;padding:8px 16px;border-radius:8px;cursor:pointer;">↻ Sync</button>
+      </div>
+      <div style="background:#111;border:1px solid #1a6b3c;border-radius:14px;padding:20px;margin-bottom:24px;">
+        <div style="font-size:14px;font-weight:600;margin-bottom:8px;color:#4ade80;">Setup checklist</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#4ade80;font-size:16px;">✓</span><div><div style="font-size:13px;font-weight:500;">Step 1 — Google Calendar appointment page</div><div style="font-size:12px;color:#71717a;margin-top:2px;">calendar.google.com → + Create → Appointment schedule. Add custom questions: Company, Shoot type, Budget. Copy the booking URL for your Instagram bio.</div></div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#71717a;font-size:16px;">○</span><div><div style="font-size:13px;font-weight:500;">Step 2 — Set Railway environment variables</div><div style="font-size:12px;color:#71717a;margin-top:2px;">In Railway → Variables, add: <code style="background:#1c1c1e;padding:1px 5px;border-radius:4px;">GOOGLE_WEBHOOK_TOKEN</code> (any random string), <code style="background:#1c1c1e;padding:1px 5px;border-radius:4px;">GOOGLE_CALENDAR_ID</code> (your Gmail address), <code style="background:#1c1c1e;padding:1px 5px;border-radius:4px;">RAILWAY_PUBLIC_DOMAIN</code> (ogm-outreach-production.up.railway.app)</div></div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#71717a;font-size:16px;">○</span><div><div style="font-size:13px;font-weight:500;">Step 3 — Upload service account key</div><div style="font-size:12px;color:#71717a;margin-top:2px;">Go to console.cloud.google.com → APIs & Services → Enable Calendar API → Credentials → Create Service Account → download the JSON key → upload it to your Railway project as <code style="background:#1c1c1e;padding:1px 5px;border-radius:4px;">/app/google-service-account.json</code> using Railway's file mount feature.</div></div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#71717a;font-size:16px;">○</span><div><div style="font-size:13px;font-weight:500;">Step 4 — Register the webhook (once)</div><div style="font-size:12px;color:#71717a;margin-top:2px;">After deploying, open your browser and go to: <code style="background:#1c1c1e;padding:1px 5px;border-radius:4px;">https://ogm-outreach-production.up.railway.app/api/calendar/register</code> (POST request — use a tool like Postman or the button below).</div><button onclick="registerWebhook()" style="margin-top:8px;background:none;border:1px solid #333;color:#a1a1aa;font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;" id="register-btn">Register webhook now</button><div id="register-result" style="font-size:12px;color:#71717a;margin-top:6px;"></div></div></div>
+        </div>
+      </div>
+      <div style="background:#111;border:1px solid #222;border-radius:14px;overflow:hidden;">
+        <div style="padding:16px 20px;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between;"><span style="font-weight:600;font-size:15px;">Upcoming bookings</span><span style="font-size:12px;color:#52525b;">Auto-syncs when clients book via your Google Calendar link</span></div>
+        <div id="bookings-list" style="padding:20px;"></div>
       </div>
     </div>
 
@@ -498,6 +523,7 @@ function showPage(name){
   if(name==='leads')     renderLeads();
   if(name==='portfolio') renderPortfolio();
   if(name==='settings')  loadSettings();
+  if(name==='bookings')  { renderBookings(); syncBookings(); }
   if(name==='revenue')   renderRevenue();
   if(name==='competitors') renderCompetitors();
   if(name==='proposals') renderProposals();
@@ -1350,6 +1376,68 @@ function revenueStats(){
   if(topEl&&scored.length){const t=scored[0];topEl.innerHTML='<span style="cursor:pointer;text-decoration:underline;" onclick="openDetail(\''+t.l.id+'\')">'+esc(t.l.firstName+' '+t.l.lastName)+'</span><br><span style="font-size:12px;color:#818cf8;">Score: '+t.score+' · '+esc(t.l.company)+'</span>';}
 }
 
+async function registerWebhook(){
+  const btn=document.getElementById('register-btn');
+  const res=document.getElementById('register-result');
+  if(btn){btn.textContent='Registering...';btn.disabled=true;}
+  try{
+    const r=await fetch(API+'/api/calendar/register',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+    const d=await r.json();
+    if(d.ok){
+      res.style.color='#4ade80';
+      res.textContent='✓ Webhook registered! Expires '+new Date(d.expiry).toLocaleDateString('en-AU')+'. Re-register before that date.';
+    } else {
+      res.style.color='#f87171';
+      res.textContent='Error: '+(d.error||JSON.stringify(d));
+    }
+  }catch(e){
+    res.style.color='#f87171';
+    res.textContent='Could not reach server: '+e.message;
+  }
+  if(btn){btn.textContent='Register webhook now';btn.disabled=false;}
+}
+
+// BOOKINGS
+let bookings = JSON.parse(localStorage.getItem('ogm_bookings') || '[]');
+const saveBookings = () => localStorage.setItem('ogm_bookings', JSON.stringify(bookings));
+async function syncBookings() {
+  try {
+    const r = await fetch(API + '/api/bookings');
+    const d = await r.json();
+    if (d.bookings) { bookings = d.bookings; saveBookings(); renderBookings(); }
+  } catch(e) {}
+}
+function renderBookings() {
+  const el = document.getElementById('bookings-list');
+  if (!el) return;
+  if (!bookings.length) { el.innerHTML = '<p style="color:#52525b;font-size:13px;">No bookings yet. Set up Google Calendar appointment scheduling and bookings will appear here automatically.</p>'; return; }
+  const sorted = [...bookings].sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+  el.innerHTML = sorted.map(b => {
+    const dt = b.startTime ? new Date(b.startTime) : null;
+    const dateStr = dt ? dt.toLocaleDateString('en-AU', {weekday:'short',day:'numeric',month:'short'}) : 'TBC';
+    const timeStr = dt ? dt.toLocaleTimeString('en-AU', {hour:'2-digit',minute:'2-digit'}) : '';
+    const statusColor = b.status==='confirmed' ? '#4ade80' : b.status==='cancelled' ? '#f87171' : '#fbbf24';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #1c1c1e;">' +
+      '<div style="display:flex;align-items:center;gap:12px;">' +
+        '<div style="background:#1c1c1e;border-radius:8px;padding:6px 10px;text-align:center;min-width:52px;">' +
+          '<div style="font-size:11px;color:#71717a;">' + dateStr.split(' ')[0] + '</div>' +
+          '<div style="font-size:16px;font-weight:600;">' + (dt ? dt.getDate() : '') + '</div>' +
+          '<div style="font-size:10px;color:#71717a;">' + timeStr + '</div>' +
+        '</div>' +
+        '<div>' +
+          '<div style="font-size:13px;font-weight:500;">' + esc(b.firstName + ' ' + b.lastName) + '</div>' +
+          '<div style="font-size:12px;color:#71717a;">' + esc(b.company || '') + (b.shootType ? ' · ' + esc(b.shootType) : '') + '</div>' +
+          (b.email ? '<div style="font-size:11px;color:#52525b;">' + esc(b.email) + '</div>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<span style="font-size:11px;background:#1a1a1a;border:1px solid #2a2a2a;color:' + statusColor + ';padding:2px 8px;border-radius:999px;">' + b.status + '</span>' +
+        (b.leadId ? '<button onclick="openDetail(\'' + b.leadId + '\')" style="font-size:11px;background:none;border:1px solid #333;color:#71717a;padding:3px 8px;border-radius:6px;cursor:pointer;">View lead</button>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
 // MANUAL LEAD GENERATION TRIGGER
 async function runGenerateNow(){
   const btn=document.getElementById('gen-btn');
@@ -1372,6 +1460,7 @@ loadSettings();updateNavBadge();renderDashboard();renderLeads();
 (async()=>{
   await syncConfig();
   await syncLeads();
+  await syncBookings();
   loadSettings();
   renderReelStats();
   toast('Synced with server.');
