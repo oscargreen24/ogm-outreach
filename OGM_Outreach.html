@@ -490,7 +490,10 @@
       <span style="font-size:14px;font-weight:600;color:#fff;letter-spacing:1px;">JARVIS</span>
       <span style="font-size:10px;color:#3f3f46;">OGM Assistant</span>
     </div>
-    <button onclick="toggleJarvis()" style="background:none;border:none;color:#52525b;cursor:pointer;font-size:18px;line-height:1;">×</button>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button onclick="clearJarvisMemory()" title="Clear memory" style="background:none;border:none;color:#3f3f46;cursor:pointer;font-size:11px;padding:2px 6px;border-radius:4px;">Clear</button>
+      <button onclick="toggleJarvis()" style="background:none;border:none;color:#52525b;cursor:pointer;font-size:18px;line-height:1;">×</button>
+    </div>
   </div>
   <!-- Messages -->
   <div id="jarvis-messages" style="height:340px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;">
@@ -1818,6 +1821,56 @@ async function runGenerateNow(){
 // ── JARVIS AI ASSISTANT ───────────────────────────────────────────────────────
 let jarvisOpen = false;
 let jarvisHistory = [];
+let jarvisMemoryLoaded = false;
+
+async function loadJarvisMemory() {
+  if (jarvisMemoryLoaded) return;
+  try {
+    const r = await fetch(API + '/api/jarvis/memory');
+    const d = await r.json();
+    if (d.messages && d.messages.length) {
+      jarvisHistory = d.messages;
+      // Render past messages
+      const msgs = document.getElementById('jarvis-messages');
+      // Clear default greeting if we have history
+      msgs.innerHTML = '';
+      jarvisHistory.forEach(m => addJarvisMessage(m.role, m.content, true));
+      // Add a separator
+      const sep = document.createElement('div');
+      sep.style.cssText = 'text-align:center;font-size:10px;color:#3f3f46;padding:4px 0;';
+      sep.textContent = '— previous conversation —';
+      msgs.insertBefore(sep, msgs.firstChild);
+      msgs.scrollTop = msgs.scrollHeight;
+      // Hide quick actions since we have history
+      const quick = document.getElementById('jarvis-quick');
+      if (quick) quick.style.display = 'none';
+    }
+    jarvisMemoryLoaded = true;
+  } catch(e) {}
+}
+
+async function saveJarvisMessage(role, content) {
+  try {
+    await fetch(API + '/api/jarvis/memory', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role, content })
+    });
+  } catch(e) {}
+}
+
+async function clearJarvisMemory() {
+  try {
+    await fetch(API + '/api/jarvis/memory', { method: 'DELETE' });
+    jarvisHistory = [];
+    jarvisMemoryLoaded = false;
+    const msgs = document.getElementById('jarvis-messages');
+    msgs.innerHTML = '<div style="background:#1a1a1a;border-radius:10px 10px 10px 2px;padding:12px 14px;font-size:13px;color:#e5e5e5;max-width:90%;line-height:1.5;">Memory cleared. Good day, Oscar. How can I help?</div>';
+    const quick = document.getElementById('jarvis-quick');
+    if (quick) quick.style.display = 'flex';
+    toast('Jarvis memory cleared.');
+  } catch(e) {}
+}
 
 function toggleJarvis() {
   jarvisOpen = !jarvisOpen;
@@ -1827,7 +1880,10 @@ function toggleJarvis() {
   btn.innerHTML = jarvisOpen
     ? '<svg width="20" height="20" fill="none" stroke="#000" viewBox="0 0 24 24"><path stroke-width="2.5" stroke-linecap="round" d="M18 6L6 18M6 6l12 12"/></svg>'
     : '<svg width="22" height="22" fill="none" stroke="#000" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" d="M12 2a10 10 0 1 1 0 20A10 10 0 0 1 12 2z"/><path stroke-width="2" stroke-linecap="round" d="M8 12h8M12 8v8"/></svg>';
-  if (jarvisOpen) document.getElementById('jarvis-input').focus();
+  if (jarvisOpen) {
+    loadJarvisMemory();
+    setTimeout(() => document.getElementById('jarvis-input').focus(), 100);
+  }
 }
 
 function jarvisQuick(text) {
@@ -1845,22 +1901,14 @@ function buildJarvisContext() {
   const contacted = leads.filter(l => l.contactedDate).length;
   const mrr = won.reduce((s,l) => s + (l.monthlyValue||0), 0);
   const pipeline = meetings.reduce((s,l) => s + (l.monthlyValue||0), 0);
-
-  // Due today
-  const due = leads.filter(l => {
-    const na = nextAction(l);
-    return na.date && isOverdue(na.date);
-  }).map(l => `${l.firstName} ${l.lastName} at ${l.company} (${STATUS_LABEL[l.status]||l.status})`);
-
-  // Top scored leads
+  const due = leads.filter(l => { const na = nextAction(l); return na.date && isOverdue(na.date); })
+    .map(l => `${l.firstName} ${l.lastName} at ${l.company} (${STATUS_LABEL[l.status]||l.status})`);
   const topLeads = leads
     .filter(l => !['won','not_interested'].includes(l.status))
     .map(l => ({ ...l, score: scoreLead(l) }))
     .sort((a,b) => b.score - a.score)
     .slice(0, 5)
-    .map(l => `- ${l.firstName} ${l.lastName} | ${l.company} | ${IND_LABELS[l.industry]||l.industry} | Status: ${STATUS_LABEL[l.status]||l.status} | Score: ${l.score} | Contact: ${l.hunterEmail||l.contact||'none'}`);
-
-  // Recent activity
+    .map(l => `- ${l.firstName} ${l.lastName} | ${l.company} | ${IND_LABELS[l.industry]||l.industry} | Status: ${STATUS_LABEL[l.status]||l.status} | Score: ${l.score}`);
   const recent = leads
     .filter(l => l.updatedAt)
     .sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt))
@@ -1869,45 +1917,32 @@ function buildJarvisContext() {
 
   return `You are Jarvis, the AI assistant for Oscar Green, founder of Oscar Green Media — a Sydney-based videography business specialising in short-form social media content for corporate/finance, real estate, construction and automotive clients.
 
-Current date: ${now.toLocaleDateString('en-AU', {weekday:'long', day:'numeric', month:'long', year:'numeric'})}
+Current date: ${now.toLocaleDateString('en-AU', {weekday:'long',day:'numeric',month:'long',year:'numeric'})}
 
 PIPELINE SUMMARY:
-- Total leads: ${total}
-- Active leads: ${active}
-- Contacted: ${contacted}
-- Replied: ${replied}
-- In meetings: ${meetings.length}
-- Won: ${won.length}
+- Total leads: ${total} | Active: ${active} | Contacted: ${contacted} | Replied: ${replied} | Meetings: ${meetings.length} | Won: ${won.length}
 - Reply rate: ${contacted > 0 ? Math.round(replied/contacted*100) : 0}%
 
 REVENUE:
-- Contracted MRR: $${mrr.toLocaleString('en-AU')}
-- Pipeline value (meetings): $${pipeline.toLocaleString('en-AU')}
-- Annual run rate: $${(mrr*12).toLocaleString('en-AU')}
+- MRR: $${mrr.toLocaleString('en-AU')} | Pipeline: $${pipeline.toLocaleString('en-AU')} | ARR: $${(mrr*12).toLocaleString('en-AU')}
 
-DUE FOR FOLLOW-UP TODAY (${due.length}):
-${due.length ? due.join('\n') : 'Nothing due today.'}
+DUE TODAY: ${due.length ? due.join(', ') : 'Nothing due.'}
 
-TOP 5 LEADS BY SCORE:
+TOP LEADS:
 ${topLeads.join('\n') || 'No leads yet.'}
 
 RECENT ACTIVITY:
-${recent.join('\n') || 'No recent activity.'}
+${recent.join('\n') || 'None.'}
 
-RETAINER TIERS:
-- Tier 1 Essential: $4,000/mo — 1 shoot day + 1 ad hoc + 8-10 reels
-- Tier 2 Professional: $4,500/mo — 1 shoot day + 2-3 reactive days + 8-10 reels
-- Tier 3 Premium: $6,000/mo — 1 shoot day + unlimited reactive + 8-15 reels
+RETAINER TIERS: Tier 1 $4,000/mo, Tier 2 $4,500/mo, Tier 3 $6,000/mo.
 
-Be concise, direct and professional. You can draft emails, suggest follow-up strategies, analyse the pipeline, calculate revenue projections, and give Oscar actionable advice. Address Oscar by name occasionally. Keep responses focused and practical.`;
+Be concise, direct and genuinely useful. You have persistent memory — reference past conversations when relevant. Address Oscar by name occasionally.`;
 }
 
-function addJarvisMessage(role, text) {
+function addJarvisMessage(role, text, silent = false) {
   const msgs = document.getElementById('jarvis-messages');
   const quick = document.getElementById('jarvis-quick');
-  // Hide quick actions after first use
-  if (role === 'user' && quick) quick.style.display = 'none';
-
+  if (!silent && role === 'user' && quick) quick.style.display = 'none';
   const div = document.createElement('div');
   div.style.cssText = role === 'user'
     ? 'background:#222;border-radius:10px 10px 2px 10px;padding:10px 14px;font-size:13px;color:#e5e5e5;max-width:90%;align-self:flex-end;margin-left:auto;line-height:1.5;white-space:pre-wrap;'
@@ -1923,45 +1958,41 @@ async function sendJarvis() {
   const text = input.value.trim();
   if (!text) return;
   input.value = '';
-
   addJarvisMessage('user', text);
   jarvisHistory.push({ role: 'user', content: text });
-
-  // Typing indicator
+  saveJarvisMessage('user', text);
   const typing = addJarvisMessage('jarvis', '...');
   typing.style.color = '#52525b';
-
   try {
     const context = buildJarvisContext();
-    const messages = [
-      { role: 'user', content: context + '\n\n---\n\nUser message: ' + jarvisHistory[0].content }
-    ];
-    // Add subsequent history
-    for (let i = 1; i < jarvisHistory.length; i++) {
-      messages.push(jarvisHistory[i]);
+    const messages = jarvisHistory.map((m, i) => {
+      if (i === 0) return { role: 'user', content: context + '\n\n---\n\n' + m.content };
+      return { role: m.role === 'jarvis' ? 'assistant' : m.role, content: m.content };
+    });
+    // Ensure valid alternating roles
+    const validMessages = [];
+    for (const m of messages) {
+      if (validMessages.length === 0 && m.role !== 'user') continue;
+      if (validMessages.length > 0 && validMessages[validMessages.length-1].role === m.role) continue;
+      validMessages.push(m);
     }
-
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 1000,
-        system: 'You are Jarvis, a sharp and efficient AI assistant for a videography business. Be concise, direct and genuinely useful. No fluff.',
-        messages
+        system: 'You are Jarvis, a sharp and efficient AI assistant for a Sydney videography business. Be concise, direct and genuinely useful. Reference past conversation context when relevant.',
+        messages: validMessages
       })
     });
-
     const d = await r.json();
     const reply = d.content && d.content[0] ? d.content[0].text : 'Sorry, I could not process that.';
-
     typing.textContent = reply;
     typing.style.color = '#e5e5e5';
     jarvisHistory.push({ role: 'assistant', content: reply });
-
-    // Keep history manageable
-    if (jarvisHistory.length > 20) jarvisHistory = jarvisHistory.slice(-20);
-
+    saveJarvisMessage('assistant', reply);
+    if (jarvisHistory.length > 40) jarvisHistory = jarvisHistory.slice(-40);
   } catch(e) {
     typing.textContent = 'Something went wrong. Check your connection.';
     typing.style.color = '#f87171';
