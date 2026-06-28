@@ -185,6 +185,7 @@
     <div class="topbar-right">
       <span class="topbar-date" id="topbar-date"></span>
       <div class="topbar-avatar">OG</div>
+      <button onclick="logout()" style="background:none;border:1px solid #1a1a1a;color:#3f3f46;font-size:11px;padding:5px 10px;border-radius:6px;cursor:pointer;">Sign out</button>
     </div>
   </div>
 
@@ -497,9 +498,15 @@ const saveCfg = async () => {
 async function syncLeads() {
   try {
     const r = await fetch(API+'/api/leads');
+    if(r.status===401){ window.location.href='/login'; return; }
     const d = await r.json();
     if(d.leads){ leads = d.leads; save(); renderLeads(); renderDashboard(); updateNavBadge(); }
   } catch(e) { toast('Offline — showing cached data.'); }
+}
+
+async function logout() {
+  try { await fetch(API+'/api/logout', {method:'POST'}); } catch(e) {}
+  window.location.href = '/login';
 }
 
 // Pull config from server (reels, portfolios, settings)
