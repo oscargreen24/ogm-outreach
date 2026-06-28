@@ -1,56 +1,1732 @@
-OGM
-OSCAR GREEN MEDIA
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OGM — Oscar Green Media</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #e5e5e5; height: 100vh; overflow: hidden; display: flex; }
 
-Overview
-OUTREACH
+  
+  #sidebar { width: 216px; flex-shrink: 0; background: #050505; border-right: 1px solid #1a1a1a; display: flex; flex-direction: column; height: 100vh; }
+  .sb-logo { padding: 22px 18px 18px; border-bottom: 1px solid #1a1a1a; }
+  .sb-logo-text { font-size: 22px; font-weight: 700; letter-spacing: 6px; color: #fff; }
+  .sb-logo-sub { font-size: 9px; letter-spacing: 3px; color: #3f3f46; margin-top: 3px; text-transform: uppercase; }
+  .sb-nav { flex: 1; padding: 10px 8px; overflow-y: auto; display: flex; flex-direction: column; gap: 1px; }
+  .sb-section-label { font-size: 9px; letter-spacing: 2px; color: #3f3f46; text-transform: uppercase; padding: 12px 10px 4px; font-weight: 600; }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-radius: 7px; cursor: pointer; font-size: 13px; color: #71717a; transition: all 0.12s; user-select: none; }
+  .nav-item:hover { background: #111; color: #d4d4d8; }
+  .nav-item.active { background: #1a1a1a; color: #fff; }
+  .nav-item svg { flex-shrink: 0; opacity: 0.7; }
+  .nav-item.active svg { opacity: 1; }
+  .nav-sub { margin-left: 10px; border-left: 1px solid #1a1a1a; padding-left: 8px; margin-top: 1px; margin-bottom: 2px; display: flex; flex-direction: column; gap: 1px; }
+  .nav-sub-item { font-size: 12px; color: #52525b; padding: 5px 10px; border-radius: 6px; cursor: pointer; transition: all 0.12s; }
+  .nav-sub-item:hover { color: #a1a1aa; background: #0f0f0f; }
+  .nav-sub-item.active { color: #fff; background: #161616; }
+  .sb-footer { padding: 14px 18px; border-top: 1px solid #1a1a1a; }
+  .sb-footer-label { font-size: 11px; color: #3f3f46; }
+  .sb-footer-val { font-size: 13px; font-weight: 600; color: #71717a; margin-top: 2px; }
 
-Leads
-Pipeline
-Find leads
-A/B results
+  
+  #main { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; min-width: 0; }
+  #topbar { height: 50px; background: #050505; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0; }
+  .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #52525b; }
+  .breadcrumb .bc-sep { font-size: 11px; }
+  .breadcrumb .bc-current { color: #e5e5e5; font-weight: 500; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .topbar-date { font-size: 12px; color: #3f3f46; }
+  .topbar-avatar { width: 30px; height: 30px; border-radius: 50%; background: #fff; color: #000; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+  #content-area { flex: 1; overflow-y: auto; }
 
-Competitors
-BUSINESS
+  
+  .page { display: none; padding: 32px 36px; }
+  .page.active { display: block; }
+  .page-header { margin-bottom: 28px; }
+  .page-title { font-size: 22px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+  .page-sub { font-size: 13px; color: #52525b; margin-top: 4px; }
 
-Bookings
+  
+  .card { background: #0f0f0f; border: 1px solid #1a1a1a; border-radius: 12px; overflow: hidden; }
+  .card-head { padding: 14px 18px; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; justify-content: space-between; }
+  .card-head-title { font-size: 13px; font-weight: 600; color: #e5e5e5; }
+  .card-body { padding: 16px 18px; }
 
-Proposals
+  
+  .stat-card { background: #0f0f0f; border: 1px solid #1a1a1a; border-radius: 12px; padding: 18px; }
+  .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: #52525b; font-weight: 500; }
+  .stat-val { font-size: 30px; font-weight: 700; color: #fff; margin-top: 6px; line-height: 1; }
+  .stat-sub { font-size: 11px; color: #3f3f46; margin-top: 5px; }
 
-Revenue
-CONTENT
+  
+  .badge { display: inline-flex; align-items: center; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 99px; }
+  .badge-green { background: #052e16; color: #4ade80; }
+  .badge-amber { background: #451a03; color: #fbbf24; }
+  .badge-blue { background: #1e3a5f; color: #60a5fa; }
+  .badge-grey { background: #1a1a1a; color: #71717a; }
+  .badge-purple { background: #2e1065; color: #a78bfa; }
+  .badge-white { background: #fff; color: #000; }
 
-Portfolio
+  
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
+  .modal-bg.open { display: flex; }
+  .co-group { border: 1px solid #1a1a1a; border-radius: 10px; overflow: hidden; margin-bottom: 8px; }
+  .co-header { display: flex; align-items: center; justify-content: space-between; padding: 11px 16px; background: #0d0d0d; cursor: pointer; user-select: none; }
+  .co-header:hover { background: #111; }
+  .co-rows { display: none; }
+  .co-rows.open { display: block; }
+  .lead-row { display: flex; align-items: center; padding: 10px 16px; border-top: 1px solid #141414; cursor: pointer; }
+  .lead-row:hover { background: rgba(255,255,255,0.02); }
 
-Reel ideas
+  
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #333; }
 
-Settings
-This week
-0 sent
+  
+  select option { background: #111; }
+  textarea, input, select { outline: none; }
+  textarea:focus, input:focus, select:focus { border-color: #3f3f46 !important; }
 
-Dashboard
+  
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spin { animation: spin 0.9s linear infinite; display: inline-block; }
 
-OG
-Dashboard
-Good morning, Oscar.
-TOTAL LEADS
-0
-ACTIVE
-0
-MEETINGS
-0
-REPLY RATE
-0%
-MONTHLY MRR
-$0
-0 active retainers
-PIPELINE VALUE
-$0
-0 in meetings
-TOP LEAD TODAY
-No scored leads yet
-Due Today
-0
-Nothing due today.
-Pipeline by industry
-Reel performance
+  
+  .idea-card { background: #0f0f0f; border: 1px solid #1a1a1a; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .idea-card:hover { border-color: #2a2a2a; }
+</style>
+</head>
+<body>
 
+<div id="toast" style="display:none;position:fixed;top:1rem;right:1rem;z-index:100;background:#fff;color:#000;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;max-width:320px;"></div>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-text">OGM</div>
+    <div class="sb-logo-sub">Oscar Green Media</div>
+  </div>
+  <div class="sb-nav">
+
+    <!-- Overview -->
+    <div class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard','Overview','Dashboard')">
+      <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke-width="2"/></svg>
+      Overview
+    </div>
+
+    <!-- Outreach group -->
+    <div class="sb-section-label">Outreach</div>
+    <div class="nav-item" id="nav-leads" onclick="showPage('leads','Outreach','Pipeline')">
+      <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4" stroke-width="2"/><path stroke-width="2" stroke-linecap="round" d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      Leads
+      <span id="nav-badge" style="margin-left:auto;background:#1a1a1a;color:#52525b;font-size:10px;font-weight:600;padding:1px 6px;border-radius:999px;display:none;"></span>
+    </div>
+    <div class="nav-sub" id="subnav-leads">
+      <div class="nav-sub-item active" id="nav-leads-sub" onclick="showPage('leads','Outreach','Pipeline')">Pipeline</div>
+      <div class="nav-sub-item" id="nav-finder-sub" onclick="showPage('finder','Outreach','Find leads')">Find leads</div>
+      <div class="nav-sub-item" id="nav-ab-sub" onclick="showPage('ab','Outreach','A/B results')">A/B results</div>
+    </div>
+    <div class="nav-item" id="nav-competitors" onclick="showPage('competitors','Outreach','Competitors')">
+      <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>
+      Competitors
+    </div>
+
+    <!-- Business group -->
+    <div class="sb-section-label">Business</div>
+    <div class="nav-item" id="nav-bookings" onclick="showPage('bookings','Business','Bookings')">
+      <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"/><line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="10" x2="21" y2="10" stroke-width="2" stroke-linecap="round"/></svg>
+      Bookings
+    </div>
+    <div class="nav-item" id="nav-proposals" onclick="showPage('proposals','Business','Proposals')">
+      <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline stroke-width="2" stroke-linecap="round" points="14 2 14 8 20 8"/></svg>
+      Proposals
+    </div>
+    <div class="nav-item" id="nav-revenue" onclick="showPage('revenue','Business','Revenue')">
+      <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23" stroke-width="2" stroke-linecap="round"/><path stroke-width="2" stroke-linecap="round" d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      Revenue
+    </div>
+
+    <!-- Content group -->
+    <div class="sb-section-label">Content</div>
+    <div class="nav-item" id="nav-portfolio" onclick="showPage('portfolio','Content','Portfolio')">
+      <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-width="2"/><circle cx="8.5" cy="8.5" r="1.5" stroke-width="2"/><path stroke-width="2" stroke-linecap="round" d="M21 15l-5-5L5 21"/></svg>
+      Portfolio
+    </div>
+    <div class="nav-item" id="nav-ideas" onclick="showPage('ideas','Content','Reel ideas')">
+      <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-width="2" stroke-linecap="round" d="M12 8v4l3 3"/></svg>
+      Reel ideas
+    </div>
+
+  </div>
+  <div style="padding:8px 8px 10px;border-top:1px solid #1a1a1a;">
+    <div class="nav-item" id="nav-settings" onclick="showPage('settings','','Settings')">
+      <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke-width="2"/><path stroke-width="2" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Settings
+    </div>
+  </div>
+  <div class="sb-footer">
+    <div class="sb-footer-label">This week</div>
+    <div class="sb-footer-val" id="sidebar-weekly">0 sent</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- TOP BAR -->
+  <div id="topbar">
+    <div class="breadcrumb">
+      <span id="bc-section"></span>
+      <span class="bc-sep" id="bc-sep" style="display:none;">›</span>
+      <span class="bc-current" id="bc-page">Dashboard</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-date" id="topbar-date"></span>
+      <div class="topbar-avatar">OG</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="content-area">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active" style="padding:40px;">
+      <div style="margin-bottom:32px;">
+        <h1 style="font-size:24px;font-weight:700;">Dashboard</h1>
+        <p style="color:#71717a;font-size:14px;margin-top:4px;" id="dash-greeting">Good morning, Oscar.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;">
+        <div style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;"><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;">Total Leads</div><div style="font-size:36px;font-weight:700;margin-top:6px;" id="stat-total">0</div></div>
+        <div style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;"><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;">Active</div><div style="font-size:36px;font-weight:700;margin-top:6px;" id="stat-active">0</div></div>
+        <div style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;"><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;">Meetings</div><div style="font-size:36px;font-weight:700;margin-top:6px;" id="stat-meetings">0</div></div>
+        <div style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;"><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;">Reply Rate</div><div style="font-size:36px;font-weight:700;margin-top:6px;" id="stat-reply">0%</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px;">
+        <div style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;border-left:3px solid #4ade80;"><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;">Monthly MRR</div><div style="font-size:28px;font-weight:700;margin-top:6px;color:#4ade80;" id="stat-mrr">$0</div><div style="font-size:11px;color:#52525b;margin-top:4px;" id="stat-mrr-sub">0 active retainers</div></div>
+        <div style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;border-left:3px solid #fbbf24;"><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;">Pipeline Value</div><div style="font-size:28px;font-weight:700;margin-top:6px;color:#fbbf24;" id="stat-pipeline-val">$0</div><div style="font-size:11px;color:#52525b;margin-top:4px;" id="stat-pipeline-sub">0 in meetings</div></div>
+        <div style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;border-left:3px solid #818cf8;"><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;">Top Lead Today</div><div style="font-size:14px;font-weight:600;margin-top:8px;" id="stat-top-lead">No scored leads yet</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div style="background:#111;border:1px solid #222;border-radius:14px;overflow:hidden;">
+          <div style="padding:16px 20px;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between;"><span style="font-weight:600;font-size:15px;">Due Today</span><span id="due-badge" style="background:#fff;color:#000;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;">0</span></div>
+          <div id="due-list" style="padding:12px;min-height:80px;max-height:320px;overflow-y:auto;"><p style="color:#52525b;font-size:13px;text-align:center;padding:24px 0;">Nothing due today.</p></div>
+        </div>
+        <div style="background:#111;border:1px solid #222;border-radius:14px;overflow:hidden;">
+          <div style="padding:16px 20px;border-bottom:1px solid #222;"><span style="font-weight:600;font-size:15px;">Pipeline by industry</span></div>
+          <div id="pipeline-view" style="padding:20px;display:flex;flex-direction:column;gap:16px;"></div>
+        </div>
+      </div>
+      <div style="background:#111;border:1px solid #222;border-radius:14px;overflow:hidden;margin-top:20px;">
+        <div style="padding:16px 20px;border-bottom:1px solid #222;"><span style="font-weight:600;font-size:15px;">Reel performance</span></div>
+        <div id="reel-view" style="padding:20px;"></div>
+      </div>
+    </div>
+
+    <!-- LEADS -->
+    <div id="page-leads" class="page" style="padding:40px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+        <div><h1 style="font-size:24px;font-weight:700;">Leads</h1><p style="color:#71717a;font-size:14px;margin-top:4px;">Grouped by company</p></div>
+        <button onclick="openAddModal()" style="background:#fff;color:#000;border:none;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">+ Add Lead</button>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+        <select id="f-industry" onchange="renderLeads()" style="background:#111;border:1px solid #333;color:#fff;font-size:13px;padding:8px 12px;border-radius:8px;"><option value="">All industries</option><option value="corporate">Corporate &amp; Finance</option><option value="realestate">Real Estate</option><option value="construction">Construction</option><option value="automotive">Automotive</option></select>
+        <select id="f-status" onchange="renderLeads()" style="background:#111;border:1px solid #333;color:#fff;font-size:13px;padding:8px 12px;border-radius:8px;"><option value="">All statuses</option><option value="new">New</option><option value="contacted">Contacted</option><option value="followup1_due">Follow-up 1 due</option><option value="followup1_sent">Follow-up 1 sent</option><option value="followup2_due">Follow-up 2 due</option><option value="followup2_sent">Follow-up 2 sent</option><option value="replied">Replied</option><option value="meeting">Meeting booked</option><option value="won">Won</option><option value="not_interested">Not interested</option></select>
+        <input id="f-search" oninput="renderLeads()" placeholder="Search..." style="background:#111;border:1px solid #333;color:#fff;font-size:13px;padding:8px 12px;border-radius:8px;flex:1;min-width:160px;" />
+        <button onclick="runGenerateNow()" id="gen-btn" style="background:#fff;color:#000;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">⚡ Run now</button>
+        <button onclick="expandAll(true)"  style="background:none;border:1px solid #333;color:#71717a;font-size:12px;padding:8px 12px;border-radius:8px;cursor:pointer;">Expand all</button>
+        <button onclick="expandAll(false)" style="background:none;border:1px solid #333;color:#71717a;font-size:12px;padding:8px 12px;border-radius:8px;cursor:pointer;">Collapse all</button>
+        <button onclick="exportCSV()" style="background:none;border:1px solid #333;color:#71717a;font-size:12px;padding:8px 12px;border-radius:8px;cursor:pointer;">&#8681; Export CSV</button>
+        <button onclick="document.getElementById('csv-input').click()" style="background:none;border:1px solid #333;color:#71717a;font-size:12px;padding:8px 12px;border-radius:8px;cursor:pointer;">&#8679; Import CSV</button>
+        <input type="file" id="csv-input" accept=".csv,text/csv" style="display:none;" onchange="importCSV(this)" />
+      </div>
+      <div id="leads-groups"></div>
+    </div>
+
+    <!-- PORTFOLIO -->
+    <div id="page-portfolio" class="page" style="padding:40px;">
+      <div style="margin-bottom:8px;"><h1 style="font-size:24px;font-weight:700;">Portfolio</h1></div>
+      <p style="color:#71717a;font-size:14px;margin-bottom:8px;">One portfolio per industry. The <strong style="color:#a1a1aa;">link</strong> you set for each industry is automatically added to outreach emails sent to that industry.</p>
+      <p style="color:#52525b;font-size:12px;margin-bottom:28px;">The link has to point to work that's already hosted online (a Vimeo showcase, a page on your site, a shared Drive folder, an Instagram highlight) so the recipient can open it. Dropping images below builds a visual reference inside this app for your own use; those images aren't what gets emailed.</p>
+      <div id="portfolio-grid" style="display:flex;flex-direction:column;gap:16px;"></div>
+    </div>
+
+    <!-- FIND LEADS -->
+    <div id="page-finder" class="page" style="padding:40px;">
+      <div style="margin-bottom:8px;"><h1 style="font-size:24px;font-weight:700;">Find Leads</h1></div>
+      <p style="color:#71717a;font-size:14px;margin-bottom:28px;">Searches a curated list of Sydney companies via Hunter.io and surfaces real contacts with verified emails. Click an industry to start.</p>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px;">
+        <div onclick="findLeads('corporate')" style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;cursor:pointer;transition:border-color 0.15s;" onmouseover="this.style.borderColor='#3f3f46'" onmouseout="this.style.borderColor='#222'">
+          <div style="font-size:22px;margin-bottom:10px;">🏦</div>
+          <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Corporate &amp; Finance</div>
+          <div style="font-size:12px;color:#52525b;margin-bottom:12px;">12 Sydney firms</div>
+          <div id="state-corporate" style="font-size:12px;color:#71717a;">Click to search</div>
+        </div>
+        <div onclick="findLeads('realestate')" style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;cursor:pointer;transition:border-color 0.15s;" onmouseover="this.style.borderColor='#3f3f46'" onmouseout="this.style.borderColor='#222'">
+          <div style="font-size:22px;margin-bottom:10px;">🏠</div>
+          <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Real Estate</div>
+          <div style="font-size:12px;color:#52525b;margin-bottom:12px;">10 Sydney agencies</div>
+          <div id="state-realestate" style="font-size:12px;color:#71717a;">Click to search</div>
+        </div>
+        <div onclick="findLeads('construction')" style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;cursor:pointer;transition:border-color 0.15s;" onmouseover="this.style.borderColor='#3f3f46'" onmouseout="this.style.borderColor='#222'">
+          <div style="font-size:22px;margin-bottom:10px;">🏗️</div>
+          <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Construction</div>
+          <div style="font-size:12px;color:#52525b;margin-bottom:12px;">10 Sydney builders</div>
+          <div id="state-construction" style="font-size:12px;color:#71717a;">Click to search</div>
+        </div>
+        <div onclick="findLeads('automotive')" style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;cursor:pointer;transition:border-color 0.15s;" onmouseover="this.style.borderColor='#3f3f46'" onmouseout="this.style.borderColor='#222'">
+          <div style="font-size:22px;margin-bottom:10px;">🚗</div>
+          <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Automotive</div>
+          <div style="font-size:12px;color:#52525b;margin-bottom:12px;">10 Sydney dealers</div>
+          <div id="state-automotive" style="font-size:12px;color:#71717a;">Click to search</div>
+        </div>
+      </div>
+      <div id="finder-progress" style="display:none;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <span style="font-size:13px;color:#71717a;" id="progress-label">Searching...</span>
+          <span style="font-size:12px;color:#52525b;" id="progress-count"></span>
+        </div>
+        <div style="background:#222;border-radius:999px;height:3px;">
+          <div id="progress-bar" style="background:#fff;border-radius:999px;height:3px;width:0%;transition:width 0.3s;"></div>
+        </div>
+      </div>
+      <div id="finder-results" style="display:none;">
+        <div style="margin-bottom:16px;">
+          <h2 style="font-size:16px;font-weight:600;" id="results-heading"></h2>
+          <p style="font-size:12px;color:#71717a;margin-top:3px;" id="results-sub"></p>
+        </div>
+        <div id="results-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;"></div>
+        <div id="no-results" style="display:none;background:#111;border:1px solid #222;border-radius:12px;padding:32px;text-align:center;">
+          <p style="color:#71717a;font-size:14px;">No contacts found for this industry.</p>
+          <p style="color:#52525b;font-size:12px;margin-top:6px;">Hunter.io may not have data for these domains yet. Try a different industry or add leads manually.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="page-settings" class="page" style="padding:40px;">
+      <div style="margin-bottom:24px;"><h1 style="font-size:24px;font-weight:700;">Settings</h1></div>
+      <div style="background:#111;border:1px solid #222;border-radius:14px;padding:28px;max-width:480px;">
+        <h2 style="font-weight:600;font-size:15px;margin-bottom:20px;">Your details</h2>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Your name</label><input id="s-name" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:10px 12px;border-radius:8px;" /></div>
+          <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Your email</label><input id="s-email" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:10px 12px;border-radius:8px;" /></div>
+          <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Your Instagram</label><input id="s-instagram" placeholder="https://www.instagram.com/oscargreenmedia/" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:10px 12px;border-radius:8px;" /></div>
+          <div>
+            <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Email signature</label>
+            <textarea id="s-signature" rows="5" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:10px 12px;border-radius:8px;resize:vertical;line-height:1.5;"></textarea>
+            <p style="font-size:11px;color:#52525b;margin-top:5px;">Appended to the end of every outreach email (plain text). If you already have a signature set inside Gmail, leave this blank to avoid it appearing twice.</p>
+          </div>
+          <div>
+            <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Hunter.io API key</label>
+            <p style="font-size:13px;color:#4ade80;padding:10px 12px;background:#052e16;border-radius:8px;">✓ Connected — your Hunter.io key is securely stored on the server and never exposed in this file.</p>
+          </div>
+        </div>
+        <button onclick="saveSettings()" style="margin-top:24px;background:#fff;color:#000;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Save settings</button>
+        <span id="settings-saved" style="display:none;font-size:12px;color:#4ade80;margin-left:12px;">Saved.</span>
+      </div>
+
+      <div style="background:#111;border:1px solid #222;border-radius:14px;padding:28px;max-width:480px;margin-top:20px;">
+        <h2 style="font-weight:600;font-size:15px;margin-bottom:4px;">Reel library</h2>
+        <p style="font-size:12px;color:#71717a;margin-bottom:18px;">Save your example reels here, then pick one when you send a follow-up. The link drops into the email automatically, and the dashboard tracks which reel earns replies.</p>
+        <div id="reels-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <input id="reel-label" placeholder="Label  e.g. Golden hour Porsche walk-around" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;" />
+          <input id="reel-url" placeholder="https://vimeo.com/... or instagram reel URL" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;" />
+          <div style="display:flex;gap:8px;">
+            <select id="reel-industry" style="flex:1;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;"><option value="any">Any industry</option><option value="corporate">Corporate &amp; Finance</option><option value="realestate">Real Estate</option><option value="construction">Construction</option><option value="automotive">Automotive</option></select>
+            <button onclick="addReel()" style="background:#fff;color:#000;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">+ Add reel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOOKINGS -->
+    <div id="page-bookings" class="page" style="padding:40px;">
+      <div style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;">
+        <div><h1 style="font-size:24px;font-weight:700;">Bookings</h1><p style="color:#71717a;font-size:14px;margin-top:4px;">Shoot days booked via your Google Calendar appointment page.</p></div>
+        <button onclick="syncBookings().then(()=>toast('Synced.'))" style="background:none;border:1px solid #333;color:#71717a;font-size:13px;padding:8px 16px;border-radius:8px;cursor:pointer;">↻ Sync</button>
+      </div>
+      <div style="background:#111;border:1px solid #1a6b3c;border-radius:14px;padding:20px;margin-bottom:24px;">
+        <div style="font-size:14px;font-weight:600;margin-bottom:8px;color:#4ade80;">Setup checklist</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#4ade80;font-size:16px;">✓</span><div><div style="font-size:13px;font-weight:500;">Step 1 — Google Calendar appointment page</div><div style="font-size:12px;color:#71717a;margin-top:2px;">calendar.google.com → + Create → Appointment schedule. Add custom questions: Company, Shoot type, Budget. Copy the booking URL for your Instagram bio.</div></div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#71717a;font-size:16px;">○</span><div><div style="font-size:13px;font-weight:500;">Step 2 — Set Railway environment variables</div><div style="font-size:12px;color:#71717a;margin-top:2px;">In Railway → Variables, add: <code style="background:#1c1c1e;padding:1px 5px;border-radius:4px;">GOOGLE_WEBHOOK_TOKEN</code> (any random string), <code style="background:#1c1c1e;padding:1px 5px;border-radius:4px;">GOOGLE_CALENDAR_ID</code> (your Gmail address), <code style="background:#1c1c1e;padding:1px 5px;border-radius:4px;">RAILWAY_PUBLIC_DOMAIN</code> (ogm-outreach-production.up.railway.app)</div></div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#71717a;font-size:16px;">○</span><div><div style="font-size:13px;font-weight:500;">Step 3 — Upload service account key</div><div style="font-size:12px;color:#71717a;margin-top:2px;">Go to console.cloud.google.com → APIs & Services → Enable Calendar API → Credentials → Create Service Account → download the JSON key → upload it to your Railway project as <code style="background:#1c1c1e;padding:1px 5px;border-radius:4px;">/app/google-service-account.json</code> using Railway's file mount feature.</div></div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#71717a;font-size:16px;">○</span><div><div style="font-size:13px;font-weight:500;">Step 4 — Register the webhook (once)</div><div style="font-size:12px;color:#71717a;margin-top:2px;">After deploying, open your browser and go to: <code style="background:#1c1c1e;padding:1px 5px;border-radius:4px;">https://ogm-outreach-production.up.railway.app/api/calendar/register</code> (POST request — use a tool like Postman or the button below).</div><button onclick="registerWebhook()" style="margin-top:8px;background:none;border:1px solid #333;color:#a1a1aa;font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;" id="register-btn">Register webhook now</button><div id="register-result" style="font-size:12px;color:#71717a;margin-top:6px;"></div></div></div>
+        </div>
+      </div>
+      <div style="background:#111;border:1px solid #222;border-radius:14px;overflow:hidden;">
+        <div style="padding:16px 20px;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between;"><span style="font-weight:600;font-size:15px;">Upcoming bookings</span><span style="font-size:12px;color:#52525b;">Auto-syncs when clients book via your Google Calendar link</span></div>
+        <div id="bookings-list" style="padding:20px;"></div>
+      </div>
+    </div>
+
+    <!-- REVENUE -->
+    <div id="page-revenue" class="page" style="padding:40px;">
+      <div style="margin-bottom:24px;"><h1 style="font-size:24px;font-weight:700;">Revenue</h1><p style="color:#71717a;font-size:14px;margin-top:4px;">Track your won retainers and pipeline value.</p></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px;">
+        <div style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;border-left:3px solid #4ade80;"><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;">Contracted MRR</div><div style="font-size:36px;font-weight:700;margin-top:6px;color:#4ade80;" id="rev-mrr">$0</div></div>
+        <div style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;border-left:3px solid #fbbf24;"><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;">Pipeline (meetings)</div><div style="font-size:36px;font-weight:700;margin-top:6px;color:#fbbf24;" id="rev-pipeline">$0</div></div>
+        <div style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;border-left:3px solid #818cf8;"><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;">Annual Run Rate</div><div style="font-size:36px;font-weight:700;margin-top:6px;color:#818cf8;" id="rev-arr">$0</div></div>
+      </div>
+      <div style="background:#111;border:1px solid #222;border-radius:14px;overflow:hidden;margin-bottom:20px;">
+        <div style="padding:16px 20px;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between;"><span style="font-weight:600;font-size:15px;">Won Retainers</span><span style="font-size:12px;color:#52525b;">Set monthly value on any lead marked Won</span></div>
+        <div id="rev-won-list" style="padding:20px;"></div>
+      </div>
+      <div style="background:#111;border:1px solid #222;border-radius:14px;overflow:hidden;">
+        <div style="padding:16px 20px;border-bottom:1px solid #222;"><span style="font-weight:600;font-size:15px;">Hot Pipeline</span></div>
+        <div id="rev-pipeline-list" style="padding:20px;"></div>
+      </div>
+    </div>
+
+    <!-- COMPETITORS -->
+    <div id="page-competitors" class="page" style="padding:40px;">
+      <div style="margin-bottom:24px;"><h1 style="font-size:24px;font-weight:700;">Competitors</h1><p style="color:#71717a;font-size:14px;margin-top:4px;">Watch competitor Instagram accounts. Any business that follows them is a warm lead for you.</p></div>
+      <div style="background:#111;border:1px solid #222;border-radius:14px;padding:24px;margin-bottom:20px;">
+        <h3 style="font-size:14px;font-weight:600;margin-bottom:16px;">Add a competitor</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <input id="comp-handle" placeholder="@username" style="flex:1;min-width:180px;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;" />
+          <input id="comp-name" placeholder="Display name  e.g. Sydney Video Co" style="flex:2;min-width:180px;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;" />
+          <button onclick="addCompetitor()" style="background:#fff;color:#000;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">+ Add</button>
+        </div>
+        <p style="font-size:12px;color:#52525b;margin-top:12px;">Add their Instagram handle. The tool generates a pre-written outreach message targeting their followers. Note: Instagram does not expose follower lists via a public API — use this as a research prompt to check manually or via a third-party tool.</p>
+      </div>
+      <div id="comp-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+
+    <!-- PROPOSALS -->
+    <div id="page-proposals" class="page" style="padding:40px;">
+      <div style="margin-bottom:24px;"><h1 style="font-size:24px;font-weight:700;">Proposals</h1><p style="color:#71717a;font-size:14px;margin-top:4px;">Generate a pre-filled PDF proposal for any lead in one click.</p></div>
+      <div style="background:#111;border:1px solid #222;border-radius:14px;padding:24px;margin-bottom:24px;">
+        <h3 style="font-size:14px;font-weight:600;margin-bottom:16px;">Generate a proposal</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+          <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Select lead / company</label><select id="prop-lead" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;"><option value="">Choose a lead...</option></select></div>
+          <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Recommended tier</label><select id="prop-tier" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;"><option value="1">Tier 1 — Essential ($4,000/mo)</option><option value="2" selected>Tier 2 — Professional ($4,500/mo)</option><option value="3">Tier 3 — Premium ($6,000/mo)</option></select></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+          <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Custom intro note (optional)</label><textarea id="prop-note" rows="2" placeholder="e.g. Great to meet at the Finance Summit last week..." style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;resize:none;"></textarea></div>
+          <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Valid for (days)</label><input id="prop-validity" type="number" value="30" min="7" max="90" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;" /></div>
+        </div>
+        <button onclick="generateProposal()" style="background:#fff;color:#000;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">⬇ Generate PDF</button>
+        <div id="prop-status" style="display:none;font-size:13px;color:#71717a;margin-top:12px;"></div>
+      </div>
+      <div style="background:#111;border:1px solid #222;border-radius:14px;overflow:hidden;"><div style="padding:16px 20px;border-bottom:1px solid #222;"><span style="font-weight:600;font-size:15px;">Recent proposals</span></div><div id="prop-history" style="padding:20px;"></div></div>
+    </div>
+
+    <!-- REEL IDEAS -->
+    <div id="page-ideas" class="page" style="padding:32px 36px;">
+      <div class="page-header" style="margin-bottom:28px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div><div class="page-title">Reel ideas</div><div class="page-sub">Viral formats you can shoot with your own footage. Click a card to add it to your calendar.</div></div>
+          <button onclick="generateMoreIdeas()" style="background:#fff;color:#000;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">⚡ Generate more</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;" id="ideas-grid"></div>
+      <div style="background:#0f0f0f;border:1px solid #1a1a1a;border-radius:12px;padding:20px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:14px;color:#e5e5e5;">Your content calendar</div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;" id="ideas-calendar"></div>
+      </div>
+    </div>
+
+    <!-- A/B RESULTS -->
+    <div id="page-ab" class="page" style="padding:32px 36px;">
+      <div class="page-header" style="margin-bottom:24px;">
+        <div class="page-title">A/B template results</div>
+        <div class="page-sub">Leads are split 50/50 between two message variants. Track which converts better over time.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+        <div class="card"><div class="card-head"><div class="card-head-title">Variant A — original</div><span class="badge badge-blue">Control</span></div><div class="card-body" id="ab-a-stats"><div style="color:#52525b;font-size:13px;">Send some outreach to start tracking.</div></div></div>
+        <div class="card"><div class="card-head"><div class="card-head-title">Variant B — alternative</div><span class="badge badge-purple">Challenger</span></div><div class="card-body" id="ab-b-stats"><div style="color:#52525b;font-size:13px;">Send some outreach to start tracking.</div></div></div>
+      </div>
+      <div class="card"><div class="card-head"><div class="card-head-title">Subject line comparison</div></div><div class="card-body" id="ab-subjects" style="display:flex;flex-direction:column;gap:12px;"></div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADD LEAD MODAL -->
+<div id="modal-add" class="modal-bg">
+  <div style="background:#111;border:1px solid #333;border-radius:18px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid #222;"><h2 style="font-weight:600;font-size:16px;">Add Lead</h2><button onclick="closeModal('modal-add')" style="background:none;border:none;color:#71717a;cursor:pointer;"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <form id="add-form" onsubmit="submitAdd(event)" style="padding:24px;display:flex;flex-direction:column;gap:14px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">First name *</label><input name="firstName" required style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;" /></div>
+        <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Last name</label><input name="lastName" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;" /></div>
+      </div>
+      <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Company *</label><input name="company" required style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;" /></div>
+      <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Company website (for email lookup)</label><input name="website" placeholder="e.g. mafinancial.com" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;" /></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Industry *</label><select name="industry" required style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;"><option value="">Select...</option><option value="corporate">Corporate &amp; Finance</option><option value="realestate">Real Estate</option><option value="construction">Construction</option><option value="automotive">Automotive</option></select></div>
+        <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Channel *</label><select name="channel" required style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;"><option value="email">Email</option><option value="instagram">Instagram</option></select></div>
+      </div>
+      <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Contact (email or @handle)</label><input name="contact" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;" /></div>
+      <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Notes</label><textarea name="notes" rows="2" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;resize:vertical;"></textarea></div>
+      <div style="display:flex;gap:10px;margin-top:4px;">
+        <button type="button" onclick="closeModal('modal-add')" style="flex:1;background:none;border:1px solid #333;color:#71717a;padding:10px;border-radius:8px;font-size:13px;cursor:pointer;">Cancel</button>
+        <button type="submit" style="flex:2;background:#fff;color:#000;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Add and Research</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- LEAD DETAIL MODAL -->
+<div id="modal-detail" class="modal-bg">
+  <div id="detail-content" style="background:#111;border:1px solid #333;border-radius:18px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;"></div>
+</div>
+
+<script>
+// ── Backend URL ───────────────────────────────────────────────────────────────
+const API = 'https://ogm-outreach-production.up.railway.app';
+
+// ── Leads: server is source of truth; localStorage is a fast local cache ──────
+let leads = JSON.parse(localStorage.getItem('ogm_leads') || '[]');
+let cfg   = JSON.parse(localStorage.getItem('ogm_cfg')   || '{}');
+
+// Persist leads locally for instant re-open
+const save = () => localStorage.setItem('ogm_leads', JSON.stringify(leads));
+
+// Persist cfg locally AND push to server
+const saveCfg = async () => {
+  localStorage.setItem('ogm_cfg', JSON.stringify(cfg));
+  try { await fetch(API+'/api/config', { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(cfg) }); } catch(e) {}
+};
+
+// Pull fresh leads from server (called on load and after mutations)
+async function syncLeads() {
+  try {
+    const r = await fetch(API+'/api/leads');
+    const d = await r.json();
+    if(d.leads){ leads = d.leads; save(); renderLeads(); renderDashboard(); updateNavBadge(); }
+  } catch(e) { toast('Offline — showing cached data.'); }
+}
+
+// Pull config from server (reels, portfolios, settings)
+async function syncConfig() {
+  try {
+    const r = await fetch(API+'/api/config');
+    const d = await r.json();
+    if(d.config && Object.keys(d.config).length){
+      cfg = { ...cfg, ...d.config };
+      localStorage.setItem('ogm_cfg', JSON.stringify(cfg));
+    }
+  } catch(e) {}
+}
+
+// API helpers
+async function apiSaveLead(lead) {
+  // Check if it already exists on server
+  try {
+    const check = await fetch(API+'/api/leads');
+    const d = await check.json();
+    const exists = d.leads && d.leads.some(l => l.id === lead.id);
+    const method = exists ? 'PUT' : 'POST';
+    const url = exists ? API+'/api/leads/'+lead.id : API+'/api/leads';
+    await fetch(url, { method, headers:{'Content-Type':'application/json'}, body:JSON.stringify(lead) });
+  } catch(e) {}
+}
+
+async function apiDeleteLead(id) {
+  try { await fetch(API+'/api/leads/'+id, { method:'DELETE' }); } catch(e) {}
+}
+
+if (!cfg.name)      cfg.name      = 'Oscar Green';
+if (!cfg.email)     cfg.email     = 'oscar@oscargreenmedia.com';
+if (!cfg.instagram) cfg.instagram = 'https://www.instagram.com/oscargreenmedia/';
+if (cfg.signature===undefined) cfg.signature = (cfg.name||'Oscar Green')+'\nOscar Green Media\n'+(cfg.email||'oscar@oscargreenmedia.com')+'\n'+cfg.instagram;
+if (!Array.isArray(cfg.reels)) cfg.reels = [];
+if (!cfg.portfolios || typeof cfg.portfolios !== 'object') cfg.portfolios = {};
+
+// Escape any user- or API-supplied text before inserting it into innerHTML / attributes.
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const uid     = () => Math.random().toString(36).slice(2) + Date.now().toString(36).slice(-4);
+const today   = () => new Date().toISOString().split('T')[0];
+const addDays = (d,n) => { const x=new Date(d+'T12:00:00'); x.setDate(x.getDate()+n); return x.toISOString().split('T')[0]; };
+const isOverdue = d => d && d <= today();
+const fmtDate   = d => d ? new Date(d+'T12:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short'}) : '';
+
+const IND_LABELS = { corporate:'Corporate & Finance', realestate:'Real Estate', construction:'Construction', automotive:'Automotive' };
+const IND_ICON   = { corporate:'🏦', realestate:'🏠', construction:'🏗️', automotive:'🚗' };
+const STATUS_LABEL = { new:'New', contacted:'Contacted', followup1_due:'Follow-up 1 due', followup1_sent:'Follow-up 1 sent', followup2_due:'Follow-up 2 due', followup2_sent:'Follow-up 2 sent', replied:'Replied', meeting:'Meeting booked', won:'Won', not_interested:'Not interested' };
+const STATUS_STYLE = { new:'background:#27272a;color:#a1a1aa;', contacted:'background:#1e3a5f;color:#93c5fd;', followup1_due:'background:#451a03;color:#fbbf24;', followup1_sent:'background:#1e3a5f;color:#93c5fd;', followup2_due:'background:#431407;color:#fb923c;', followup2_sent:'background:#1e3a5f;color:#93c5fd;', replied:'background:#14532d;color:#4ade80;', meeting:'background:#052e16;color:#34d399;', won:'background:#052e16;color:#6ee7b7;', not_interested:'background:#1c1c1e;color:#52525b;' };
+
+const COMPANIES = {
+  corporate: [{name:'MA Financial Group',domain:'mafinancial.com'},{name:'Barrenjoey',domain:'barrenjoey.com'},{name:'Pitcher Partners Sydney',domain:'pitcher.com.au'},{name:'Wilsons Advisory',domain:'wilsonsadvisory.com.au'},{name:'Prime Financial Group',domain:'primefinancial.com.au'},{name:'Shaw and Partners',domain:'shaw.com.au'},{name:'Morgans Financial',domain:'morgans.com.au'},{name:'Perpetual',domain:'perpetual.com.au'},{name:'Equity Trustees',domain:'eqt.com.au'},{name:'Clime Investment Management',domain:'clime.com.au'},{name:'Centennial Asset Management',domain:'centennial.com.au'},{name:'FIIG Securities',domain:'fiig.com.au'}],
+  realestate: [{name:'McGrath Estate Agents',domain:'mcgrath.com.au'},{name:'Goodyer Real Estate',domain:'goodyer.com.au'},{name:'The Agency Real Estate',domain:'theagency.com.au'},{name:'BresicWhitney',domain:'bresicwhitney.com.au'},{name:'DiJones',domain:'dijones.com.au'},{name:'Belle Property',domain:'belleproperty.com'},{name:'Laing+Simmons',domain:'laingsimmons.com.au'},{name:'Stone Real Estate',domain:'stonerealstate.com.au'},{name:'Sydney Sothebys',domain:'sothebysrealty.com.au'},{name:'Cobden & Hayson',domain:'cobdenhayson.com.au'}],
+  construction: [{name:'Infinity Constructions',domain:'infinityconstructions.com.au'},{name:'Buildcorp',domain:'buildcorp.com.au'},{name:'Lords Group',domain:'lordsgroup.com.au'},{name:'CD Construction Group',domain:'cdconstruction.com.au'},{name:'Ganellen',domain:'ganellen.com.au'},{name:'Built',domain:'built.com.au'},{name:'FDC Construction',domain:'fdcgroup.com.au'},{name:'Lipman',domain:'lipman.com.au'},{name:'Schiavello',domain:'schiavello.com.au'},{name:'Hansen Yuncken',domain:'hansenyuncken.com.au'}],
+  automotive: [{name:'Peter Warren Automotive',domain:'peterwarren.com.au'},{name:'Inchcape Australasia',domain:'inchcapeautomotive.com.au'},{name:'Sydney City Toyota',domain:'sydneycitytoyota.com.au'},{name:'Trivett Group',domain:'trivett.com.au'},{name:'Autopact Group',domain:'autopact.com.au'},{name:'CMG Automotive',domain:'cmgautomotive.com.au'},{name:'Scuderia Graziani',domain:'scuderiagraziani.com'},{name:'Autosports Group',domain:'autosportsgroup.com.au'},{name:'Parramatta City Nissan',domain:'parramattanissan.com.au'},{name:'Macarthur Automotive',domain:'macarthurautomotive.com.au'}],
+};
+const RELEVANT = {
+  corporate: ['marketing','communications','brand','digital','content','media','cmo'],
+  realestate: ['agent','director','principal','property','sales','partner','head'],
+  construction: ['marketing','director','owner','ceo','managing','business development','head','founder'],
+  automotive: ['marketing','manager','dealer','digital','brand','general','head','sales'],
+};
+function isRelevant(pos, ind) { if(!pos) return true; const p=pos.toLowerCase(); return RELEVANT[ind].some(k=>p.includes(k)); }
+
+// FIND LEADS
+async function findLeads(industry) {
+  if (!cfg.hunterKey) { toast('Add your Hunter.io API key in Settings first.'); showPage('settings'); return; }
+  const companies = COMPANIES[industry];
+  if(!confirm('This searches '+companies.length+' companies and uses up to '+companies.length+' Hunter.io requests from your monthly quota. Continue?')) return;
+  const stateEl = document.getElementById('state-'+industry);
+  document.getElementById('finder-progress').style.display='block';
+  document.getElementById('finder-results').style.display='none';
+  document.getElementById('no-results').style.display='none';
+  document.getElementById('results-grid').innerHTML='';
+  stateEl.innerHTML='<span class="spin">&#8635;</span> Searching...';
+  let found=[],done=0,errMsg='';
+  for (const co of companies) {
+    document.getElementById('progress-label').textContent='Checking '+co.name+'...';
+    document.getElementById('progress-count').textContent=done+'/'+companies.length;
+    document.getElementById('progress-bar').style.width=(done/companies.length*100)+'%';
+    try {
+      const r=await fetch(API+'/api/hunter/domain?domain='+encodeURIComponent(co.domain)+'&limit=10');
+      const d=await r.json();
+      if(d.errors&&d.errors.length){ errMsg=d.errors[0].details||d.errors[0].id||'Hunter.io returned an error.'; }
+      else if(d.data&&d.data.emails){
+        found.push(...d.data.emails.filter(e=>isRelevant(e.position,industry)).map(e=>({firstName:e.first_name||'',lastName:e.last_name||'',email:e.value,position:e.position||'',company:co.name,domain:co.domain,confidence:e.confidence||0})));
+      }
+    } catch(e){ if(!errMsg) errMsg='Could not reach Hunter.io (network or CORS error).'; }
+    done++;
+    await new Promise(r=>setTimeout(r,300));
+  }
+  document.getElementById('progress-bar').style.width='100%';
+  document.getElementById('progress-label').textContent='Done.';
+  setTimeout(()=>{
+    document.getElementById('finder-progress').style.display='none';
+    document.getElementById('finder-results').style.display='block';
+    document.getElementById('results-heading').textContent=IND_LABELS[industry]+', Sydney';
+    document.getElementById('results-sub').textContent=found.length+' contacts found across '+companies.length+' companies';
+    const noResEl=document.getElementById('no-results');
+    if(found.length===0){
+      noResEl.style.display='block';
+      noResEl.innerHTML=errMsg
+        ? '<p style="color:#fbbf24;font-size:14px;">Couldn\'t complete the search.</p><p style="color:#52525b;font-size:12px;margin-top:6px;">'+esc(errMsg)+' Check your API key and remaining quota in Settings.</p>'
+        : '<p style="color:#71717a;font-size:14px;">No contacts found for this industry.</p><p style="color:#52525b;font-size:12px;margin-top:6px;">Hunter.io may not have data for these domains yet. Try another industry or add leads manually.</p>';
+      stateEl.textContent=errMsg?'error':'0 found';stateEl.style.color=errMsg?'#fbbf24':'#71717a';
+    }
+    else{stateEl.textContent=found.length+' found';stateEl.style.color='#4ade80';renderFoundLeads(found,industry);}
+  },400);
+}
+let foundContacts=[];
+function renderFoundLeads(contacts,industry){
+  foundContacts=contacts;
+  document.getElementById('results-grid').innerHTML=contacts.map((c,i)=>{
+    const already=leads.some(l=>l.contact===c.email||(l.firstName===c.firstName&&l.lastName===c.lastName&&l.company===c.company));
+    return '<div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;"><div><div style="font-size:14px;font-weight:600;">'+esc(c.firstName+' '+c.lastName)+'</div><div style="font-size:12px;color:#71717a;margin-top:2px;">'+esc(c.position)+'</div><div style="font-size:12px;color:#a1a1aa;margin-top:1px;">'+esc(c.company)+'</div></div><div style="font-size:12px;font-family:monospace;color:#4ade80;word-break:break-all;">'+esc(c.email)+'</div><div><span style="font-size:11px;background:#052e16;color:#4ade80;padding:2px 8px;border-radius:999px;">'+c.confidence+'% confidence</span></div>'+(already?'<div style="font-size:12px;color:#52525b;text-align:center;padding:4px;">Already in pipeline</div>':'<button onclick="quickAdd('+i+',\''+industry+'\')" style="width:100%;background:#fff;color:#000;border:none;padding:8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">+ Add to pipeline</button>')+'</div>';
+  }).join('');
+}
+function quickAdd(i,industry){
+  const contact=foundContacts[i];if(!contact)return;
+  const lead={id:uid(),firstName:contact.firstName,lastName:contact.lastName,company:contact.company,website:contact.domain,industry,channel:'email',contact:contact.email,hunterEmail:contact.email,notes:contact.position?'Title: '+contact.position:'',status:'new',contactedDate:null,followup1SentDate:null,followup2SentDate:null,researchNotes:'',companyDesc:'',createdAt:new Date().toISOString()};
+  leads.unshift(lead);save();updateNavBadge();apiSaveLead(lead);renderFoundLeads(foundContacts,industry);
+  toast('Added '+contact.firstName+' '+contact.lastName+'.');
+}
+
+// HUNTER
+async function runHunter(lead){
+  if(!lead.website) return null;
+  try{
+    if(lead.firstName){const r1=await fetch(API+'/api/hunter/find?domain='+encodeURIComponent(lead.website)+'&first_name='+encodeURIComponent(lead.firstName)+'&last_name='+encodeURIComponent(lead.lastName||''));const d1=await r1.json();if(d1.data&&d1.data.email)return d1.data.email;}
+    const r2=await fetch(API+'/api/hunter/domain?domain='+encodeURIComponent(lead.website)+'&limit=1');const d2=await r2.json();if(d2.data&&d2.data.emails&&d2.data.emails.length)return d2.data.emails[0].value;
+  }catch(e){}return null;
+}
+
+// WIKIPEDIA
+async function runWiki(company){
+  try{const r=await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(company));if(!r.ok)return null;const d=await r.json();if(d.type==='disambiguation'||!d.extract)return null;return d.extract.split('. ').slice(0,2).join('. ')+'.';}catch(e){return null;}
+}
+
+// NAV
+function showPage(name,section,label){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.nav-sub-item').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+name);if(pg)pg.classList.add('active');
+  const navMap={dashboard:'nav-dashboard',leads:'nav-leads',finder:'nav-leads',ab:'nav-leads',competitors:'nav-competitors',bookings:'nav-bookings',proposals:'nav-proposals',revenue:'nav-revenue',portfolio:'nav-portfolio',ideas:'nav-ideas',settings:'nav-settings'};
+  const an=document.getElementById(navMap[name]);if(an)an.classList.add('active');
+  const subMap={leads:'nav-leads-sub',finder:'nav-finder-sub',ab:'nav-ab-sub'};
+  if(subMap[name]){const s=document.getElementById(subMap[name]);if(s)s.classList.add('active');}
+  const bcSection=document.getElementById('bc-section');
+  const bcSep=document.getElementById('bc-sep');
+  const bcPage=document.getElementById('bc-page');
+  if(bcSection&&bcSep&&bcPage){if(section){bcSection.textContent=section;bcSep.style.display='';bcPage.textContent=label||name;}else{bcSection.textContent='';bcSep.style.display='none';bcPage.textContent=label||name;}}
+  if(name==='dashboard') renderDashboard();
+  if(name==='leads')     renderLeads();
+  if(name==='portfolio') renderPortfolio();
+  if(name==='settings')  loadSettings();
+  if(name==='bookings')  { renderBookings(); syncBookings(); }
+  if(name==='revenue')   renderRevenue();
+  if(name==='competitors') renderCompetitors();
+  if(name==='proposals') renderProposals();
+  if(name==='ideas')     renderIdeasPage();
+  if(name==='ab')        renderABPage();
+}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-bg.open').forEach(m=>m.classList.remove('open'));});
+document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+function toast(msg,dur=3000){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',dur);}
+function updateNavBadge(){const b=document.getElementById('nav-badge');if(leads.length>0){b.textContent=leads.length;b.style.display='inline-block';}else b.style.display='none';}
+
+// SETTINGS
+function loadSettings(){document.getElementById('s-name').value=cfg.name||'';document.getElementById('s-email').value=cfg.email||'';document.getElementById('s-instagram').value=cfg.instagram||'';document.getElementById('s-signature').value=cfg.signature||'';document.getElementById('s-hunter').value=cfg.hunterKey||'';renderReels();}
+function saveSettings(){cfg.name=document.getElementById('s-name').value.trim();cfg.email=document.getElementById('s-email').value.trim();cfg.instagram=document.getElementById('s-instagram').value.trim();cfg.signature=document.getElementById('s-signature').value;saveCfg();const s=document.getElementById('settings-saved');s.style.display='inline';setTimeout(()=>s.style.display='none',2000);}
+
+// REELS
+function renderReels(){
+  const el=document.getElementById('reels-list');if(!el)return;
+  if(!cfg.reels||cfg.reels.length===0){el.innerHTML='<p style="font-size:12px;color:#52525b;">No reels saved yet.</p>';return;}
+  el.innerHTML=cfg.reels.map(r=>'<div style="display:flex;align-items:center;gap:10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px 12px;"><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(r.label)+'</div><div style="font-size:11px;color:#52525b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(r.industry&&r.industry!=='any'?(IND_LABELS[r.industry]||r.industry)+' &middot; ':'')+esc(r.url)+'</div></div><button onclick="deleteReel(\''+r.id+'\')" style="background:none;border:none;color:#f87171;font-size:12px;cursor:pointer;flex-shrink:0;">Remove</button></div>').join('');
+}
+function addReel(){
+  const label=document.getElementById('reel-label').value.trim();
+  const url=document.getElementById('reel-url').value.trim();
+  const industry=document.getElementById('reel-industry').value;
+  if(!label||!url){toast('Add both a label and a URL.');return;}
+  cfg.reels.push({id:uid(),label,url,industry});saveCfg();  document.getElementById('reel-label').value='';document.getElementById('reel-url').value='';
+  renderReels();toast('Reel added.');
+}
+function deleteReel(id){cfg.reels=cfg.reels.filter(r=>r.id!==id);saveCfg();renderReels();}
+function setLeadReel(leadId,reelId){const l=leads.find(x=>x.id===leadId);if(!l)return;l.reelId=reelId||null;save();apiSaveLead(l);openDetail(leadId);}
+
+// STATUS
+function refreshStatuses(){
+  leads.forEach(l=>{
+    if(l.status==='contacted'&&l.contactedDate&&addDays(l.contactedDate,5)<=today()) l.status='followup1_due';
+    if(l.status==='followup1_sent'&&l.followup1SentDate&&addDays(l.followup1SentDate,5)<=today()) l.status='followup2_due';
+  });save();
+}
+function nextAction(l){
+  if(l.status==='new') return {label:'Send outreach',date:null};
+  if((l.status==='contacted'||l.status==='followup1_due')&&l.contactedDate) return {label:'Follow-up 1',date:addDays(l.contactedDate,5)};
+  if((l.status==='followup1_sent'||l.status==='followup2_due')&&l.followup1SentDate) return {label:'Follow-up 2',date:addDays(l.followup1SentDate,5)};
+  if(l.status==='followup2_sent') return {label:'Sequence complete',date:null};
+  if(l.status==='replied') return {label:'Book a meeting',date:null};
+  return {label:'',date:null};
+}
+function updateStatus(id,status){const l=leads.find(x=>x.id===id);if(!l)return;l.status=status;if(!l.contactedDate&&['contacted','followup1_due','followup1_sent','followup2_due','followup2_sent','replied','meeting','won'].includes(status))l.contactedDate=today();save();apiSaveLead(l);openDetail(id);renderDashboard();toast('Status updated.');}
+function markContacted(id){const l=leads.find(x=>x.id===id);if(!l)return;l.status='contacted';l.contactedDate=today();save();apiSaveLead(l);openDetail(id);renderDashboard();toast('Marked contacted. Follow-up 1 due in 5 days.');}
+function markF1Sent(id){const l=leads.find(x=>x.id===id);if(!l)return;l.status='followup1_sent';l.followup1SentDate=today();save();apiSaveLead(l);openDetail(id);renderDashboard();toast('Follow-up 1 logged.');}
+function markF2Sent(id){const l=leads.find(x=>x.id===id);if(!l)return;l.status='followup2_sent';l.followup2SentDate=today();save();apiSaveLead(l);openDetail(id);renderDashboard();toast('Sequence complete.');}
+function deleteLead(id){if(!confirm('Delete this lead?'))return;leads=leads.filter(x=>x.id!==id);save();apiDeleteLead(id);closeModal('modal-detail');renderLeads();renderDashboard();updateNavBadge();toast('Deleted.');}
+
+// ADD
+function openAddModal(){document.getElementById('add-form').reset();openModal('modal-add');}
+function submitAdd(e){
+  e.preventDefault();
+  const fd=new FormData(e.target);
+  const website=(fd.get('website')||'').trim().replace(/^https?:\/\//,'').replace(/\/$/,'');
+  const lead={id:uid(),firstName:fd.get('firstName').trim(),lastName:(fd.get('lastName')||'').trim(),company:fd.get('company').trim(),website,industry:fd.get('industry'),channel:fd.get('channel'),contact:(fd.get('contact')||'').trim(),notes:(fd.get('notes')||'').trim(),status:'new',contactedDate:null,followup1SentDate:null,followup2SentDate:null,researchNotes:'',companyDesc:'',hunterEmail:null,createdAt:new Date().toISOString()};
+  leads.unshift(lead);save();updateNavBadge();apiSaveLead(lead);
+  closeModal('modal-add');toast('Lead added. Opening research...');
+  setTimeout(()=>openDetail(lead.id),300);
+}
+
+// RESEARCH
+async function runResearch(id,wikiOnly){
+  const l=leads.find(x=>x.id===id);if(!l)return;
+  const btn=document.getElementById('res-btn-'+id);
+  const descEl=document.getElementById('res-desc-'+id);
+  const emailEl=document.getElementById('res-email-'+id);
+  if(btn&&!wikiOnly){btn.textContent='Researching...';btn.disabled=true;}
+  const desc=await runWiki(l.company);l.companyDesc=desc||'';
+  if(descEl)descEl.textContent=desc||'No Wikipedia entry. Use the research links to dig in manually.';
+  if(!wikiOnly&&!l.hunterEmail&&cfg.hunterKey&&l.website){
+    const email=await runHunter(l);
+    if(email){l.hunterEmail=email;if(!l.contact)l.contact=email;if(emailEl)emailEl.innerHTML='<span style="color:#4ade80;font-family:monospace;">'+esc(email)+'</span> <span style="color:#52525b;">(Hunter.io)</span>';toast('Email found: '+email);}
+    else{if(emailEl)emailEl.textContent='No email found. Enter manually.';}
+  }
+  save();apiSaveLead(l);if(btn&&!wikiOnly){btn.textContent='Re-run';btn.disabled=false;}
+}
+function saveDetail(id){
+  const l=leads.find(x=>x.id===id);if(!l)return;
+  const rn=document.getElementById('rn-'+id);if(rn)l.researchNotes=rn.value;
+  const ni=document.getElementById('ni-'+id);if(ni)l.notes=ni.value;
+  const ci=document.getElementById('ci-'+id);if(ci)l.contact=ci.value;
+  const mv=document.getElementById('mv-'+id);if(mv)l.monthlyValue=parseFloat(mv.value)||0;
+  save();apiSaveLead(l);toast('Saved.');
+}
+
+// TEMPLATES
+const SUBJECTS={
+  corporate:{1:'Video content for [co]',2:'Following up: [co]',3:'Closing the loop: [co]'},
+  realestate:{1:'Video content for your listings',2:'Following up: [co]',3:'Closing the loop: [co]'},
+  construction:{1:'Turning your builds into content',2:'Following up: [co]',3:'Closing the loop: [co]'},
+  automotive:{1:'Video content for [co]',2:'Following up: [co]',3:'Closing the loop: [co]'},
+};
+const TMPLS={
+  corporate:{
+    email:{
+      1:"Hi [first],\n\nI came across [co]. [insight].\n\nI'm a videographer specialising in social content for professional services firms. I work with companies like yours to produce 8-10 short-form videos per month, the kind that build credibility with clients on LinkedIn and Instagram, not just fill a feed.\n\nWould it make sense to have a quick chat?\n\n[signature]",
+      2:"Hi [first],\n\nJust following up. Here's a recent example: [add reel link]. Happy to put together a quick brief for [co] if that's useful.\n\n[signature]",
+      3:"Hi [first],\n\nLast one from me. Happy to reconnect whenever the timing's right.\n\n[signature]",
+    },
+    instagram:{
+      1:"Hey [first], [insight].\n\nI do video content for finance brands, short-form stuff that actually performs on social. Happy to share some examples.\n\nWorth a chat?",
+      2:"Hey [first], following up. Here's a quick example: [add reel link]. Happy to chat if the timing works.",
+      3:"Hey [first], last one from me. Happy to reconnect whenever. [myname]",
+    },
+  },
+  realestate:{
+    email:{
+      1:"Hi [first],\n\nI noticed you're selling some great properties. [insight].\n\nI'm a videographer working with agents to produce listing videos and social content that builds your brand between sales.\n\nIs this something you're looking to improve?\n\n[signature]",
+      2:"Hi [first],\n\nFollowing up. Here's a recent example: [add reel link]. Happy to put something together for you on a trial basis.\n\n[signature]",
+      3:"Hi [first],\n\nLast one. Happy to reconnect whenever it makes sense.\n\n[signature]",
+    },
+    instagram:{
+      1:"Hey [first], [insight].\n\nI do video for real estate agents: listing content and short-form social that helps you stand out. Happy to show you some examples.\n\nWorth a chat?",
+      2:"Hey [first], following up. Here's a recent example: [add reel link]. Happy to chat if it's of interest.",
+      3:"Hey [first], last one from me. Happy to reconnect whenever. [myname]",
+    },
+  },
+  construction:{
+    email:{
+      1:"Hi [first],\n\nCame across [co]. [insight].\n\nI work with builders to document their projects: time-lapses, before/afters, site progress, reveals. Content that shows clients exactly what you're capable of.\n\nIs this something you're currently doing?\n\n[signature]",
+      2:"Hi [first],\n\nQuick follow-up. Here's a short example: [add reel link]. Happy to walk you through how it works.\n\n[signature]",
+      3:"Hi [first], last one. If there's a project coming up where this could be useful, happy to reconnect.\n\n[signature]",
+    },
+    instagram:{
+      1:"Hey [first], [insight].\n\nI do video for builders: time-lapses, reveals, before/afters. Content that turns your builds into leads.\n\nWorth a chat?",
+      2:"Hey [first], following up. Here's a recent example: [add reel link]. Happy to chat if it's of interest.",
+      3:"Hey [first], last one. Happy to reconnect whenever. [myname]",
+    },
+  },
+  automotive:{
+    email:{
+      1:"Hi [first],\n\nI've been following [co]. [insight].\n\nI produce automotive video content for dealerships: walk-arounds, delivery moments, lifestyle content. The kind that makes inventory move and builds a following.\n\nWould you be open to a quick call?\n\n[signature]",
+      2:"Hi [first],\n\nFollowing up. Here's a recent example: [add reel link]. Happy to put something together for your inventory.\n\n[signature]",
+      3:"Hi [first], last message from me. Happy to reconnect whenever.\n\n[signature]",
+    },
+    instagram:{
+      1:"Hey [first], [insight].\n\nI do automotive video: walk-arounds, delivery moments, lifestyle content. Stuff that makes cars sell and builds the brand.\n\nWorth a chat?",
+      2:"Hey [first], following up. Here's a recent example: [add reel link]. Happy to chat.",
+      3:"Hey [first], last one. Happy to reconnect whenever. [myname]",
+    },
+  },
+};
+
+function buildMsg(l,touch){return buildMsgFrom(getVariant(l)==='B'&&TMPLS_B[l.industry]?TMPLS_B:TMPLS,l,touch);}
+function buildSubject(l,touch){return buildSubjectFrom(getVariant(l)==='B'&&SUBJECTS_B[l.industry]?SUBJECTS_B:SUBJECTS,l,touch);}
+
+function sendMsg(id,touch){
+  const l=leads.find(x=>x.id===id);if(!l)return;
+  const rn=document.getElementById('rn-'+id);if(rn){l.researchNotes=rn.value;save();apiSaveLead(l);}
+  const msg=buildMsg(l,touch);const subject=buildSubject(l,touch);
+  const contact=l.hunterEmail||l.contact||'';
+  if(l.channel==='email'){
+    window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(contact)+'&su='+encodeURIComponent(subject)+'&body='+encodeURIComponent(msg),'_blank');
+    if(touch===1&&l.status==='new') markContacted(id);
+    else if(touch===2) markF1Sent(id);
+    else if(touch===3) markF2Sent(id);
+  } else {
+    navigator.clipboard.writeText(msg).then(()=>{
+      const handle=(l.contact||'').replace('@','');
+      window.open(handle?'https://www.instagram.com/'+handle+'/':'https://www.instagram.com/direct/new/','_blank');
+      toast('Message copied. Paste it into the DM.');
+      if(touch===1&&l.status==='new') markContacted(id);
+      else if(touch===2) markF1Sent(id);
+      else if(touch===3) markF2Sent(id);
+    }).catch(()=>toast('Could not copy automatically.'));
+  }
+}
+
+// LEAD DETAIL
+function openDetail(id){
+  const l=leads.find(x=>x.id===id);if(!l)return;
+  const na=nextAction(l);const isDue=na.date&&isOverdue(na.date);
+  const sbadge='<span style="font-size:11px;padding:3px 10px;border-radius:999px;'+(STATUS_STYLE[l.status]||'')+'">'+(STATUS_LABEL[l.status]||l.status)+'</span>';
+  const btnStyle='background:#fff;color:#000;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;';
+  let actionBtns='';
+  if(l.status==='new') actionBtns='<button onclick="sendMsg(\''+id+'\',1)" style="'+btnStyle+'">'+(l.channel==='email'?'&#9993;&#65039; Open in Gmail':'&#128248; Copy and open Instagram')+' — Initial outreach</button>';
+  else if(l.status==='contacted'||l.status==='followup1_due') actionBtns='<button onclick="sendMsg(\''+id+'\',2)" style="'+btnStyle+'">'+(l.channel==='email'?'&#9993;&#65039; Open in Gmail':'&#128248; Copy and open Instagram')+' — Follow-up 1</button>';
+  else if(l.status==='followup1_sent'||l.status==='followup2_due') actionBtns='<button onclick="sendMsg(\''+id+'\',3)" style="'+btnStyle+'">'+(l.channel==='email'?'&#9993;&#65039; Open in Gmail':'&#128248; Copy and open Instagram')+' — Follow-up 2</button>';
+  const touch=l.status==='new'?1:(l.status==='contacted'||l.status==='followup1_due')?2:(l.status==='followup1_sent'||l.status==='followup2_due')?3:1;
+  document.getElementById('detail-content').innerHTML=
+    '<div style="display:flex;align-items:flex-start;justify-content:space-between;padding:20px 24px;border-bottom:1px solid #222;">'+
+      '<div><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><span style="font-size:18px;font-weight:700;">'+esc(l.firstName+' '+l.lastName)+'</span>'+sbadge+'<span style="font-size:11px;background:#1a1a1a;border:1px solid #333;color:#818cf8;padding:2px 8px;border-radius:999px;">Score: '+scoreLead(l)+'</span><span style="font-size:11px;background:#1a1a1a;border:1px solid #333;color:#71717a;padding:2px 8px;border-radius:999px;">Variant '+getVariant(l)+'</span></div>'+
+      '<div style="font-size:13px;color:#71717a;margin-top:4px;">'+esc(l.company)+' &middot; '+(IND_LABELS[l.industry]||l.industry)+' &middot; '+(l.channel==='email'?'&#9993;&#65039; Email':'&#128248; Instagram')+'</div></div>'+
+      '<button onclick="closeModal(\'modal-detail\')" style="background:none;border:none;color:#71717a;cursor:pointer;flex-shrink:0;margin-left:12px;"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" d="M18 6L6 18M6 6l12 12"/></svg></button>'+
+    '</div>'+
+    '<div style="padding:20px 24px;display:flex;flex-direction:column;gap:18px;">'+
+      (isDue?'<div style="background:#451a03;border:1px solid #78350f;border-radius:10px;padding:12px 16px;font-size:13px;"><span style="color:#fbbf24;font-weight:600;">'+na.label+' overdue</span> <span style="color:#d97706;">(due '+fmtDate(na.date)+')</span></div>':'')+
+      '<div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:16px;">'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px;"><span style="font-weight:600;font-size:14px;">Research</span><div style="display:flex;gap:6px;"><button id="pa-btn-'+id+'" onclick="runPersonalisationAssist(\''+id+'\')" style="background:none;border:1px solid #333;color:#a1a1aa;padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;">🔍 AI hook</button><button id="res-btn-'+id+'" onclick="runResearch(\''+id+'\')" style="background:none;border:1px solid #333;color:#a1a1aa;padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;">Run research</button></div></div>'+
+        '<p id="res-desc-'+id+'" style="font-size:12px;color:#71717a;line-height:1.6;margin-bottom:10px;">'+(l.companyDesc?esc(l.companyDesc):'Click "Run research" to look up this company.')+'</p>'+
+        '<div id="res-email-'+id+'" style="font-size:12px;margin-bottom:12px;">'+(l.hunterEmail?'<span style="color:#4ade80;font-family:monospace;">'+esc(l.hunterEmail)+'</span> <span style="color:#52525b;">(Hunter.io)</span>':'')+'</div>'+
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">'+
+          (l.website?'<a href="https://'+esc(l.website)+'" target="_blank" style="font-size:12px;color:#a1a1aa;border:1px solid #333;padding:4px 10px;border-radius:6px;text-decoration:none;">&#127760; Website</a>':'')+
+          '<a href="https://www.google.com/search?q='+encodeURIComponent(l.company+' '+l.firstName+' '+l.lastName)+'" target="_blank" style="font-size:12px;color:#a1a1aa;border:1px solid #333;padding:4px 10px;border-radius:6px;text-decoration:none;">&#128269; Google</a>'+
+          '<a href="https://www.linkedin.com/search/results/people/?keywords='+encodeURIComponent(l.firstName+' '+l.lastName+' '+l.company)+'" target="_blank" style="font-size:12px;color:#a1a1aa;border:1px solid #333;padding:4px 10px;border-radius:6px;text-decoration:none;">&#128188; LinkedIn</a>'+
+          '<a href="https://www.google.com/search?q='+encodeURIComponent(l.company+' news')+'" target="_blank" style="font-size:12px;color:#a1a1aa;border:1px solid #333;padding:4px 10px;border-radius:6px;text-decoration:none;">&#128240; News</a>'+
+        '</div>'+
+        '<label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Personalisation hook — drops into the email automatically</label>'+
+        '<textarea id="rn-'+id+'" rows="2" placeholder="e.g. recently expanded your team or saw your post about the new office" style="width:100%;background:#111;border:1px solid #333;color:#fff;font-size:12px;padding:8px 10px;border-radius:8px;resize:vertical;">'+esc(l.researchNotes||'')+'</textarea>'+
+      '</div>'+
+      '<div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:16px;">'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px;"><span style="font-size:13px;font-weight:600;">Message preview</span>'+
+          ((cfg.reels&&cfg.reels.length)?'<select onchange="setLeadReel(\''+id+'\',this.value)" style="background:#111;border:1px solid #333;color:#a1a1aa;font-size:12px;padding:6px 10px;border-radius:6px;max-width:230px;"><option value="">No reel attached</option>'+cfg.reels.slice().sort((a,b)=>((b.industry===l.industry)-(a.industry===l.industry))).map(r=>'<option value="'+r.id+'"'+(l.reelId===r.id?' selected':'')+'>'+esc(r.label)+(r.industry&&r.industry!=='any'?' ('+(IND_LABELS[r.industry]||r.industry)+')':'')+'</option>').join('')+'</select>':'<span style="font-size:11px;color:#52525b;">Add reels in Settings to attach one</span>')+
+        '</div>'+
+        (l.channel==='email'?'<div style="font-size:11px;color:#52525b;margin-bottom:6px;">Subject: <span style="color:#a1a1aa;">'+esc(buildSubject(l,touch))+'</span></div>':'')+
+        '<pre style="font-size:12px;color:#a1a1aa;white-space:pre-wrap;word-wrap:break-word;font-family:inherit;margin:0;line-height:1.65;">'+esc(buildMsg(l,touch))+'</pre>'+
+      '</div>'+
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">'+
+        actionBtns+
+        '<select onchange="updateStatus(\''+id+'\',this.value)" style="background:#1c1c1e;border:1px solid #333;color:#a1a1aa;font-size:13px;padding:9px 12px;border-radius:8px;flex:1;">'+
+          '<option value="">Update status...</option>'+
+          Object.entries(STATUS_LABEL).map(([v,lab])=>'<option value="'+v+'">'+lab+'</option>').join('')+
+        '</select>'+
+      '</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">'+
+        '<div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Contact '+(l.channel==='email'?'email':'@handle')+'</label><input id="ci-'+id+'" value="'+esc(l.hunterEmail||l.contact||'')+'" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:8px 10px;border-radius:8px;" /></div>'+
+        '<div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Monthly retainer value (if Won)</label><input id="mv-'+id+'" type="number" value="'+(l.monthlyValue||'')+'" placeholder="e.g. 4500" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:8px 10px;border-radius:8px;" /></div>'+
+        '<div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:16px;">'+
+          '<div style="font-size:13px;font-weight:600;margin-bottom:12px;">Activity Timeline</div>'+
+          '<div id="timeline-'+id+'" style="display:flex;flex-direction:column;gap:8px;max-height:180px;overflow-y:auto;margin-bottom:12px;">'+(buildTimeline(l))+'</div>'+
+          '<div style="display:flex;gap:8px;">'+
+            '<input id="tl-note-'+id+'" placeholder="Log a call, note, or paste a reply..." style="flex:1;background:#111;border:1px solid #333;color:#fff;font-size:12px;padding:8px 10px;border-radius:8px;" />'+
+            '<button onclick="addTimelineEntry(\''+id+'\')" style="background:#fff;color:#000;border:none;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Log</button>'+
+            '<button onclick="markReply(\''+id+'\')" style="background:none;border:1px solid #4ade80;color:#4ade80;padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer;">+ Reply</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+      '<div style="display:flex;gap:10px;">'+
+        '<button onclick="saveDetail(\''+id+'\')" style="background:#27272a;color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:500;">Save</button>'+
+        '<button onclick="deleteLead(\''+id+'\')" style="background:none;border:1px solid #3f0d0d;color:#f87171;padding:9px 18px;border-radius:8px;font-size:13px;cursor:pointer;">Delete</button>'+
+      '</div>'+
+    '</div>';
+  openModal('modal-detail');
+  if(!l.companyDesc) runResearch(id,true);
+}
+
+// LEADS PAGE — GROUPED BY COMPANY
+function renderLeads(){
+  refreshStatuses();
+  const fi=document.getElementById('f-industry')&&document.getElementById('f-industry').value||'';
+  const fs=document.getElementById('f-status')&&document.getElementById('f-status').value||'';
+  const fq=((document.getElementById('f-search')&&document.getElementById('f-search').value)||'').toLowerCase();
+  const filtered=leads.filter(l=>(!fi||l.industry===fi)&&(!fs||l.status===fs)&&(!fq||(l.firstName+' '+l.lastName+' '+l.company).toLowerCase().includes(fq)));
+  const container=document.getElementById('leads-groups');
+  if(filtered.length===0){container.innerHTML='<div style="background:#111;border:1px solid #222;border-radius:12px;padding:48px;text-align:center;color:#52525b;font-size:13px;">'+(leads.length===0?'No leads yet. Head to Find Leads to get started.':'No leads match your filters.')+'</div>';return;}
+  const groups={};
+  filtered.forEach(l=>{const k=l.company||'Unknown';if(!groups[k])groups[k]={leads:[],industry:l.industry};groups[k].leads.push(l);});
+  const sortedKeys=Object.keys(groups).sort((a,b)=>{
+    const aDue=groups[a].leads.some(l=>{const na=nextAction(l);return na.date&&isOverdue(na.date);});
+    const bDue=groups[b].leads.some(l=>{const na=nextAction(l);return na.date&&isOverdue(na.date);});
+    if(aDue&&!bDue)return -1;if(!aDue&&bDue)return 1;return a.localeCompare(b);
+  });
+  container.innerHTML=sortedKeys.map(company=>{
+    const g=groups[company];const ind=g.leads[0].industry;
+    const hasOverdue=g.leads.some(l=>{const na=nextAction(l);return na.date&&isOverdue(na.date);});
+    const statusCounts={};g.leads.forEach(l=>{statusCounts[l.status]=(statusCounts[l.status]||0)+1;});
+    const topStatus=Object.entries(statusCounts).sort((a,b)=>b[1]-a[1])[0]?.[0];
+    const rowsHtml=g.leads.map(l=>{
+      const na=nextAction(l);const due=na.date&&isOverdue(na.date);
+      return '<div class="lead-row" onclick="openDetail(\''+l.id+'\')">'+
+        '<div style="flex:2;min-width:0;"><div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(l.firstName+' '+l.lastName)+'</div>'+
+        '<div style="font-size:11px;color:#52525b;margin-top:1px;">'+(l.channel==='email'?'&#9993;&#65039;':'&#128248;')+' '+esc(l.hunterEmail||l.contact||'No contact yet')+(l.notes&&l.notes.startsWith('Title:')?'<span style="color:#52525b;"> &middot; </span><span style="color:#71717a;">'+esc(l.notes.replace('Title:','').trim())+'</span>':'')+'</div></div>'+
+        '<div style="flex-shrink:0;font-size:10px;background:#1a1a1a;border:1px solid #2a2a2a;color:#818cf8;padding:1px 6px;border-radius:999px;margin-right:8px;">'+scoreLead(l)+'</div>'+
+        '<div style="flex:1.5;padding:0 12px;"><span style="font-size:11px;padding:3px 9px;border-radius:999px;'+(STATUS_STYLE[l.status]||'')+'">'+(STATUS_LABEL[l.status]||l.status)+'</span></div>'+
+        '<div style="flex:1.5;font-size:12px;'+(due?'color:#fbbf24;font-weight:500;':'color:#52525b;')+'">'+na.label+(na.date?' &middot; '+fmtDate(na.date)+(due?' &#9888;&#65039;':''):'')+'</div>'+
+        '<div style="color:#3f3f46;font-size:12px;">&#8594;</div></div>';
+    }).join('');
+    return '<div class="co-group">'+
+      '<div class="co-header" onclick="toggleGroup(this)">'+
+        '<div style="display:flex;align-items:center;gap:12px;">'+
+          '<span style="font-size:18px;">'+(IND_ICON[ind]||'🏢')+'</span>'+
+          '<div>'+
+            '<div style="font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;">'+esc(company)+(hasOverdue?'<span style="font-size:10px;background:#451a03;color:#fbbf24;padding:2px 7px;border-radius:999px;">Action due</span>':'')+'</div>'+
+            '<div style="font-size:11px;color:#52525b;margin-top:2px;">'+(IND_LABELS[ind]||ind)+' &middot; '+g.leads.length+' contact'+(g.leads.length!==1?'s':'')+'</div>'+
+          '</div>'+
+        '</div>'+
+        '<div style="display:flex;align-items:center;gap:10px;">'+
+          '<span style="font-size:11px;padding:3px 9px;border-radius:999px;'+(STATUS_STYLE[topStatus]||'')+'">'+(STATUS_LABEL[topStatus]||topStatus)+'</span>'+
+          '<svg class="chevron" width="16" height="16" fill="none" stroke="#52525b" viewBox="0 0 24 24" style="transition:transform 0.2s;flex-shrink:0;"><path stroke-width="2" stroke-linecap="round" d="M6 9l6 6 6-6"/></svg>'+
+        '</div>'+
+      '</div>'+
+      '<div class="co-rows">'+
+        '<div style="display:flex;padding:8px 16px;font-size:11px;color:#52525b;border-bottom:1px solid #1c1c1e;">'+
+          '<div style="flex:2;">Contact</div><div style="flex:1.5;padding:0 12px;">Status</div><div style="flex:1.5;">Next action</div><div style="width:20px;"></div>'+
+        '</div>'+
+        rowsHtml+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function toggleGroup(header){
+  const rows=header.nextElementSibling;const chevron=header.querySelector('.chevron');
+  const isOpen=rows.classList.contains('open');
+  rows.classList.toggle('open',!isOpen);
+  chevron.style.transform=isOpen?'':'rotate(180deg)';
+}
+function expandAll(open){
+  document.querySelectorAll('.co-rows').forEach(r=>r.classList.toggle('open',open));
+  document.querySelectorAll('.chevron').forEach(c=>c.style.transform=open?'rotate(180deg)':'');
+}
+
+// DASHBOARD
+function renderDashboard(){
+  refreshStatuses();
+  const h=new Date().getHours();
+  document.getElementById('dash-greeting').textContent=(h<12?'Good morning, ':h<17?'Good afternoon, ':'Good evening, ')+(cfg.name?cfg.name.split(' ')[0]:'Oscar')+'.';
+  const total=leads.length,active=leads.filter(l=>!['won','not_interested','followup2_sent'].includes(l.status)).length;
+  const meetings=leads.filter(l=>['meeting','won'].includes(l.status)).length;
+  const replied=leads.filter(l=>['replied','meeting','won'].includes(l.status)).length;
+  const contacted=leads.filter(l=>l.contactedDate).length;
+  document.getElementById('stat-total').textContent=total;
+  document.getElementById('stat-active').textContent=active;
+  document.getElementById('stat-meetings').textContent=meetings;
+  document.getElementById('stat-reply').textContent=(contacted>0?Math.min(100,Math.round((replied/contacted)*100)):0)+'%';
+  const wkAgo=new Date();wkAgo.setDate(wkAgo.getDate()-7);
+  document.getElementById('sidebar-weekly').textContent=leads.filter(l=>l.contactedDate&&new Date(l.contactedDate+'T12:00:00')>=wkAgo).length+' sent';
+  const due=leads.filter(l=>{const na=nextAction(l);return na.date&&isOverdue(na.date)&&!['won','not_interested'].includes(l.status);});
+  document.getElementById('due-badge').textContent=due.length;
+  document.getElementById('due-list').innerHTML=due.length===0?'<p style="color:#52525b;font-size:13px;text-align:center;padding:24px 0;">Nothing due today.</p>':due.map(l=>{const na=nextAction(l);return'<div onclick="openDetail(\''+l.id+'\')" style="display:flex;align-items:center;justify-content:space-between;background:#1c1c1e;border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:pointer;" onmouseover="this.style.background=\'#27272a\'" onmouseout="this.style.background=\'#1c1c1e\'"><div><div style="font-size:13px;font-weight:500;">'+esc(l.firstName+' '+l.lastName)+'</div><div style="font-size:11px;color:#71717a;margin-top:2px;">'+esc(l.company)+' &middot; '+na.label+'</div></div><svg width="14" height="14" fill="none" stroke="#71717a" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" d="M9 18l6-6-6-6"/></svg></div>';}).join('');
+  document.getElementById('pipeline-view').innerHTML=['corporate','realestate','construction','automotive'].map(ind=>{
+    const il=leads.filter(l=>l.industry===ind);const won=il.filter(l=>l.status==='won').length;const pct=il.length>0?Math.max(Math.round((won/il.length)*100),3):0;
+    return'<div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span>'+IND_LABELS[ind]+'</span><span style="color:#71717a;">'+il.length+' lead'+(il.length!==1?'s':'')+'</span></div><div style="background:#27272a;border-radius:999px;height:4px;"><div style="background:#fff;border-radius:999px;height:4px;width:'+pct+'%;"></div></div></div>';
+  }).join('');
+  renderReelStats();
+  revenueStats();
+}
+function renderReelStats(){
+  const el=document.getElementById('reel-view');if(!el)return;
+  const reels=cfg.reels||[];
+  if(reels.length===0){el.innerHTML='<p style="color:#52525b;font-size:13px;text-align:center;padding:8px 0;">No reels yet. Add them in Settings, then attach one when you send a follow-up to see which converts.</p>';return;}
+  const replyStatuses=['replied','meeting','won'],meetingStatuses=['meeting','won'];
+  const rows=reels.map(r=>{
+    const used=leads.filter(l=>l.reelId===r.id);
+    const sent=used.filter(l=>l.contactedDate||l.status!=='new').length;
+    const replies=used.filter(l=>replyStatuses.includes(l.status)).length;
+    const meetings=used.filter(l=>meetingStatuses.includes(l.status)).length;
+    return {r,sent,replies,meetings};
+  }).sort((a,b)=>(b.replies-a.replies)||(b.sent-a.sent));
+  const anyUse=rows.some(x=>x.sent>0);
+  el.innerHTML=(anyUse?'':'<p style="color:#52525b;font-size:12px;margin-bottom:14px;">No reels sent yet. Attach a reel to a lead and send a follow-up to start tracking.</p>')+
+    '<div style="display:flex;font-size:11px;color:#52525b;padding:0 4px 8px;"><div style="flex:2;">Reel</div><div style="flex:1;text-align:center;">Sent</div><div style="flex:1;text-align:center;">Replies</div><div style="flex:1;text-align:center;">Meetings</div><div style="flex:1;text-align:center;">Reply %</div></div>'+
+    rows.map(x=>{
+      const pct=x.sent>0?Math.round((x.replies/x.sent)*100):0;
+      return '<div style="display:flex;align-items:center;font-size:13px;padding:10px 4px;border-top:1px solid #1c1c1e;"><div style="flex:2;min-width:0;"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;">'+esc(x.r.label)+'</div>'+(x.r.industry&&x.r.industry!=='any'?'<div style="font-size:11px;color:#52525b;">'+(IND_LABELS[x.r.industry]||x.r.industry)+'</div>':'')+'</div><div style="flex:1;text-align:center;color:#a1a1aa;">'+x.sent+'</div><div style="flex:1;text-align:center;color:#a1a1aa;">'+x.replies+'</div><div style="flex:1;text-align:center;color:#a1a1aa;">'+x.meetings+'</div><div style="flex:1;text-align:center;font-weight:600;color:'+(x.sent>0?'#4ade80':'#52525b')+';">'+(x.sent>0?pct+'%':'&middot;')+'</div></div>';
+    }).join('');
+  // A/B summary
+  const aLeads=leads.filter(l=>getVariant(l)==='A');
+  const bLeads=leads.filter(l=>getVariant(l)==='B');
+  const aReplies=aLeads.filter(l=>['replied','meeting','won'].includes(l.status)).length;
+  const bReplies=bLeads.filter(l=>['replied','meeting','won'].includes(l.status)).length;
+  const aCont=aLeads.filter(l=>l.contactedDate).length;
+  const bCont=bLeads.filter(l=>l.contactedDate).length;
+  el.innerHTML+='<div style="margin-top:20px;padding-top:16px;border-top:1px solid #222;"><div style="font-size:12px;font-weight:600;margin-bottom:10px;color:#a1a1aa;">A/B Template Performance</div>'+
+    '<div style="display:flex;gap:12px;">'+
+    '<div style="flex:1;background:#1a1a1a;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#52525b;margin-bottom:4px;">Variant A</div><div style="font-size:18px;font-weight:700;">'+(aCont>0?Math.round(aReplies/aCont*100):0)+'%</div><div style="font-size:11px;color:#52525b;">'+aReplies+'/'+aCont+' replied</div></div>'+
+    '<div style="flex:1;background:#1a1a1a;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#52525b;margin-bottom:4px;">Variant B</div><div style="font-size:18px;font-weight:700;">'+(bCont>0?Math.round(bReplies/bCont*100):0)+'%</div><div style="font-size:11px;color:#52525b;">'+bReplies+'/'+bCont+' replied</div></div>'+
+    '</div></div>';
+}
+
+// CSV EXPORT / IMPORT (backup + restore)
+const CSV_COLS=['id','firstName','lastName','company','website','industry','channel','contact','hunterEmail','notes','researchNotes','status','reelId','monthlyValue','timeline','contactedDate','followup1SentDate','followup2SentDate','createdAt'];
+function exportCSV(){
+  if(leads.length===0){toast('No leads to export yet.');return;}
+  const cell=v=>{v=v==null?'':String(v);return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+  const rows=[CSV_COLS.join(',')];
+  leads.forEach(l=>rows.push(CSV_COLS.map(c=>cell(l[c])).join(',')));
+  const blob=new Blob([rows.join('\r\n')],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='ogm_leads_'+today()+'.csv';
+  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+  toast('Exported '+leads.length+' lead'+(leads.length!==1?'s':'')+'.');
+}
+function parseCSV(text){
+  const rows=[];let row=[],cur='',q=false;
+  for(let i=0;i<text.length;i++){const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=c; }
+    else { if(c==='"')q=true; else if(c===','){row.push(cur);cur='';}
+      else if(c==='\n'){row.push(cur);rows.push(row);row=[];cur='';}
+      else if(c==='\r'){} else cur+=c; }
+  }
+  if(cur!==''||row.length){row.push(cur);rows.push(row);}
+  return rows.filter(r=>r.length>1||(r.length===1&&r[0].trim()!==''));
+}
+function importCSV(input){
+  const file=input.files&&input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const rows=parseCSV(reader.result);
+      if(rows.length<2){toast('That CSV looks empty.');input.value='';return;}
+      const header=rows[0].map(h=>h.trim());
+      const seen=new Set(leads.map(l=>l.id));let added=0;
+      rows.slice(1).forEach(r=>{
+        const o={};header.forEach((h,i)=>o[h]=r[i]!==undefined?r[i]:'');
+        if(!o.firstName&&!o.company)return;
+        const lead={id:(o.id&&!seen.has(o.id))?o.id:uid(),firstName:o.firstName||'',lastName:o.lastName||'',company:o.company||'',website:o.website||'',industry:IND_LABELS[o.industry]?o.industry:'corporate',channel:o.channel==='instagram'?'instagram':'email',contact:o.contact||'',hunterEmail:o.hunterEmail||null,notes:o.notes||'',researchNotes:o.researchNotes||'',companyDesc:'',status:STATUS_LABEL[o.status]?o.status:'new',reelId:o.reelId||null,contactedDate:o.contactedDate||null,followup1SentDate:o.followup1SentDate||null,followup2SentDate:o.followup2SentDate||null,createdAt:o.createdAt||new Date().toISOString()};
+        if(seen.has(lead.id))return;
+        seen.add(lead.id);leads.unshift(lead);added++;
+      });
+      save();updateNavBadge();renderLeads();renderDashboard();
+      // push to server
+      fetch(API+'/api/leads/bulk',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({leads})}).catch(()=>{});
+      toast('Imported '+added+' lead'+(added!==1?'s':'')+'.');
+    }catch(e){toast('Could not read that CSV file.');}
+    input.value='';
+  };
+  reader.readAsText(file);
+}
+
+// PORTFOLIO
+const PF_INDS=['corporate','realestate','construction','automotive'];
+function savePortfolioLink(ind,val){if(!cfg.portfolios)cfg.portfolios={};cfg.portfolios[ind]={url:(val||'').trim()};saveCfg();toast(val.trim()?'Portfolio link saved.':'Portfolio link cleared.');}
+function renderPortfolio(){
+  const grid=document.getElementById('portfolio-grid');if(!grid)return;
+  grid.innerHTML=PF_INDS.map(ind=>{
+    const url=(cfg.portfolios&&cfg.portfolios[ind]&&cfg.portfolios[ind].url)||'';
+    return '<div style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;">'+
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;"><span style="font-size:20px;">'+(IND_ICON[ind]||'')+'</span><span style="font-size:15px;font-weight:600;">'+IND_LABELS[ind]+'</span></div>'+
+      '<label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Portfolio link (sent in emails to '+IND_LABELS[ind]+' leads)</label>'+
+      '<input value="'+esc(url)+'" onchange="savePortfolioLink(\''+ind+'\',this.value)" placeholder="https://vimeo.com/showcase/... or a page on your site" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:10px 12px;border-radius:8px;margin-bottom:16px;" />'+
+      '<div ondragover="event.preventDefault();this.style.borderColor=\'#52525b\';" ondragleave="this.style.borderColor=\'#2a2a2a\';" ondrop="portfolioDrop(event,\''+ind+'\')" onclick="document.getElementById(\'pf-input-'+ind+'\').click()" style="border:1px dashed #2a2a2a;border-radius:10px;padding:18px;text-align:center;cursor:pointer;color:#52525b;font-size:12px;transition:border-color 0.15s;">Drag images here, or click to choose (visual reference for you, not emailed)</div>'+
+      '<input type="file" id="pf-input-'+ind+'" accept="image/*" multiple style="display:none;" onchange="portfolioFiles(this.files,\''+ind+'\');this.value=\'\';" />'+
+      '<div id="pf-grid-'+ind+'" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;"></div>'+
+    '</div>';
+  }).join('');
+  PF_INDS.forEach(loadPortfolioThumbs);
+}
+function loadPortfolioThumbs(ind){
+  const g=document.getElementById('pf-grid-'+ind);if(!g)return;
+  idbByIndustry(ind).then(items=>{
+    g.innerHTML=(items||[]).sort((a,b)=>a.addedAt-b.addedAt).map(it=>'<div style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:#000;"><img src="'+it.thumb+'" alt="" style="width:100%;height:100%;object-fit:cover;" /><button onclick="removePortfolioItem(\''+it.id+'\',\''+ind+'\')" title="Remove" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.7);border:none;color:#fff;width:20px;height:20px;border-radius:50%;cursor:pointer;font-size:13px;line-height:1;padding:0;">&times;</button></div>').join('');
+  }).catch(()=>{g.innerHTML='<p style="grid-column:1/-1;font-size:11px;color:#52525b;">Couldn\'t load saved images.</p>';});
+}
+function removePortfolioItem(id,ind){idbDelete(id).then(()=>loadPortfolioThumbs(ind));}
+function portfolioDrop(ev,ind){ev.preventDefault();ev.currentTarget.style.borderColor='#2a2a2a';if(ev.dataTransfer&&ev.dataTransfer.files)portfolioFiles(ev.dataTransfer.files,ind);}
+function portfolioFiles(files,ind){
+  const imgs=[...files].filter(f=>f.type.startsWith('image/'));
+  if(imgs.length===0){toast('Drop image files (JPG/PNG). Video can\'t be stored or emailed from inside the app.');return;}
+  toast('Adding '+imgs.length+' image'+(imgs.length!==1?'s':'')+'...');
+  let done=0;
+  imgs.forEach(f=>downscaleImage(f)
+    .then(thumb=>idbAdd({id:uid(),industry:ind,thumb,name:f.name,addedAt:Date.now()}))
+    .then(()=>{done++;if(done===imgs.length)loadPortfolioThumbs(ind);})
+    .catch(()=>{done++;}));
+}
+function downscaleImage(file){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();const url=URL.createObjectURL(file);
+    img.onload=()=>{
+      const max=480;let w=img.width,h=img.height;
+      if(w>=h&&w>max){h=Math.round(h*max/w);w=max;} else if(h>w&&h>max){w=Math.round(w*max/h);h=max;}
+      const c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      URL.revokeObjectURL(url);
+      try{resolve(c.toDataURL('image/jpeg',0.82));}catch(e){reject(e);}
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('load failed'));};
+    img.src=url;
+  });
+}
+// Portfolio images live in IndexedDB (separate from leads, so they never crowd that storage).
+let _pfdb=null;
+function idb(){
+  return new Promise((res,rej)=>{
+    if(_pfdb){res(_pfdb);return;}
+    const r=indexedDB.open('ogm_portfolio',1);
+    r.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains('items')){const s=db.createObjectStore('items',{keyPath:'id'});s.createIndex('industry','industry',{unique:false});}};
+    r.onsuccess=e=>{_pfdb=e.target.result;res(_pfdb);};
+    r.onerror=e=>rej(e.target.error);
+  });
+}
+function idbAdd(item){return idb().then(db=>new Promise((res,rej)=>{const tx=db.transaction('items','readwrite');tx.objectStore('items').put(item);tx.oncomplete=()=>res();tx.onerror=e=>rej(e.target.error);}));}
+function idbByIndustry(ind){return idb().then(db=>new Promise((res,rej)=>{const tx=db.transaction('items','readonly');const req=tx.objectStore('items').index('industry').getAll(ind);req.onsuccess=()=>res(req.result||[]);req.onerror=e=>rej(e.target.error);}));}
+function idbDelete(id){return idb().then(db=>new Promise((res,rej)=>{const tx=db.transaction('items','readwrite');tx.objectStore('items').delete(id);tx.oncomplete=()=>res();tx.onerror=e=>rej(e.target.error);}));}
+
+// ── LEAD SCORING ──────────────────────────────────────────────────────────────
+const TITLE_SCORE={
+  'cmo':10,'chief marketing':10,'vp marketing':9,'head of marketing':9,'director of marketing':8,
+  'marketing director':8,'brand director':8,'marketing manager':7,'brand manager':7,
+  'digital manager':6,'social media manager':5,'content manager':5,'communications':5,
+  'principal':7,'partner':7,'director':6,'manager':5,'founder':8,'owner':7,'ceo':8
+};
+function scoreTitle(title){
+  if(!title)return 3;
+  const t=title.toLowerCase();
+  for(const[k,v]of Object.entries(TITLE_SCORE)){if(t.includes(k))return v;}
+  return 3;
+}
+function scoreLead(l){
+  let s=0;
+  // Title seniority
+  const title=(l.notes||'').replace('Title:','').trim();
+  s+=scoreTitle(title)*10;
+  // Has email
+  if(l.hunterEmail||l.contact)s+=15;
+  // Has research notes (personalisation ready)
+  if(l.researchNotes&&l.researchNotes.trim())s+=10;
+  // Status bonus (closer = higher)
+  const statusBonus={new:0,contacted:10,followup1_due:15,followup1_sent:20,followup2_due:25,followup2_sent:30,replied:50,meeting:70};
+  s+=statusBonus[l.status]||0;
+  // Freshness penalty (older new leads score lower)
+  if(l.status==='new'&&l.createdAt){
+    const days=(Date.now()-new Date(l.createdAt).getTime())/(1000*86400);
+    s=Math.max(0,s-Math.floor(days)*2);
+  }
+  return Math.min(100,s);
+}
+
+// ── ACTIVITY TIMELINE ─────────────────────────────────────────────────────────
+function getTimeline(l){
+  try{return JSON.parse(l.timeline||'[]');}catch{return[];}
+}
+function buildTimeline(l){
+  const entries=getTimeline(l);
+  const auto=[];
+  if(l.contactedDate)     auto.push({ts:l.contactedDate,type:'sent',text:'Initial outreach sent'});
+  if(l.followup1SentDate) auto.push({ts:l.followup1SentDate,type:'sent',text:'Follow-up 1 sent'});
+  if(l.followup2SentDate) auto.push({ts:l.followup2SentDate,type:'sent',text:'Follow-up 2 sent'});
+  const all=[...auto,...entries].sort((a,b)=>new Date(a.ts)-new Date(b.ts));
+  if(!all.length)return '<p style="font-size:12px;color:#52525b;">No activity yet.</p>';
+  const colours={sent:'#71717a',note:'#a1a1aa',reply:'#4ade80',meeting:'#fbbf24'};
+  return all.map(e=>'<div style="display:flex;gap:10px;align-items:flex-start;"><div style="width:6px;height:6px;border-radius:50%;background:'+( colours[e.type]||'#52525b')+';margin-top:5px;flex-shrink:0;"></div><div style="flex:1;"><div style="font-size:12px;color:#e5e5e5;">'+esc(e.text)+'</div><div style="font-size:10px;color:#52525b;margin-top:1px;">'+(e.ts?new Date(e.ts).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}):'')+'</div></div></div>').join('');
+}
+function addTimelineEntry(id){
+  const l=leads.find(x=>x.id===id);if(!l)return;
+  const inp=document.getElementById('tl-note-'+id);if(!inp||!inp.value.trim())return;
+  const entries=getTimeline(l);
+  entries.push({ts:new Date().toISOString(),type:'note',text:inp.value.trim()});
+  l.timeline=JSON.stringify(entries);inp.value='';
+  save();apiSaveLead(l);
+  const tlEl=document.getElementById('timeline-'+id);if(tlEl)tlEl.innerHTML=buildTimeline(l);
+  toast('Note logged.');
+}
+function markReply(id){
+  const l=leads.find(x=>x.id===id);if(!l)return;
+  const entries=getTimeline(l);
+  entries.push({ts:new Date().toISOString(),type:'reply',text:'Reply received'});
+  l.timeline=JSON.stringify(entries);
+  l.status='replied';
+  save();apiSaveLead(l);
+  const tlEl=document.getElementById('timeline-'+id);if(tlEl)tlEl.innerHTML=buildTimeline(l);
+  renderDashboard();toast('Marked as replied.');
+}
+
+// ── A/B TEMPLATES ─────────────────────────────────────────────────────────────
+// Variant B templates — alternate subject lines and openers
+const SUBJECTS_B={
+  corporate:{1:'A quick question about [co]\'s social presence',2:'One more thought — [co]',3:'Last note: [co]'},
+  realestate:{1:'Your listings deserve better video',2:'Quick follow-up on the video idea',3:'Last one from me'},
+  construction:{1:'Turning [co]\'s projects into content',2:'Following up on the content idea',3:'Closing the loop'},
+  automotive:{1:'Video content that moves cars',2:'Quick follow-up — [co]',3:'Last message from me'},
+};
+const TMPLS_B={
+  corporate:{
+    email:{
+      1:"Hi [first],\n\nQuick question — is [co] producing any regular video content at the moment?\n\nI work with financial services firms in Sydney to produce 8-10 short-form reels per month — the kind that actually builds trust with clients on LinkedIn.\n\nWould you be open to a 10-minute call?\n\n[signature]",
+      2:"Hi [first],\n\nFollowing up from last week. Here's an example of what I produce: [add reel link].\n\nHappy to put a brief together for [co] if that's useful.\n\n[signature]",
+      3:"Hi [first],\n\nLast message from me — happy to reconnect whenever the timing suits.\n\n[signature]",
+    },
+  },
+  realestate:{
+    email:{
+      1:"Hi [first],\n\nI noticed [co]'s listings online. [insight].\n\nI produce listing and brand videos for agents in Sydney — content that sells properties and builds a following between campaigns.\n\nWorth a quick chat?\n\n[signature]",
+      2:"Hi [first],\n\nFollowing up. Here's a recent example: [add reel link]. Happy to do a trial shoot for you.\n\n[signature]",
+      3:"Hi [first],\n\nLast one from me. Happy to chat whenever the timing's right.\n\n[signature]",
+    },
+  },
+  construction:{
+    email:{
+      1:"Hi [first],\n\nI've been following [co]'s work. [insight].\n\nI document construction projects — time-lapses, reveals, before/afters. Content that wins you the next job.\n\nWorth a call?\n\n[signature]",
+      2:"Hi [first],\n\nFollowing up. Here's an example: [add reel link]. Happy to walk you through what's possible.\n\n[signature]",
+      3:"Hi [first],\n\nLast one. If a project's coming up, happy to reconnect.\n\n[signature]",
+    },
+  },
+  automotive:{
+    email:{
+      1:"Hi [first],\n\nLove what [co] is doing. [insight].\n\nI produce automotive content for Sydney dealerships — walk-arounds, delivery moments, lifestyle. Stuff that sells and builds a brand.\n\nOpen to a quick call?\n\n[signature]",
+      2:"Hi [first],\n\nFollowing up. Here's a recent example: [add reel link].\n\n[signature]",
+      3:"Hi [first],\n\nLast message from me — happy to reconnect whenever.\n\n[signature]",
+    },
+  },
+};
+// Track which variant each lead uses (A if even id char, B if odd — simple 50/50 split)
+function getVariant(l){return (parseInt(l.id.charCodeAt(0),36)%2===0)?'A':'B';}
+function buildMsgAB(l,touch){
+  const variant=getVariant(l);
+  const tmpl=variant==='B'&&TMPLS_B[l.industry]?TMPLS_B:TMPLS;
+  const subj=variant==='B'&&SUBJECTS_B[l.industry]?SUBJECTS_B:SUBJECTS;
+  l._variant=variant;
+  return {body:buildMsgFrom(tmpl,l,touch),subject:buildSubjectFrom(subj,l,touch),variant};
+}
+function buildMsgFrom(tmpl,l,touch){
+  let body=(tmpl[l.industry]||{})[l.channel||'email']?.[touch];if(!body)return '';
+  const insight=l.researchNotes&&l.researchNotes.trim()?l.researchNotes.trim():'[add a personalisation detail here]';
+  const reel=(cfg.reels||[]).find(r=>r.id===l.reelId);
+  const reelLink=reel?reel.url:'[add reel link]';
+  const sig=(cfg.signature&&cfg.signature.trim())?cfg.signature:((cfg.name||'Oscar Green')+'\nOscar Green Media | '+(cfg.email||'oscar@oscargreenmedia.com'));
+  const pf=(cfg.portfolios&&cfg.portfolios[l.industry]&&cfg.portfolios[l.industry].url)?cfg.portfolios[l.industry].url.trim():'';
+  if(l.channel==='email'&&touch===1&&pf){body=body.replace('[signature]','You can see a sample of my work here: '+pf+'\n\n[signature]');}
+  return body.replace(/\[first\]/g,l.firstName).replace(/\[co\]/g,l.company).replace(/\[insight\]/g,insight).replace(/\[add reel link\]/g,reelLink).replace(/\[signature\]/g,sig).replace(/\[myname\]/g,cfg.name||'Oscar Green').replace(/\[myemail\]/g,cfg.email||'oscar@oscargreenmedia.com');
+}
+function buildSubjectFrom(subj,l,touch){return((subj[l.industry]||{})[touch]||'Video content for [co]').replace(/\[co\]/g,l.company);}
+
+// ── REVENUE ───────────────────────────────────────────────────────────────────
+function renderRevenue(){
+  const won=leads.filter(l=>l.status==='won');
+  const meetings=leads.filter(l=>l.status==='meeting');
+  const mrr=won.reduce((s,l)=>s+(l.monthlyValue||0),0);
+  const pipeline=meetings.reduce((s,l)=>s+(l.monthlyValue||0),0);
+  const fmt=n=>'$'+n.toLocaleString('en-AU');
+  document.getElementById('rev-mrr').textContent=fmt(mrr);
+  document.getElementById('rev-pipeline').textContent=fmt(pipeline);
+  document.getElementById('rev-arr').textContent=fmt(mrr*12);
+  const wonEl=document.getElementById('rev-won-list');
+  wonEl.innerHTML=won.length?won.map(l=>'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1c1c1e;"><div><div style="font-size:13px;font-weight:500;">'+esc(l.firstName+' '+l.lastName)+'</div><div style="font-size:12px;color:#71717a;">'+esc(l.company)+'</div></div><div style="text-align:right;"><div style="font-size:15px;font-weight:600;color:#4ade80;">'+(l.monthlyValue?fmt(l.monthlyValue)+'/mo':'No value set')+'</div><button onclick="promptValue(\''+l.id+'\')" style="font-size:11px;color:#52525b;background:none;border:none;cursor:pointer;padding:2px 0;">Edit value</button></div></div>').join(''):'<p style="color:#52525b;font-size:13px;">No won leads yet.</p>';
+  const pipEl=document.getElementById('rev-pipeline-list');
+  pipEl.innerHTML=meetings.length?meetings.map(l=>'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1c1c1e;"><div><div style="font-size:13px;font-weight:500;">'+esc(l.firstName+' '+l.lastName)+'</div><div style="font-size:12px;color:#71717a;">'+esc(l.company)+'</div></div><div style="text-align:right;"><div style="font-size:15px;font-weight:600;color:#fbbf24;">'+(l.monthlyValue?fmt(l.monthlyValue)+'/mo':'Set value')+'</div><button onclick="promptValue(\''+l.id+'\')" style="font-size:11px;color:#52525b;background:none;border:none;cursor:pointer;padding:2px 0;">Edit</button></div></div>').join(''):'<p style="color:#52525b;font-size:13px;">No meetings booked yet.</p>';
+}
+function promptValue(id){
+  const l=leads.find(x=>x.id===id);if(!l)return;
+  const v=prompt('Monthly retainer value for '+l.company+' ($AUD):',l.monthlyValue||'');
+  if(v===null)return;
+  l.monthlyValue=parseFloat(v)||0;save();apiSaveLead(l);
+  if(document.getElementById('rev-mrr'))renderRevenue();
+  renderDashboard();toast('Value updated.');
+}
+
+// ── COMPETITORS ───────────────────────────────────────────────────────────────
+function getCompetitors(){return cfg.competitors||[];}
+function saveCompetitors(list){cfg.competitors=list;saveCfg();}
+function addCompetitor(){
+  const handle=document.getElementById('comp-handle').value.trim().replace(/^@/,'');
+  const name=document.getElementById('comp-name').value.trim();
+  if(!handle){toast('Enter an Instagram handle.');return;}
+  const list=getCompetitors();
+  if(list.some(c=>c.handle===handle)){toast('Already watching this account.');return;}
+  list.push({id:uid(),handle,name:name||handle,addedAt:new Date().toISOString()});
+  saveCompetitors(list);
+  document.getElementById('comp-handle').value='';document.getElementById('comp-name').value='';
+  renderCompetitors();toast('Added @'+handle+'.');
+}
+function removeCompetitor(id){
+  saveCompetitors(getCompetitors().filter(c=>c.id!==id));
+  renderCompetitors();
+}
+function renderCompetitors(){
+  const el=document.getElementById('comp-list');if(!el)return;
+  const list=getCompetitors();
+  if(!list.length){el.innerHTML='<p style="color:#52525b;font-size:13px;">No competitors added yet. Add their Instagram handle above.</p>';return;}
+  el.innerHTML=list.map(c=>'<div style="background:#111;border:1px solid #222;border-radius:12px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;">'+
+    '<div><div style="font-size:14px;font-weight:600;">'+esc(c.name)+'</div>'+
+    '<a href="https://instagram.com/'+encodeURIComponent(c.handle)+'" target="_blank" style="font-size:12px;color:#71717a;text-decoration:none;">@'+esc(c.handle)+'</a></div>'+
+    '<div style="display:flex;gap:8px;">'+
+      '<button onclick="window.open(\'https://instagram.com/'+encodeURIComponent(c.handle)+'/followers\',\'_blank\')" style="background:none;border:1px solid #333;color:#a1a1aa;font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;">View followers</button>'+
+      '<button onclick="copyCompOutreach(\''+c.id+'\')" style="background:none;border:1px solid #333;color:#a1a1aa;font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;">Copy outreach</button>'+
+      '<button onclick="removeCompetitor(\''+c.id+'\')" style="background:none;border:none;color:#f87171;font-size:12px;cursor:pointer;">Remove</button>'+
+    '</div></div>').join('');
+}
+function copyCompOutreach(id){
+  const c=getCompetitors().find(x=>x.id===id);if(!c)return;
+  const msg='Hey [first], I noticed you follow @'+c.handle+'. I also do videography for businesses in Sydney — short-form content for LinkedIn and Instagram. Would love to show you what I produce. Worth a chat?\n\n'+((cfg.name)||'Oscar');
+  navigator.clipboard.writeText(msg).then(()=>toast('Outreach message copied to clipboard.')).catch(()=>toast('Could not copy — try manually.'));
+}
+
+// ── PERSONALISATION ASSISTANT ─────────────────────────────────────────────────
+async function runPersonalisationAssist(id){
+  const l=leads.find(x=>x.id===id);if(!l)return;
+  const btn=document.getElementById('pa-btn-'+id);
+  if(btn){btn.textContent='🔍 Searching...';btn.disabled=true;}
+  try{
+    // Use Wikipedia + a news search via DuckDuckGo instant answer API
+    const query=encodeURIComponent(l.company+' Sydney news 2024 2025');
+    const wikiResp=await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(l.company));
+    let hint='';
+    if(wikiResp.ok){
+      const wd=await wikiResp.json();
+      if(wd.extract)hint=wd.extract.split('.').slice(0,2).join('.')+'.';
+    }
+    const rn=document.getElementById('rn-'+id);
+    if(rn&&!rn.value.trim()&&hint){
+      rn.value=hint;l.researchNotes=hint;save();apiSaveLead(l);
+      toast('Research note pre-filled from Wikipedia. Edit to personalise.');
+    } else if(rn&&rn.value.trim()){
+      toast('Research note already filled — edit it manually.');
+    } else {
+      toast('No Wikipedia entry found for '+l.company+'. Try adding a personalisation note manually.');
+    }
+  }catch(e){toast('Could not fetch research. Add a note manually.');}
+  if(btn){btn.textContent='🔍 Research';btn.disabled=false;}
+}
+
+// ── PROPOSALS ─────────────────────────────────────────────────────────────────
+let proposalHistory=JSON.parse(localStorage.getItem('ogm_proposals')||'[]');
+
+function renderProposals(){
+  // Populate lead selector
+  const sel=document.getElementById('prop-lead');if(!sel)return;
+  const current=sel.value;
+  sel.innerHTML='<option value="">Choose a lead...</option>'+
+    leads.filter(l=>l.firstName||l.company).map(l=>'<option value="'+l.id+'"'+(l.id===current?' selected':'')+'>'+esc(l.firstName+' '+l.lastName)+' — '+esc(l.company)+'</option>').join('');
+  // History
+  const hist=document.getElementById('prop-history');
+  hist.innerHTML=proposalHistory.length?proposalHistory.slice().reverse().map(p=>'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1c1c1e;"><div><div style="font-size:13px;font-weight:500;">'+esc(p.company)+'</div><div style="font-size:12px;color:#71717a;">Tier '+p.tier+' &middot; '+new Date(p.createdAt).toLocaleDateString('en-AU')+'</div></div><button onclick="downloadProposal(\''+p.id+'\')" style="background:none;border:1px solid #333;color:#a1a1aa;font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;">Re-download</button></div>').join(''):'<p style="color:#52525b;font-size:13px;">No proposals generated yet.</p>';
+}
+
+async function generateProposal(){
+  const leadId=document.getElementById('prop-lead').value;
+  const tier=parseInt(document.getElementById('prop-tier').value);
+  const note=document.getElementById('prop-note').value.trim();
+  const validity=parseInt(document.getElementById('prop-validity').value)||30;
+  if(!leadId){toast('Select a lead first.');return;}
+  const l=leads.find(x=>x.id===leadId);if(!l)return;
+  const statusEl=document.getElementById('prop-status');
+  statusEl.style.display='block';statusEl.textContent='Generating PDF...';
+
+  const TIER_DATA={
+    1:{name:'Essential',price:'$4,000',tagline:'Structured monthly production with ad hoc flexibility',bullets:['One scheduled shoot day per month','One additional ad hoc shoot day per month','8–10 professionally edited short-form reels per month','Full post-production: colour grading, captions, music and sound design','Two rounds of revisions per content batch','Monthly content planning session']},
+    2:{name:'Professional',price:'$4,500',tagline:'Expanded coverage with reactive shoot capability',bullets:['One scheduled shoot day per month','Two to three additional reactive shoot days per month at no extra charge','8–10 professionally edited short-form reels per month','Full post-production: colour grading, captions, music and sound design','Two rounds of revisions per content batch','Monthly content planning session']},
+    3:{name:'Premium',price:'$6,000',tagline:'Comprehensive production with unlimited reactive access',bullets:['One scheduled shoot day per month','Unlimited reactive shoot days throughout the month — no cap','Priority scheduling: 24-hour notice for reactive shoots','8–15 professionally edited short-form reels per month','Full post-production: colour grading, captions, music and sound design','Two rounds of revisions per content batch','Monthly content planning session plus a dedicated quarterly strategy review']},
+  };
+  const td=TIER_DATA[tier];
+  const company=l.company||'Your Company';
+  const contact=l.firstName?(l.firstName+(l.lastName?' '+l.lastName:'')):'';
+  const dateStr=new Date().toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
+  const validUntil=new Date(Date.now()+validity*86400000).toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
+
+  // Build PDF as HTML → print window
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>OGM Proposal — ${company}</title><style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Arial',sans-serif;color:#0a0a0a;background:#fff;padding:0;}
+    .page{width:210mm;min-height:297mm;padding:18mm 18mm 22mm;margin:0 auto;position:relative;}
+    .header{background:#0a0a0a;padding:18mm 18mm 14mm;margin:-18mm -18mm 0;display:flex;align-items:center;justify-content:space-between;}
+    .logo{font-size:32px;font-weight:900;letter-spacing:8px;color:#fff;}
+    .logo-sub{font-size:9px;letter-spacing:4px;color:#888;margin-top:2px;}
+    .prepared{text-align:right;}
+    .prep-label{font-size:9px;letter-spacing:3px;color:#aaa;text-transform:uppercase;}
+    .company-name{font-size:24px;font-weight:700;color:#fff;margin-top:4px;}
+    .subtitle{font-size:12px;color:#999;margin-top:4px;}
+    .gold-rule{height:3px;background:#0a0a0a;margin:20px 0 24px;}
+    .intro{font-size:11px;line-height:1.7;color:#444;margin-bottom:8px;}
+    .section-label{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:#0a0a0a;margin-bottom:6px;font-weight:700;}
+    .rule{border:none;border-top:2px solid #0a0a0a;margin-bottom:16px;}
+    .tier-box{border-left:4px solid #0a0a0a;background:#f9f9f9;padding:18px 20px;margin-bottom:20px;}
+    .tier-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#888;}
+    .tier-price{font-size:36px;font-weight:900;color:#0a0a0a;margin:4px 0 2px;}
+    .tier-per{font-size:10px;color:#888;margin-bottom:12px;}
+    .tier-divider{border:none;border-top:1px solid #ddd;margin:10px 0 12px;}
+    .tier-tagline{font-size:12px;font-weight:700;margin-bottom:10px;}
+    ul{padding-left:16px;}
+    ul li{font-size:11px;line-height:1.8;color:#333;}
+    .incl-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;margin-bottom:20px;}
+    .incl-item{font-size:10px;color:#333;padding:3px 0;display:flex;gap:6px;}
+    .incl-item::before{content:'—';color:#0a0a0a;font-weight:700;}
+    .next-steps{margin-bottom:20px;}
+    .next-steps p{font-size:11px;line-height:1.7;color:#333;margin-bottom:6px;}
+    .signoff{border-top:2px solid #0a0a0a;padding-top:12px;margin-top:8px;}
+    .signoff-name{font-size:14px;font-weight:700;}
+    .signoff-detail{font-size:10px;color:#666;margin-top:2px;}
+    .footer{position:fixed;bottom:10mm;left:18mm;right:18mm;text-align:center;font-size:8px;color:#999;border-top:1px solid #eee;padding-top:6px;}
+    .validity{font-size:9px;color:#888;margin-top:4px;}
+    @media print{body{margin:0;}@page{size:A4;margin:0;}.page{padding:18mm 18mm 22mm;}}
+  </style></head><body>
+  <div class="page">
+    <div class="header">
+      <div><div class="logo">OGM</div><div class="logo-sub">OSCAR GREEN MEDIA</div></div>
+      <div class="prepared"><div class="prep-label">Prepared for</div><div class="company-name">${company}</div><div class="subtitle">Social Media Video Production — Retainer Proposal</div></div>
+    </div>
+    <div style="height:24px;"></div>
+    <div class="section-label">Introduction</div><hr class="rule">
+    ${note?'<p class="intro">'+note.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</p>':''}<p class="intro">Oscar Green Media specialises in short-form video content for corporate and financial services brands. The following retainer package has been prepared specifically for ${company}, offering a structured, cost-effective approach to building a consistent and high-quality social media presence.</p>
+    <div style="height:16px;"></div>
+    <div class="section-label">Recommended Retainer — Tier ${tier}: ${td.name}</div><hr class="rule">
+    <div class="tier-box">
+      <div class="tier-label">Tier ${tier} — ${td.name}</div>
+      <div class="tier-price">${td.price}</div>
+      <div class="tier-per">per month · inc. GST</div>
+      <hr class="tier-divider">
+      <div class="tier-tagline">${td.tagline}</div>
+      <ul>${td.bullets.map(b=>'<li>'+b+'</li>').join('')}</ul>
+    </div>
+    <div class="section-label">Included Across All Tiers</div><hr class="rule">
+    <div class="incl-grid">
+      <div class="incl-item">All editing, colour grading and post-production</div>
+      <div class="incl-item">All production equipment and on-site crew</div>
+      <div class="incl-item">Unlimited revisions on the final approved cut</div>
+      <div class="incl-item">Content formatted and optimised per platform</div>
+      <div class="incl-item">Travel to any location within Greater Sydney</div>
+      <div class="incl-item">Monthly content planning and briefing session</div>
+      <div class="incl-item">GST included in all quoted prices</div>
+      <div class="incl-item">Raw footage archive supplied upon request</div>
+    </div>
+    <div class="section-label">Next Steps</div><hr class="rule">
+    <div class="next-steps">
+      <p>To proceed, please confirm your preferred tier by return email and Oscar Green Media will issue a formal service agreement for review and execution. The first scheduled shoot day can typically be arranged within one to two weeks of signing.</p>
+      <p>We welcome the opportunity to discuss any aspect of this proposal at your convenience.</p>
+      <p class="validity">This proposal is valid until ${validUntil}.</p>
+    </div>
+    <div class="signoff">
+      <div class="signoff-name">${(cfg.name||'Oscar Green')}</div>
+      <div class="signoff-detail">Oscar Green Media &nbsp;·&nbsp; ${(cfg.email||'oscar@oscargreenmedia.com')} &nbsp;·&nbsp; instagram.com/oscargreenmedia</div>
+      <div class="signoff-detail" style="margin-top:2px;">${dateStr}</div>
+    </div>
+    <div class="footer">Oscar Green Media &nbsp;·&nbsp; All fees quoted in AUD, inclusive of GST, invoiced monthly in advance. Travel included within Greater Sydney. Valid for ${validity} days from date of issue.</div>
+  </div>
+  <script>window.onload=function(){window.print();}<\/script>
+  </body></html>`;
+
+  const w=window.open('','_blank','width=900,height=1100');
+  if(!w){toast('Allow popups to generate the PDF.');statusEl.style.display='none';return;}
+  w.document.write(html);w.document.close();
+
+  // Save to history
+  const rec={id:uid(),leadId,company,tier,createdAt:new Date().toISOString()};
+  proposalHistory.push(rec);
+  localStorage.setItem('ogm_proposals',JSON.stringify(proposalHistory));
+  statusEl.style.display='none';
+  renderProposals();
+  toast('PDF opened — use Cmd/Ctrl+P or the print dialog to save as PDF.');
+}
+
+function downloadProposal(id){
+  const p=proposalHistory.find(x=>x.id===id);if(!p)return;
+  const l=leads.find(x=>x.id===p.leadId);
+  if(!l){toast('Lead no longer in pipeline.');return;}
+  document.getElementById('prop-lead').value=p.leadId;
+  document.getElementById('prop-tier').value=p.tier;
+  generateProposal();
+}
+
+// ── REVENUE DASHBOARD STATS ───────────────────────────────────────────────────
+function revenueStats(){
+  const won=leads.filter(l=>l.status==='won');
+  const meetings=leads.filter(l=>l.status==='meeting');
+  const mrr=won.reduce((s,l)=>s+(l.monthlyValue||0),0);
+  const pipeline=meetings.reduce((s,l)=>s+(l.monthlyValue||0),0);
+  const fmt=n=>n?'$'+n.toLocaleString('en-AU'):'$0';
+  const mrrEl=document.getElementById('stat-mrr');if(mrrEl)mrrEl.textContent=fmt(mrr);
+  const mrrSub=document.getElementById('stat-mrr-sub');if(mrrSub)mrrSub.textContent=won.length+' active retainer'+(won.length!==1?'s':'');
+  const pipEl=document.getElementById('stat-pipeline-val');if(pipEl)pipEl.textContent=fmt(pipeline);
+  const pipSub=document.getElementById('stat-pipeline-sub');if(pipSub)pipSub.textContent=meetings.length+' in meetings';
+  // Top scored lead
+  const scored=leads.filter(l=>!['won','not_interested'].includes(l.status)).map(l=>({l,score:scoreLead(l)})).sort((a,b)=>b.score-a.score);
+  const topEl=document.getElementById('stat-top-lead');
+  if(topEl&&scored.length){const t=scored[0];topEl.innerHTML='<span style="cursor:pointer;text-decoration:underline;" onclick="openDetail(\''+t.l.id+'\')">'+esc(t.l.firstName+' '+t.l.lastName)+'</span><br><span style="font-size:12px;color:#818cf8;">Score: '+t.score+' · '+esc(t.l.company)+'</span>';}
+}
+
+async function registerWebhook(){
+  const btn=document.getElementById('register-btn');
+  const res=document.getElementById('register-result');
+  if(btn){btn.textContent='Registering...';btn.disabled=true;}
+  try{
+    const r=await fetch(API+'/api/calendar/register',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+    const d=await r.json();
+    if(d.ok){
+      res.style.color='#4ade80';
+      res.textContent='✓ Webhook registered! Expires '+new Date(d.expiry).toLocaleDateString('en-AU')+'. Re-register before that date.';
+    } else {
+      res.style.color='#f87171';
+      res.textContent='Error: '+(d.error||JSON.stringify(d));
+    }
+  }catch(e){
+    res.style.color='#f87171';
+    res.textContent='Could not reach server: '+e.message;
+  }
+  if(btn){btn.textContent='Register webhook now';btn.disabled=false;}
+}
+
+// BOOKINGS
+let bookings = JSON.parse(localStorage.getItem('ogm_bookings') || '[]');
+const saveBookings = () => localStorage.setItem('ogm_bookings', JSON.stringify(bookings));
+async function syncBookings() {
+  try {
+    const r = await fetch(API + '/api/bookings');
+    const d = await r.json();
+    if (d.bookings) { bookings = d.bookings; saveBookings(); renderBookings(); }
+  } catch(e) {}
+}
+function renderBookings() {
+  const el = document.getElementById('bookings-list');
+  if (!el) return;
+  if (!bookings.length) { el.innerHTML = '<p style="color:#52525b;font-size:13px;">No bookings yet. Set up Google Calendar appointment scheduling and bookings will appear here automatically.</p>'; return; }
+  const sorted = [...bookings].sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+  el.innerHTML = sorted.map(b => {
+    const dt = b.startTime ? new Date(b.startTime) : null;
+    const dateStr = dt ? dt.toLocaleDateString('en-AU', {weekday:'short',day:'numeric',month:'short'}) : 'TBC';
+    const timeStr = dt ? dt.toLocaleTimeString('en-AU', {hour:'2-digit',minute:'2-digit'}) : '';
+    const statusColor = b.status==='confirmed' ? '#4ade80' : b.status==='cancelled' ? '#f87171' : '#fbbf24';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #1c1c1e;">' +
+      '<div style="display:flex;align-items:center;gap:12px;">' +
+        '<div style="background:#1c1c1e;border-radius:8px;padding:6px 10px;text-align:center;min-width:52px;">' +
+          '<div style="font-size:11px;color:#71717a;">' + dateStr.split(' ')[0] + '</div>' +
+          '<div style="font-size:16px;font-weight:600;">' + (dt ? dt.getDate() : '') + '</div>' +
+          '<div style="font-size:10px;color:#71717a;">' + timeStr + '</div>' +
+        '</div>' +
+        '<div>' +
+          '<div style="font-size:13px;font-weight:500;">' + esc(b.firstName + ' ' + b.lastName) + '</div>' +
+          '<div style="font-size:12px;color:#71717a;">' + esc(b.company || '') + (b.shootType ? ' · ' + esc(b.shootType) : '') + '</div>' +
+          (b.email ? '<div style="font-size:11px;color:#52525b;">' + esc(b.email) + '</div>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<span style="font-size:11px;background:#1a1a1a;border:1px solid #2a2a2a;color:' + statusColor + ';padding:2px 8px;border-radius:999px;">' + b.status + '</span>' +
+        (b.leadId ? '<button onclick="openDetail(\'' + b.leadId + '\')" style="font-size:11px;background:none;border:1px solid #333;color:#71717a;padding:3px 8px;border-radius:6px;cursor:pointer;">View lead</button>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// ── REEL IDEAS ────────────────────────────────────────────────────────────────
+const REEL_IDEAS = [
+  {idea:'Day in the life — videographer on set',format:'Vlog / BTS',heat:'High',tags:['BTS','Creator']},
+  {idea:'Before/after colour grade reveal',format:'Transition',heat:'High',tags:['Editing','Tutorial']},
+  {idea:'Gear bag walkthrough',format:'Educational',heat:'Medium',tags:['Gear','Creator']},
+  {idea:'POV: golden hour shoot in Sydney',format:'Aesthetic / POV',heat:'High',tags:['Cinematic','Sydney']},
+  {idea:'Client reaction — first reel delivery',format:'Testimonial',heat:'High',tags:['Client','Authentic']},
+  {idea:'30-second property listing reveal',format:'Real estate',heat:'High',tags:['Real estate','Business']},
+  {idea:'Time-lapse — construction site start to finish',format:'Time-lapse',heat:'Medium',tags:['Construction','Cinematic']},
+  {idea:'Porsche walk-around — golden hour',format:'Automotive',heat:'High',tags:['Automotive','Cinematic']},
+  {idea:'"What I charge vs what you get" breakdown',format:'Educational',heat:'High',tags:['Business','Creator']},
+  {idea:'Finance firm office ambience shoot',format:'Corporate BTS',heat:'Medium',tags:['Corporate','BTS']},
+  {idea:'Packing the car for a shoot — ASMR',format:'ASMR / Lifestyle',heat:'Medium',tags:['Creator','Lifestyle']},
+  {idea:'Camera settings I use for every shoot',format:'Tutorial',heat:'Medium',tags:['Tutorial','Gear']},
+];
+
+let calendarItems = JSON.parse(localStorage.getItem('ogm_cal_items')||'[]');
+const saveCal = () => localStorage.setItem('ogm_cal_items', JSON.stringify(calendarItems));
+
+function renderIdeasPage(){
+  const grid = document.getElementById('ideas-grid'); if(!grid) return;
+  const heatColour = h => h==='High' ? '#052e16' : '#1c1007';
+  const heatText   = h => h==='High' ? '#4ade80' : '#fbbf24';
+  grid.innerHTML = REEL_IDEAS.map((r,i) =>
+    '<div class="idea-card" style="cursor:pointer;" onclick="addIdeaToCalendar('+i+')" title="Click to add to calendar">' +
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">' +
+        '<div style="font-size:13px;font-weight:500;color:#e5e5e5;line-height:1.4;">'+esc(r.idea)+'</div>' +
+        '<span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px;background:'+heatColour(r.heat)+';color:'+heatText(r.heat)+';flex-shrink:0;">'+r.heat+'</span>' +
+      '</div>' +
+      '<div style="font-size:11px;color:#52525b;">'+esc(r.format)+'</div>' +
+      '<div style="display:flex;gap:5px;flex-wrap:wrap;">' +
+        r.tags.map(t=>'<span style="font-size:10px;background:#1a1a1a;border:1px solid #222;color:#52525b;padding:1px 6px;border-radius:4px;">'+esc(t)+'</span>').join('') +
+      '</div>' +
+    '</div>'
+  ).join('');
+  renderIdeasCalendar();
+}
+
+function addIdeaToCalendar(idx){
+  const r = REEL_IDEAS[idx];
+  const today = new Date();
+  // Find next empty day in the next 7 days
+  const used = calendarItems.map(c=>c.dayOffset);
+  let slot = 0; while(used.includes(slot) && slot<14) slot++;
+  calendarItems.push({idx, idea:r.idea, format:r.format, dayOffset:slot, addedAt:new Date().toISOString()});
+  saveCal(); renderIdeasCalendar();
+  toast('Added to calendar — '+r.idea.slice(0,30)+'...');
+}
+
+function removeCalItem(i){ calendarItems.splice(i,1); saveCal(); renderIdeasCalendar(); }
+
+function renderIdeasCalendar(){
+  const cal = document.getElementById('ideas-calendar'); if(!cal) return;
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const today = new Date();
+  const startOfWeek = new Date(today); startOfWeek.setDate(today.getDate() - ((today.getDay()+6)%7));
+  cal.innerHTML = days.map((d,i) => {
+    const dt = new Date(startOfWeek); dt.setDate(startOfWeek.getDate()+i);
+    const isToday = dt.toDateString()===today.toDateString();
+    const items = calendarItems.filter(c=>c.dayOffset===i);
+    return '<div style="background:#111;border:1px solid '+(isToday?'#3f3f46':'#1a1a1a')+';border-radius:8px;padding:10px;min-height:100px;">' +
+      '<div style="font-size:10px;color:#52525b;margin-bottom:2px;">'+d+'</div>' +
+      '<div style="font-size:13px;font-weight:600;color:'+(isToday?'#fff':'#71717a')+';margin-bottom:8px;">'+dt.getDate()+'</div>' +
+      items.map((c,ci) =>
+        '<div style="font-size:10px;background:#1a1a1a;border:1px solid #222;border-radius:4px;padding:4px 6px;margin-bottom:4px;color:#a1a1aa;cursor:pointer;position:relative;" onclick="removeCalItem(calendarItems.indexOf(calendarItems.filter(x=>x.dayOffset==='+i+')['+ci+']))">'+
+        esc(c.idea.length>28?c.idea.slice(0,28)+'…':c.idea)+'</div>'
+      ).join('') +
+    '</div>';
+  }).join('');
+}
+
+async function generateMoreIdeas(){
+  toast('Opening idea generator...');
+  // Use Anthropic API to generate more ideas
+  const btn = document.querySelector('[onclick="generateMoreIdeas()"]');
+  if(btn){btn.textContent='Generating...';btn.disabled=true;}
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:'Give me 6 viral short-form video ideas for a Sydney videographer who films for corporate finance, real estate, construction and automotive clients. Ideas should be filmable solo with your own gear and footage. Format: JSON array, each item: {"idea":"...","format":"...","heat":"High|Medium","tags":["...","..."]}. Return ONLY the JSON array, no markdown.'}]})});
+    const d = await r.json();
+    const txt = d.content.map(x=>x.text||'').join('');
+    const clean = txt.replace(/```json|```/g,'').trim();
+    const newIdeas = JSON.parse(clean);
+    REEL_IDEAS.push(...newIdeas);
+    renderIdeasPage();
+    toast(newIdeas.length+' new ideas added!');
+  } catch(e){ toast('Could not generate ideas — check your connection.'); }
+  if(btn){btn.textContent='⚡ Generate more';btn.disabled=false;}
+}
+
+// ── A/B RESULTS PAGE ──────────────────────────────────────────────────────────
+function renderABPage(){
+  const aLeads=leads.filter(l=>getVariant(l)==='A');
+  const bLeads=leads.filter(l=>getVariant(l)==='B');
+  const aReplies=aLeads.filter(l=>['replied','meeting','won'].includes(l.status)).length;
+  const bReplies=bLeads.filter(l=>['replied','meeting','won'].includes(l.status)).length;
+  const aCont=aLeads.filter(l=>l.contactedDate).length;
+  const bCont=bLeads.filter(l=>l.contactedDate).length;
+  const aMeet=aLeads.filter(l=>['meeting','won'].includes(l.status)).length;
+  const bMeet=bLeads.filter(l=>['meeting','won'].includes(l.status)).length;
+  const fmt=(n,d)=>d>0?Math.round(n/d*100)+'%':'—';
+  const statRow=(label,a,b)=>'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1a1a1a;font-size:13px;"><span style="color:#52525b;">'+label+'</span><div style="display:flex;gap:40px;"><span>'+a+'</span><span>'+b+'</span></div></div>';
+  const aEl=document.getElementById('ab-a-stats'); const bEl=document.getElementById('ab-b-stats');
+  if(aEl) aEl.innerHTML='<div style="font-size:28px;font-weight:700;color:#fff;margin-bottom:4px;">'+fmt(aReplies,aCont)+'</div><div style="font-size:12px;color:#52525b;margin-bottom:14px;">reply rate</div>'+statRow('Leads assigned',aLeads.length,'').replace('</div>','<span style="color:#52525b;font-size:11px;">vs B</span></div>')+statRow('Contacted',aCont,bCont)+statRow('Replies',aReplies,bReplies)+statRow('Meetings',aMeet,bMeet);
+  if(bEl) bEl.innerHTML='<div style="font-size:28px;font-weight:700;color:'+(bReplies>aReplies?'#4ade80':'#fff')+';">'+(bCont>0?fmt(bReplies,bCont):'—')+'</div><div style="font-size:12px;color:#52525b;margin-bottom:14px;">reply rate '+(bReplies>aReplies?'↑ winning':'')+'</div>';
+  const subEl=document.getElementById('ab-subjects'); if(!subEl) return;
+  const industries=['corporate','realestate','construction','automotive'];
+  subEl.innerHTML=industries.map(ind=>{
+    const sa=(SUBJECTS[ind]||{})[1]||'';
+    const sb=(SUBJECTS_B[ind]||{})[1]||'';
+    const aInd=aLeads.filter(l=>l.industry===ind&&l.contactedDate);
+    const bInd=bLeads.filter(l=>l.industry===ind&&l.contactedDate);
+    const aR=aLeads.filter(l=>l.industry===ind&&['replied','meeting','won'].includes(l.status)).length;
+    const bR=bLeads.filter(l=>l.industry===ind&&['replied','meeting','won'].includes(l.status)).length;
+    return '<div style="padding:12px 0;border-bottom:1px solid #1a1a1a;">'+
+      '<div style="font-size:11px;color:#52525b;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">'+IND_LABELS[ind]+'</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">'+
+        '<div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:10px;"><div style="font-size:10px;color:#52525b;margin-bottom:4px;">Variant A</div><div style="font-size:12px;color:#a1a1aa;margin-bottom:6px;">'+esc(sa.replace('[co]','[Company]'))+'</div><div style="font-size:11px;color:#52525b;">'+aInd.length+' sent · '+aR+' replies</div></div>'+
+        '<div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:10px;"><div style="font-size:10px;color:#52525b;margin-bottom:4px;">Variant B</div><div style="font-size:12px;color:#a1a1aa;margin-bottom:6px;">'+esc(sb.replace('[co]','[Company]'))+'</div><div style="font-size:11px;color:#52525b;">'+bInd.length+' sent · '+bR+' replies</div></div>'+
+      '</div></div>';
+  }).join('');
+}
+
+// MANUAL LEAD GENERATION TRIGGER
+async function runGenerateNow(){
+  const btn=document.getElementById('gen-btn');
+  if(btn){btn.textContent='⏳ Generating...';btn.disabled=true;}
+  try{
+    const r=await fetch(API+'/api/generate-leads',{method:'POST'});
+    const d=await r.json();
+    if(d.ok){
+      toast(d.added+' new lead'+(d.added!==1?'s':'')+' added from Hunter.');
+      await syncLeads();
+    } else {
+      toast('Error: '+(d.error||'Unknown error'));
+    }
+  }catch(e){toast('Could not reach server.');}
+  if(btn){btn.textContent='⚡ Run now';btn.disabled=false;}
+}
+
+// INIT
+const dateEl = document.getElementById('topbar-date');
+if(dateEl) dateEl.textContent = new Date().toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'});
+const bcSepEl = document.getElementById('bc-sep'); if(bcSepEl) bcSepEl.style.display='none';
+loadSettings(); updateNavBadge(); renderDashboard(); renderLeads();
+(async()=>{
+  await syncConfig();
+  await syncLeads();
+  await syncBookings();
+  loadSettings();
+  renderReelStats();
+  toast('Synced with server.');
+})();
+</script>
+</body>
+</html>
