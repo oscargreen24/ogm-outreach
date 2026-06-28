@@ -653,7 +653,7 @@ app.post('/api/jarvis/chat', async (req, res) => {
 
 // ── HEALTH ────────────────────────────────────────────────────────────────────
 app.get('/api/health', async (req, res) => {
-  res.json({ ok: true, ts: now(), hunterConfigured: !!hunterKey(), db: 'postgres' });
+  res.json({ ok: true, ts: now(), hunterConfigured: !!hunterKey(), db: 'postgres', anthropicConfigured: !!process.env.ANTHROPIC_API_KEY });
 });
 
 // ── SERVE APP ─────────────────────────────────────────────────────────────────
