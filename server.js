@@ -733,7 +733,6 @@ console.log('[scheduler] Lead generation scheduled for 7am and 7pm Sydney time.'
 
 // ── SERVE THE OUTREACH TOOL ───────────────────────────────────────────────────
 app.get('/', (req, res) => {
-  // Try several possible locations
   const candidates = [
     path.join(__dirname, 'OGM_Outreach.html'),
     path.join(__dirname, 'ogm_outreach.html'),
@@ -742,9 +741,9 @@ app.get('/', (req, res) => {
   ];
   const found = candidates.find(p => fs.existsSync(p));
   if (found) {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.sendFile(found);
   } else {
-    // List what IS in the directory to help debug
     const files = fs.readdirSync(__dirname).join(', ');
     res.status(404).send(`OGM_Outreach.html not found. Files in root: ${files}`);
   }
