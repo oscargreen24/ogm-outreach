@@ -112,11 +112,12 @@ app.post('/api/leads', (req, res) => {
   }
 });
 
-// PUT update lead
+// PUT update lead (upserts — creates if doesn't exist)
 app.put('/api/leads/:id', (req, res) => {
   try {
     const l = { ...req.body, id: req.params.id, updatedAt: now() };
-    db.prepare(`
+    // Try update first
+    const info = db.prepare(`
       UPDATE leads SET
         firstName=@firstName, lastName=@lastName, company=@company, website=@website,
         industry=@industry, channel=@channel, contact=@contact, hunterEmail=@hunterEmail,
@@ -127,6 +128,17 @@ app.put('/api/leads/:id', (req, res) => {
         updatedAt=@updatedAt
       WHERE id=@id
     `).run(l);
+    // If nothing was updated, insert it
+    if (info.changes === 0) {
+      db.prepare(`
+        INSERT INTO leads (id,firstName,lastName,company,website,industry,channel,contact,
+          hunterEmail,notes,researchNotes,companyDesc,status,reelId,monthlyValue,timeline,contactedDate,
+          followup1SentDate,followup2SentDate,createdAt,updatedAt)
+        VALUES (@id,@firstName,@lastName,@company,@website,@industry,@channel,@contact,
+          @hunterEmail,@notes,@researchNotes,@companyDesc,@status,@reelId,@monthlyValue,@timeline,@contactedDate,
+          @followup1SentDate,@followup2SentDate,@createdAt,@updatedAt)
+      `).run({ ...l, createdAt: l.createdAt || now() });
+    }
     res.json({ ok: true });
   } catch (e) {
     res.status(500).json({ error: e.message });
