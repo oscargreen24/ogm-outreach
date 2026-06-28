@@ -323,6 +323,11 @@
             <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Hunter.io API key</label>
             <p style="font-size:13px;color:#4ade80;padding:10px 12px;background:#052e16;border-radius:8px;">✓ Connected — your Hunter.io key is securely stored on the server and never exposed in this file.</p>
           </div>
+          <div>
+            <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Gmail integration</label>
+            <div id="gmail-status" style="font-size:13px;color:#71717a;padding:10px 12px;background:#1a1a1a;border-radius:8px;">Checking...</div>
+            <p style="font-size:11px;color:#52525b;margin-top:6px;">When connected, Jarvis automatically scans your inbox hourly and marks leads as replied when they respond to your outreach.</p>
+          </div>
         </div>
         <button onclick="saveSettings()" style="margin-top:24px;background:#fff;color:#000;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Save settings</button>
         <span id="settings-saved" style="display:none;font-size:12px;color:#4ade80;margin-left:12px;">Saved.</span>
@@ -507,6 +512,7 @@
     <button onclick="jarvisQuick('What is my current MRR and pipeline value?')" style="font-size:11px;background:#1a1a1a;border:1px solid #222;color:#a1a1aa;padding:4px 10px;border-radius:99px;cursor:pointer;">Revenue snapshot</button>
     <button onclick="jarvisQuick('Who are my hottest leads right now?')" style="font-size:11px;background:#1a1a1a;border:1px solid #222;color:#a1a1aa;padding:4px 10px;border-radius:99px;cursor:pointer;">Hot leads</button>
     <button onclick="jarvisQuick('Draft an initial outreach email for my top lead')" style="font-size:11px;background:#1a1a1a;border:1px solid #222;color:#a1a1aa;padding:4px 10px;border-radius:99px;cursor:pointer;">Draft email</button>
+    <button onclick="scanGmailReplies()" style="font-size:11px;background:#1a1a1a;border:1px solid #222;color:#a1a1aa;padding:4px 10px;border-radius:99px;cursor:pointer;">Scan Gmail replies</button>
     <button onclick="testMorningBrief()" style="font-size:11px;background:#1a1a1a;border:1px solid #222;color:#a1a1aa;padding:4px 10px;border-radius:99px;cursor:pointer;">Send test brief</button>
   </div>
   <!-- Input -->
@@ -717,7 +723,7 @@ function showPage(name,section,label){
   if(name==='dashboard') renderDashboard();
   if(name==='leads')     renderLeads();
   if(name==='portfolio') renderPortfolio();
-  if(name==='settings')  loadSettings();
+  if(name==='settings')  { loadSettings(); checkGmailStatus(); }
   if(name==='bookings')  { renderBookings(); syncBookings(); }
   if(name==='revenue')   renderRevenue();
   if(name==='competitors') renderCompetitors();
@@ -1953,6 +1959,46 @@ function addJarvisMessage(role, text, silent = false) {
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
   return div;
+}
+
+async function scanGmailReplies() {
+  toast('Scanning Gmail for replies...');
+  try {
+    const r = await fetch(API + '/api/gmail/scan');
+    if (r.status === 401) { window.location.href = '/login'; return; }
+    const d = await r.json();
+    if (d.error) {
+      if (d.error.includes('not connected')) {
+        toast('Gmail not connected — click "Connect Gmail" in Settings.');
+      } else {
+        toast('Error: ' + d.error);
+      }
+      return;
+    }
+    await syncLeads();
+    if (d.updated > 0) {
+      toast(`✓ Found ${d.updated} new repl${d.updated===1?'y':'ies'} — leads updated automatically.`);
+    } else if (d.replies && d.replies.length > 0) {
+      toast(`Scanned ${d.scanned} emails — ${d.replies.length} from leads, all already marked.`);
+    } else {
+      toast(`Scanned ${d.scanned} emails — no new replies from leads found.`);
+    }
+  } catch(e) { toast('Could not reach server.'); }
+}
+
+async function connectGmail() {
+  window.location.href = API + '/api/gmail/auth';
+}
+
+async function checkGmailStatus() {
+  try {
+    const r = await fetch(API + '/api/gmail/status');
+    const d = await r.json();
+    const el = document.getElementById('gmail-status');
+    if (el) el.innerHTML = d.connected
+      ? '<span style="color:#4ade80;">✓ Connected — Gmail is scanning for replies hourly</span>'
+      : '<span style="color:#f87171;">Not connected</span> — <button onclick="connectGmail()" style="background:#fff;color:#000;border:none;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;margin-left:6px;">Connect Gmail</button>';
+  } catch(e) {}
 }
 
 async function testMorningBrief() {
