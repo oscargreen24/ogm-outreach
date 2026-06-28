@@ -159,6 +159,7 @@ function parseCookies(req) {
 function requireAuth(req, res, next) {
   if (req.path === '/login' || req.path === '/api/login') return next();
   if (req.path === '/api/health') return next();
+  if (req.path === '/api/gmail/callback') return next(); // Google OAuth callback
   if (isValidSession(parseCookies(req).ogm_session)) return next();
   if (req.path.startsWith('/api/')) return res.status(401).json({ error: 'Not authenticated' });
   res.redirect('/login');
@@ -718,9 +719,183 @@ app.post('/api/jarvis/chat', async (req, res) => {
   }
 });
 
+// ── GMAIL OAUTH ───────────────────────────────────────────────────────────────
+const GMAIL_CLIENT_ID     = process.env.GMAIL_CLIENT_ID     || '';
+const GMAIL_CLIENT_SECRET = process.env.GMAIL_CLIENT_SECRET || '';
+const GMAIL_REDIRECT_URI  = process.env.GMAIL_REDIRECT_URI  || '';
+const GMAIL_SCOPES        = 'https://www.googleapis.com/auth/gmail.readonly';
+
+// Store tokens in DB
+async function getGmailTokens() {
+  try {
+    const r = await query(`SELECT value FROM config WHERE key='gmail_tokens'`);
+    if (r.rows.length) return JSON.parse(r.rows[0].value);
+  } catch(e) {}
+  return null;
+}
+async function saveGmailTokens(tokens) {
+  await query(`INSERT INTO config (key,value) VALUES ('gmail_tokens',$1) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value`, [JSON.stringify(tokens)]);
+}
+
+// Refresh access token using refresh token
+async function refreshGmailToken(refreshToken) {
+  const r = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id: GMAIL_CLIENT_ID,
+      client_secret: GMAIL_CLIENT_SECRET,
+      refresh_token: refreshToken,
+      grant_type: 'refresh_token'
+    })
+  });
+  const d = await r.json();
+  if (!d.access_token) throw new Error('Failed to refresh token: ' + JSON.stringify(d));
+  return d.access_token;
+}
+
+// Get a valid access token (refresh if needed)
+async function getGmailAccessToken() {
+  const tokens = await getGmailTokens();
+  if (!tokens) throw new Error('Gmail not connected. Visit /api/gmail/auth to connect.');
+  // Check if expired (with 5 min buffer)
+  if (tokens.expires_at && Date.now() < tokens.expires_at - 300000) {
+    return tokens.access_token;
+  }
+  // Refresh
+  const newToken = await refreshGmailToken(tokens.refresh_token);
+  tokens.access_token = newToken;
+  tokens.expires_at = Date.now() + 3500 * 1000;
+  await saveGmailTokens(tokens);
+  return newToken;
+}
+
+// Step 1: Redirect to Google OAuth
+app.get('/api/gmail/auth', (req, res) => {
+  if (!GMAIL_CLIENT_ID) return res.status(400).send('GMAIL_CLIENT_ID not configured.');
+  const url = `https://accounts.google.com/o/oauth2/v2/auth?` + new URLSearchParams({
+    client_id: GMAIL_CLIENT_ID,
+    redirect_uri: GMAIL_REDIRECT_URI,
+    response_type: 'code',
+    scope: GMAIL_SCOPES,
+    access_type: 'offline',
+    prompt: 'consent'
+  });
+  res.redirect(url);
+});
+
+// Step 2: Handle OAuth callback
+app.get('/api/gmail/callback', async (req, res) => {
+  const { code, error } = req.query;
+  if (error) return res.send(`OAuth error: ${error}`);
+  if (!code) return res.send('No code received.');
+  try {
+    const r = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: GMAIL_CLIENT_ID,
+        client_secret: GMAIL_CLIENT_SECRET,
+        redirect_uri: GMAIL_REDIRECT_URI,
+        grant_type: 'authorization_code',
+        code
+      })
+    });
+    const tokens = await r.json();
+    if (!tokens.access_token) return res.send('Failed to get tokens: ' + JSON.stringify(tokens));
+    tokens.expires_at = Date.now() + (tokens.expires_in || 3500) * 1000;
+    await saveGmailTokens(tokens);
+    console.log('[gmail] OAuth connected successfully.');
+    res.send(`<html><body style="font-family:sans-serif;background:#0a0a0a;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;"><div style="text-align:center;"><h2>✓ Gmail connected!</h2><p style="color:#71717a;">You can close this tab and return to your dashboard.</p><a href="/" style="color:#fff;">Return to dashboard →</a></div></body></html>`);
+  } catch(e) {
+    res.send('Error: ' + e.message);
+  }
+});
+
+// Gmail connection status
+app.get('/api/gmail/status', async (req, res) => {
+  const tokens = await getGmailTokens();
+  res.json({ connected: !!tokens });
+});
+
+// Core scan function (reused by endpoint and cron)
+async function scanGmailForReplies() {
+  const accessToken = await getGmailAccessToken();
+  const leadsRes = await query(`SELECT id, "firstName", "lastName", company, contact, "hunterEmail", status FROM leads WHERE status NOT IN ('won','not_interested')`);
+  const allLeads = leadsRes.rows;
+  if (!allLeads.length) return { replies: [], updated: 0 };
+
+  const leadEmails = new Map();
+  for (const l of allLeads) {
+    if (l.hunterEmail) leadEmails.set(l.hunterEmail.toLowerCase(), l);
+    if (l.contact && l.contact.includes('@')) leadEmails.set(l.contact.toLowerCase(), l);
+  }
+
+  const since = Math.floor((Date.now() - 30 * 24 * 60 * 60 * 1000) / 1000);
+  const listRes = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages?q=after:${since} in:inbox&maxResults=50`, {
+    headers: { Authorization: `Bearer ${accessToken}` }
+  });
+  const listData = await listRes.json();
+  if (!listData.messages) return { replies: [], updated: 0 };
+
+  const replies = [];
+  let updated = 0;
+
+  for (const msg of listData.messages.slice(0, 20)) {
+    const msgRes = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date`, {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    const msgData = await msgRes.json();
+    const headers = msgData.payload?.headers || [];
+    const from    = headers.find(h => h.name === 'From')?.value    || '';
+    const subject = headers.find(h => h.name === 'Subject')?.value || '';
+    const date    = headers.find(h => h.name === 'Date')?.value    || '';
+
+    const emailMatch = from.match(/<([^>]+)>/) || from.match(/([^\s]+@[^\s]+)/);
+    const fromEmail  = emailMatch ? emailMatch[1].toLowerCase() : from.toLowerCase();
+    const matchedLead = leadEmails.get(fromEmail);
+    if (!matchedLead) continue;
+
+    replies.push({ leadId: matchedLead.id, leadName: `${matchedLead.firstName} ${matchedLead.lastName}`, company: matchedLead.company, from, subject, date, messageId: msg.id });
+
+    if (['contacted','followup1_sent','followup2_sent'].includes(matchedLead.status)) {
+      await query(`UPDATE leads SET status='replied', "updatedAt"=$1 WHERE id=$2`, [now(), matchedLead.id]);
+      const tRes = await query(`SELECT timeline FROM leads WHERE id=$1`, [matchedLead.id]);
+      const timeline = JSON.parse(tRes.rows[0]?.timeline || '[]');
+      timeline.push({ ts: new Date().toISOString(), type: 'reply', text: `Reply detected: "${subject}"` });
+      await query(`UPDATE leads SET timeline=$1 WHERE id=$2`, [JSON.stringify(timeline), matchedLead.id]);
+      updated++;
+      console.log(`[gmail] Reply from ${matchedLead.firstName} ${matchedLead.lastName} — marked replied.`);
+    }
+  }
+  return { replies, updated, scanned: listData.messages.length };
+}
+
+// Scan inbox for replies from leads
+app.get('/api/gmail/scan', async (req, res) => {
+  try {
+    const result = await scanGmailForReplies();
+    res.json(result);
+  } catch(e) {
+    console.error('[gmail] Scan error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── HEALTH ────────────────────────────────────────────────────────────────────
 app.get('/api/health', async (req, res) => {
-  res.json({ ok: true, ts: now(), hunterConfigured: !!hunterKey(), db: 'postgres', anthropicConfigured: !!process.env.ANTHROPIC_API_KEY });
+  const tokens = await getGmailTokens().catch(() => null);
+  res.json({ ok: true, ts: now(), hunterConfigured: !!hunterKey(), db: 'postgres', anthropicConfigured: !!process.env.ANTHROPIC_API_KEY, gmailConnected: !!tokens });
+});
+
+// Auto-scan Gmail for replies every hour
+cron.schedule('0 * * * *', async () => {
+  console.log('[cron] Scanning Gmail for replies...');
+  try {
+    const tokens = await getGmailTokens();
+    if (!tokens) { console.log('[cron] Gmail not connected — skipping scan.'); return; }
+    await scanGmailForReplies();
+  } catch(e) { console.error('[cron] Gmail scan error:', e.message); }
 });
 
 // ── SERVE APP ─────────────────────────────────────────────────────────────────
