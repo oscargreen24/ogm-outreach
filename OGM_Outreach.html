@@ -516,14 +516,20 @@ async function syncConfig() {
 
 // API helpers
 async function apiSaveLead(lead) {
-  // Check if it already exists on server
   try {
-    const check = await fetch(API+'/api/leads');
-    const d = await check.json();
-    const exists = d.leads && d.leads.some(l => l.id === lead.id);
-    const method = exists ? 'PUT' : 'POST';
-    const url = exists ? API+'/api/leads/'+lead.id : API+'/api/leads';
-    await fetch(url, { method, headers:{'Content-Type':'application/json'}, body:JSON.stringify(lead) });
+    // Try PUT first (update), fall back to POST (create) if 404
+    const r = await fetch(API+'/api/leads/'+lead.id, {
+      method: 'PUT',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(lead)
+    });
+    if (r.status === 404) {
+      await fetch(API+'/api/leads', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(lead)
+      });
+    }
   } catch(e) {}
 }
 
@@ -678,8 +684,12 @@ function loadSettings(){
   const se=document.getElementById('s-email');if(se)se.value=cfg.email||'';
   const si=document.getElementById('s-instagram');if(si)si.value=cfg.instagram||'';
   const ss=document.getElementById('s-signature');if(ss)ss.value=cfg.signature||'';
-  const sh=document.getElementById('s-hunter');if(sh)sh.value=cfg.hunterKey||'';
   renderReels();
+  // Update greeting
+  const h=new Date().getHours();
+  
+  const g=document.getElementById('dash-greeting');
+  if(g)g.textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+', Oscar.';
 }
 function saveSettings(){cfg.name=document.getElementById('s-name').value.trim();cfg.email=document.getElementById('s-email').value.trim();cfg.instagram=document.getElementById('s-instagram').value.trim();cfg.signature=document.getElementById('s-signature').value;saveCfg();const s=document.getElementById('settings-saved');s.style.display='inline';setTimeout(()=>s.style.display='none',2000);}
 
@@ -1725,12 +1735,23 @@ async function runGenerateNow(){
 const dateEl = document.getElementById('topbar-date');
 if(dateEl) dateEl.textContent = new Date().toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'});
 const bcSepEl = document.getElementById('bc-sep'); if(bcSepEl) bcSepEl.style.display='none';
-loadSettings(); updateNavBadge(); renderDashboard(); renderLeads();
+updateNavBadge(); renderDashboard(); renderLeads();
+// Set greeting
+const _h=new Date().getHours();
+const _g=document.getElementById('dash-greeting');
+if(_g)_g.textContent=(_h<12?'Good morning':_h<17?'Good afternoon':'Good evening')+', Oscar.';
+// Sync from server
 (async()=>{
-  await syncConfig();
-  await syncLeads();
-  await syncBookings();
-  loadSettings();
+  try {
+    await syncConfig();
+    loadSettings();
+  } catch(e) {}
+  try {
+    await syncLeads();
+  } catch(e) { toast('Could not sync leads — check your connection.'); }
+  try {
+    await syncBookings();
+  } catch(e) {}
   renderReelStats();
   toast('Synced with server.');
 })();
