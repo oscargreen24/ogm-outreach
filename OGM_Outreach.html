@@ -627,7 +627,15 @@ function renderFoundLeads(contacts,industry){
 }
 function quickAdd(i,industry){
   const contact=foundContacts[i];if(!contact)return;
-  const lead={id:uid(),firstName:contact.firstName,lastName:contact.lastName,company:contact.company,website:contact.domain,industry,channel:'email',contact:contact.email,hunterEmail:contact.email,notes:contact.position?'Title: '+contact.position:'',status:'new',contactedDate:null,followup1SentDate:null,followup2SentDate:null,researchNotes:'',companyDesc:'',createdAt:new Date().toISOString()};
+  const lead={
+    id:uid(),firstName:contact.firstName,lastName:contact.lastName,
+    company:contact.company,website:contact.domain,industry,channel:'email',
+    contact:contact.email,hunterEmail:contact.email,
+    notes:contact.position?'Title: '+contact.position:'',
+    status:'new',contactedDate:null,followup1SentDate:null,followup2SentDate:null,
+    researchNotes:'',companyDesc:'',reelId:'',monthlyValue:0,timeline:'[]',
+    createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()
+  };
   leads.unshift(lead);save();updateNavBadge();apiSaveLead(lead);renderFoundLeads(foundContacts,industry);
   toast('Added '+contact.firstName+' '+contact.lastName+'.');
 }
@@ -735,12 +743,47 @@ function deleteLead(id){if(!confirm('Delete this lead?'))return;leads=leads.filt
 function openAddModal(){document.getElementById('add-form').reset();openModal('modal-add');}
 function submitAdd(e){
   e.preventDefault();
+  const btn=e.target.querySelector('button[type="submit"]');
+  if(btn){btn.disabled=true;btn.textContent='Adding...';}
   const fd=new FormData(e.target);
   const website=(fd.get('website')||'').trim().replace(/^https?:\/\//,'').replace(/\/$/,'');
-  const lead={id:uid(),firstName:fd.get('firstName').trim(),lastName:(fd.get('lastName')||'').trim(),company:fd.get('company').trim(),website,industry:fd.get('industry'),channel:fd.get('channel'),contact:(fd.get('contact')||'').trim(),notes:(fd.get('notes')||'').trim(),status:'new',contactedDate:null,followup1SentDate:null,followup2SentDate:null,researchNotes:'',companyDesc:'',hunterEmail:null,createdAt:new Date().toISOString()};
-  leads.unshift(lead);save();updateNavBadge();apiSaveLead(lead);
-  closeModal('modal-add');toast('Lead added. Opening research...');
-  setTimeout(()=>openDetail(lead.id),300);
+  const lead={
+    id:uid(),
+    firstName:fd.get('firstName').trim(),
+    lastName:(fd.get('lastName')||'').trim(),
+    company:fd.get('company').trim(),
+    website,
+    industry:fd.get('industry'),
+    channel:fd.get('channel'),
+    contact:(fd.get('contact')||'').trim(),
+    notes:(fd.get('notes')||'').trim(),
+    status:'new',
+    contactedDate:null,
+    followup1SentDate:null,
+    followup2SentDate:null,
+    researchNotes:'',
+    companyDesc:'',
+    hunterEmail:null,
+    reelId:'',
+    monthlyValue:0,
+    timeline:'[]',
+    createdAt:new Date().toISOString(),
+    updatedAt:new Date().toISOString()
+  };
+  leads.unshift(lead);
+  save();
+  updateNavBadge();
+  renderLeads();
+  closeModal('modal-add');
+  if(btn){btn.disabled=false;btn.textContent='Add and Research';}
+  e.target.reset();
+  toast('Lead added.');
+  // Save to server then open detail
+  apiSaveLead(lead).then(()=>{
+    setTimeout(()=>openDetail(lead.id),300);
+  }).catch(()=>{
+    setTimeout(()=>openDetail(lead.id),300);
+  });
 }
 
 // RESEARCH
