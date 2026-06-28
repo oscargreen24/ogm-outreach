@@ -21,7 +21,7 @@ const sessions = new Map();
 
 function createSession() {
   const token = crypto.randomBytes(32).toString('hex');
-  const expires = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
+  const expires = Date.now() + 1 * 24 * 60 * 60 * 1000; // 1 day
   sessions.set(token, { expires });
   return token;
 }
@@ -698,7 +698,7 @@ app.post('/api/login', (req, res) => {
   const { username, password } = req.body || {};
   if (username === AUTH_USER && password === AUTH_PASS) {
     const token = createSession();
-    res.setHeader('Set-Cookie', `ogm_session=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}`);
+    res.setHeader('Set-Cookie', `ogm_session=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${1 * 24 * 60 * 60}`);
     return res.json({ ok: true });
   }
   res.status(401).json({ ok: false, error: 'Invalid credentials' });
