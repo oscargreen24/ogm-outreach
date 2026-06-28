@@ -1758,7 +1758,7 @@ async function generateMoreIdeas(){
   const btn = document.querySelector('[onclick="generateMoreIdeas()"]');
   if(btn){btn.textContent='Generating...';btn.disabled=true;}
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:'Give me 6 viral short-form video ideas for a Sydney videographer who films for corporate finance, real estate, construction and automotive clients. Ideas should be filmable solo with your own gear and footage. Format: JSON array, each item: {"idea":"...","format":"...","heat":"High|Medium","tags":["...","..."]}. Return ONLY the JSON array, no markdown.'}]})});
+    const r = await fetch(API+'/api/jarvis/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:'Give me 6 viral short-form video ideas for a Sydney videographer who films for corporate finance, real estate, construction and automotive clients. Ideas should be filmable solo with your own gear and footage. Format: JSON array, each item: {"idea":"...","format":"...","heat":"High|Medium","tags":["...","..."]}. Return ONLY the JSON array, no markdown.'}]})});
     const d = await r.json();
     const txt = d.content.map(x=>x.text||'').join('');
     const clean = txt.replace(/```json|```/g,'').trim();
@@ -2138,7 +2138,7 @@ async function sendJarvis() {
       validMessages.push(m);
     }
 
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    const r = await fetch(API + '/api/jarvis/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -2167,7 +2167,7 @@ async function sendJarvis() {
       }
       // Get final response after tool execution
       if (toolResults.length) {
-        const r2 = await fetch('https://api.anthropic.com/v1/messages', {
+        const r2 = await fetch(API + '/api/jarvis/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
