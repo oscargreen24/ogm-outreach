@@ -733,19 +733,20 @@ console.log('[scheduler] Lead generation scheduled for 7am and 7pm Sydney time.'
 
 // ── SERVE THE OUTREACH TOOL ───────────────────────────────────────────────────
 app.get('/', (req, res) => {
-  const candidates = [
-    path.join(__dirname, 'OGM_Outreach.html'),
-    path.join(__dirname, 'ogm_outreach.html'),
-    path.join(__dirname, 'public', 'OGM_Outreach.html'),
-    path.join(__dirname, 'client', 'OGM_Outreach.html'),
-  ];
-  const found = candidates.find(p => fs.existsSync(p));
-  if (found) {
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.sendFile(found);
-  } else {
-    const files = fs.readdirSync(__dirname).join(', ');
-    res.status(404).send(`OGM_Outreach.html not found. Files in root: ${files}`);
+  const filePath = path.join(__dirname, 'OGM_Outreach.html');
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send('OGM_Outreach.html not found.');
+  }
+  try {
+    const html = fs.readFileSync(filePath, 'utf8');
+    res.writeHead(200, {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-cache',
+      'X-Content-Type-Options': 'nosniff'
+    });
+    res.end(html);
+  } catch (e) {
+    res.status(500).send('Error reading file: ' + e.message);
   }
 });
 
