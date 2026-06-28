@@ -647,8 +647,12 @@ app.post('/api/jarvis/chat', async (req, res) => {
       body: JSON.stringify(req.body)
     });
     const d = await r.json();
+    if (d.error) console.error('[jarvis] Anthropic error:', JSON.stringify(d.error));
     res.json(d);
-  } catch(e) { res.status(500).json({ error: e.message }); }
+  } catch(e) {
+    console.error('[jarvis] Proxy error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // ── HEALTH ────────────────────────────────────────────────────────────────────
