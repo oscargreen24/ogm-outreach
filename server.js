@@ -490,6 +490,148 @@ app.get('/api/generate-leads/status', async (req, res) => {
 cron.schedule('0 21 * * *', () => { console.log('[cron] 7am Sydney'); generateLeads(); });
 cron.schedule('0 9 * * *',  () => { console.log('[cron] 7pm Sydney'); generateLeads(); });
 
+// ── MORNING BRIEF ─────────────────────────────────────────────────────────────
+async function sendMorningBrief() {
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+  const toEmail  = process.env.AUTH_USER || 'oscar@oscargreenmedia.com';
+  if (!smtpUser || !smtpPass) { console.log('[brief] SMTP not configured — skipping.'); return; }
+
+  try {
+    // Pull data from DB
+    const leadsRes   = await query('SELECT * FROM leads ORDER BY "createdAt" DESC');
+    const allLeads   = leadsRes.rows;
+    const total      = allLeads.length;
+    const won        = allLeads.filter(l => l.status === 'won');
+    const meetings   = allLeads.filter(l => l.status === 'meeting');
+    const replied    = allLeads.filter(l => l.status === 'replied').length;
+    const contacted  = allLeads.filter(l => l.contactedDate).length;
+    const mrr        = won.reduce((s,l)  => s + (l.monthlyValue||0), 0);
+    const pipeline   = meetings.reduce((s,l) => s + (l.monthlyValue||0), 0);
+    const fmt        = n => '$' + n.toLocaleString('en-AU');
+
+    // Due for follow-up (simple check — contacted 5+ days ago, not yet followed up)
+    const today = new Date().toISOString().slice(0,10);
+    const due = allLeads.filter(l => {
+      if (['won','not_interested','followup2_sent','replied','meeting'].includes(l.status)) return false;
+      if (l.status === 'new') return false;
+      if (l.status === 'contacted' && l.contactedDate) {
+        const days = Math.floor((Date.now() - new Date(l.contactedDate).getTime()) / 86400000);
+        return days >= 5;
+      }
+      if (l.status === 'followup1_sent' && l.followup1SentDate) {
+        const days = Math.floor((Date.now() - new Date(l.followup1SentDate).getTime()) / 86400000);
+        return days >= 5;
+      }
+      return false;
+    }).slice(0, 5);
+
+    // Top leads by score (simple scoring)
+    const TITLE_SCORE = {'cmo':10,'director':7,'head of':8,'manager':5,'principal':7,'founder':8,'owner':7};
+    const scoreL = l => {
+      const t = (l.notes||'').replace('Title:','').trim().toLowerCase();
+      let s = 20;
+      for (const [k,v] of Object.entries(TITLE_SCORE)) if (t.includes(k)) { s += v*10; break; }
+      if (l.hunterEmail || l.contact) s += 15;
+      if (l.researchNotes) s += 10;
+      return Math.min(100, s);
+    };
+    const topLeads = allLeads
+      .filter(l => !['won','not_interested'].includes(l.status))
+      .map(l => ({ ...l, score: scoreL(l) }))
+      .sort((a,b) => b.score - a.score)
+      .slice(0, 3);
+
+    const date = new Date().toLocaleDateString('en-AU', {weekday:'long',day:'numeric',month:'long'});
+
+    const html = `
+<!DOCTYPE html><html><head><style>
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;margin:0;padding:20px;}
+.wrap{max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e5e5e5;}
+.header{background:#0a0a0a;padding:24px 28px;color:#fff;}
+.header h1{font-size:22px;font-weight:700;letter-spacing:4px;margin:0 0 4px;}
+.header p{font-size:13px;color:#888;margin:0;}
+.section{padding:20px 28px;border-bottom:1px solid #f0f0f0;}
+.section h2{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#999;margin:0 0 12px;}
+.stat-row{display:flex;gap:12px;flex-wrap:wrap;}
+.stat{background:#f9f9f9;border-radius:8px;padding:12px 16px;flex:1;min-width:100px;}
+.stat-val{font-size:22px;font-weight:700;color:#0a0a0a;}
+.stat-lbl{font-size:11px;color:#999;margin-top:2px;}
+.lead-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f5f5f5;}
+.lead-row:last-child{border-bottom:none;}
+.lead-name{font-size:13px;font-weight:500;}
+.lead-co{font-size:11px;color:#999;margin-top:1px;}
+.badge{font-size:10px;padding:2px 8px;border-radius:99px;font-weight:600;}
+.badge-amber{background:#fef3c7;color:#92400e;}
+.badge-green{background:#d1fae5;color:#065f46;}
+.footer{padding:16px 28px;background:#f9f9f9;text-align:center;font-size:11px;color:#999;}
+a{color:#0a0a0a;}
+</style></head><body><div class="wrap">
+<div class="header">
+  <h1>OGM</h1>
+  <p>Good morning, Oscar — here's your briefing for ${date}</p>
+</div>
+<div class="section">
+  <h2>Revenue</h2>
+  <div class="stat-row">
+    <div class="stat"><div class="stat-val">${fmt(mrr)}</div><div class="stat-lbl">Monthly MRR</div></div>
+    <div class="stat"><div class="stat-val">${fmt(pipeline)}</div><div class="stat-lbl">Pipeline</div></div>
+    <div class="stat"><div class="stat-val">${fmt(mrr*12)}</div><div class="stat-lbl">ARR</div></div>
+  </div>
+</div>
+<div class="section">
+  <h2>Pipeline</h2>
+  <div class="stat-row">
+    <div class="stat"><div class="stat-val">${total}</div><div class="stat-lbl">Total leads</div></div>
+    <div class="stat"><div class="stat-val">${contacted}</div><div class="stat-lbl">Contacted</div></div>
+    <div class="stat"><div class="stat-val">${replied}</div><div class="stat-lbl">Replied</div></div>
+    <div class="stat"><div class="stat-val">${meetings.length}</div><div class="stat-lbl">Meetings</div></div>
+  </div>
+</div>
+${due.length ? `<div class="section">
+  <h2>⚡ Follow up today (${due.length})</h2>
+  ${due.map(l => `<div class="lead-row">
+    <div><div class="lead-name">${l.firstName} ${l.lastName}</div><div class="lead-co">${l.company}</div></div>
+    <span class="badge badge-amber">${l.status}</span>
+  </div>`).join('')}
+</div>` : ''}
+${topLeads.length ? `<div class="section">
+  <h2>🔥 Top leads today</h2>
+  ${topLeads.map(l => `<div class="lead-row">
+    <div><div class="lead-name">${l.firstName} ${l.lastName}</div><div class="lead-co">${l.company}</div></div>
+    <span class="badge badge-green">Score ${l.score}</span>
+  </div>`).join('')}
+</div>` : ''}
+<div class="footer">
+  Oscar Green Media &nbsp;·&nbsp; <a href="https://ogm-outreach-production.up.railway.app">Open dashboard</a>
+</div>
+</div></body></html>`;
+
+    const transporter = nodemailer.createTransport({ service: 'gmail', auth: { user: smtpUser, pass: smtpPass } });
+    await transporter.sendMail({
+      from: `"Jarvis — OGM" <${smtpUser}>`,
+      to: toEmail,
+      subject: `☀️ Morning brief — ${date}`,
+      html
+    });
+    console.log('[brief] Morning brief sent to', toEmail);
+  } catch(e) {
+    console.error('[brief] Failed to send morning brief:', e.message);
+  }
+}
+
+// Morning brief at 7am Sydney time (9pm UTC)
+cron.schedule('0 21 * * *', () => {
+  console.log('[cron] Sending morning brief...');
+  sendMorningBrief();
+});
+
+// Manual trigger
+app.post('/api/morning-brief', async (req, res) => {
+  try { await sendMorningBrief(); res.json({ ok: true }); }
+  catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 // ── HEALTH ────────────────────────────────────────────────────────────────────
 app.get('/api/health', async (req, res) => {
   res.json({ ok: true, ts: now(), hunterConfigured: !!hunterKey(), db: 'postgres' });
