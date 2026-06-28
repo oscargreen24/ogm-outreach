@@ -2151,6 +2151,15 @@ async function sendJarvis() {
     });
 
     const d = await r.json();
+
+    // Show API error if present
+    if (d.error) {
+      const errMsg = d.error.message || JSON.stringify(d.error);
+      typing.textContent = 'Jarvis error: ' + errMsg;
+      typing.style.color = '#f87171';
+      return;
+    }
+
     let reply = '';
 
     // Handle tool use
