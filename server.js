@@ -6,13 +6,64 @@ const nodemailer = require('nodemailer');
 const cron       = require('node-cron');
 const path       = require('path');
 const fs         = require('fs');
+const crypto     = require('crypto');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
+// ── Auth config (set these in Railway environment variables) ──────────────────
+const AUTH_USER     = process.env.AUTH_USER     || 'oscar@oscargreenmedia.com';
+const AUTH_PASS     = process.env.AUTH_PASS     || 'Chucky24';
+const SESSION_SECRET = process.env.SESSION_SECRET || 'ogm-default-secret-change-me';
+
+// In-memory session store (simple, works for single-user)
+const sessions = new Map();
+
+function createSession() {
+  const token = crypto.randomBytes(32).toString('hex');
+  const expires = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
+  sessions.set(token, { expires });
+  return token;
+}
+
+function isValidSession(token) {
+  if (!token) return false;
+  const session = sessions.get(token);
+  if (!session) return false;
+  if (Date.now() > session.expires) { sessions.delete(token); return false; }
+  return true;
+}
+
+function parseCookies(req) {
+  const list = {};
+  const rc = req.headers.cookie;
+  if (rc) rc.split(';').forEach(cookie => {
+    const parts = cookie.split('=');
+    list[parts[0].trim()] = decodeURIComponent(parts.slice(1).join('=').trim());
+  });
+  return list;
+}
+
+// Auth middleware — protects all routes except /login and /api/login
+function requireAuth(req, res, next) {
+  // Always allow login endpoints
+  if (req.path === '/login' || req.path === '/api/login') return next();
+  // Allow health check without auth
+  if (req.path === '/api/health') return next();
+  // Check session cookie
+  const cookies = parseCookies(req);
+  if (isValidSession(cookies.ogm_session)) return next();
+  // Not authenticated — redirect to login for HTML, 401 for API
+  if (req.path.startsWith('/api/')) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  res.redirect('/login');
+}
+
 // ── Middleware ────────────────────────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
+app.use(requireAuth);
 
 // ── Database setup ────────────────────────────────────────────────────────────
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'data', 'ogm.db');
@@ -582,6 +633,83 @@ app.post('/api/calendar/register', async (req, res) => {
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
+});
+
+// ── LOGIN PAGE ────────────────────────────────────────────────────────────────
+app.get('/login', (req, res) => {
+  const cookies = parseCookies(req);
+  if (isValidSession(cookies.ogm_session)) return res.redirect('/');
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.end(`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OGM — Sign in</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #e5e5e5; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .card { background: #0f0f0f; border: 1px solid #1a1a1a; border-radius: 16px; padding: 40px; width: 100%; max-width: 380px; }
+  .logo { font-size: 28px; font-weight: 700; letter-spacing: 6px; color: #fff; margin-bottom: 4px; }
+  .logo-sub { font-size: 9px; letter-spacing: 3px; color: #3f3f46; text-transform: uppercase; margin-bottom: 36px; }
+  label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #52525b; display: block; margin-bottom: 6px; }
+  input { width: 100%; background: #1a1a1a; border: 1px solid #262626; color: #fff; font-size: 14px; padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; outline: none; }
+  input:focus { border-color: #3f3f46; }
+  button { width: 100%; background: #fff; color: #000; border: none; padding: 11px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px; }
+  button:hover { background: #e5e5e5; }
+  .error { color: #f87171; font-size: 13px; margin-bottom: 16px; display: none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">OGM</div>
+  <div class="logo-sub">Oscar Green Media</div>
+  <div class="error" id="err">Incorrect email or password.</div>
+  <form onsubmit="login(event)">
+    <label>Email</label>
+    <input type="email" id="u" placeholder="oscar@oscargreenmedia.com" autocomplete="username" />
+    <label>Password</label>
+    <input type="password" id="p" placeholder="••••••••" autocomplete="current-password" />
+    <button type="submit" id="btn">Sign in</button>
+  </form>
+</div>
+<script>
+async function login(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btn');
+  btn.textContent = 'Signing in...'; btn.disabled = true;
+  document.getElementById('err').style.display = 'none';
+  const r = await fetch('/api/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: document.getElementById('u').value, password: document.getElementById('p').value })
+  });
+  const d = await r.json();
+  if (d.ok) { window.location.href = '/'; }
+  else { document.getElementById('err').style.display = 'block'; btn.textContent = 'Sign in'; btn.disabled = false; }
+}
+</script>
+</body>
+</html>`);
+});
+
+// ── LOGIN API ─────────────────────────────────────────────────────────────────
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body || {};
+  if (username === AUTH_USER && password === AUTH_PASS) {
+    const token = createSession();
+    res.setHeader('Set-Cookie', `ogm_session=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}`);
+    return res.json({ ok: true });
+  }
+  res.status(401).json({ ok: false, error: 'Invalid credentials' });
+});
+
+// ── LOGOUT ────────────────────────────────────────────────────────────────────
+app.post('/api/logout', (req, res) => {
+  const cookies = parseCookies(req);
+  if (cookies.ogm_session) sessions.delete(cookies.ogm_session);
+  res.setHeader('Set-Cookie', 'ogm_session=; Path=/; HttpOnly; Max-Age=0');
+  res.json({ ok: true });
 });
 
 // ── HEALTH CHECK ──────────────────────────────────────────────────────────────
