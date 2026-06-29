@@ -548,6 +548,7 @@
     <button onclick="jarvisQuick('Who should I follow up with today?')" style="font-size:11px;background:#1a1a1a;border:1px solid #222;color:#a1a1aa;padding:4px 10px;border-radius:99px;cursor:pointer;">Follow ups today</button>
     <button onclick="jarvisQuick('What is my current MRR and pipeline value?')" style="font-size:11px;background:#1a1a1a;border:1px solid #222;color:#a1a1aa;padding:4px 10px;border-radius:99px;cursor:pointer;">Revenue snapshot</button>
     <button onclick="jarvisQuick('Who are my hottest leads right now?')" style="font-size:11px;background:#1a1a1a;border:1px solid #222;color:#a1a1aa;padding:4px 10px;border-radius:99px;cursor:pointer;">Hot leads</button>
+    <button onclick="jarvisQuick('Look up Macquarie Group and add their marketing team to my pipeline')" style="font-size:11px;background:#1a1a1a;border:1px solid #222;color:#a1a1aa;padding:4px 10px;border-radius:99px;cursor:pointer;">Look up a company</button>
     <button onclick="jarvisQuick('Draft an initial outreach email for my top lead')" style="font-size:11px;background:#1a1a1a;border:1px solid #222;color:#a1a1aa;padding:4px 10px;border-radius:99px;cursor:pointer;">Draft email</button>
     <button onclick="scanGmailReplies()" style="font-size:11px;background:#1a1a1a;border:1px solid #222;color:#a1a1aa;padding:4px 10px;border-radius:99px;cursor:pointer;">Scan Gmail replies</button>
     <button onclick="testMorningBrief()" style="font-size:11px;background:#1a1a1a;border:1px solid #222;color:#a1a1aa;padding:4px 10px;border-radius:99px;cursor:pointer;">Send test brief</button>
@@ -2060,6 +2061,88 @@ async function testMorningBrief() {
   } catch(e) { toast('Could not reach server.'); }
 }
 
+async function jarvisLookupCompany(input) {
+  const { company_name, add_to_pipeline, industry } = input;
+  // Guess domain if not provided
+  let domain = input.domain;
+  if (!domain) {
+    // Simple guess: remove spaces, lowercase, add .com.au
+    domain = company_name.toLowerCase().replace(/[^a-z0-9]/g,'') + '.com.au';
+  }
+
+  try {
+    const r = await fetch(API + '/api/hunter/domain?domain=' + encodeURIComponent(domain) + '&limit=10');
+    if (r.status === 401) { window.location.href = '/login'; return 'Session expired.'; }
+    const d = await r.json();
+
+    if (!d.data || !d.data.emails || !d.data.emails.length) {
+      // Try .com if .com.au found nothing
+      if (domain.endsWith('.com.au')) {
+        const domain2 = domain.replace('.com.au', '.com');
+        const r2 = await fetch(API + '/api/hunter/domain?domain=' + encodeURIComponent(domain2) + '&limit=10');
+        const d2 = await r2.json();
+        if (d2.data && d2.data.emails && d2.data.emails.length) {
+          return await processLookupResults(d2.data, company_name, domain2, add_to_pipeline, industry);
+        }
+      }
+      return `No contacts found for ${company_name} (tried ${domain}). Try providing the exact domain — e.g. "look up barrenjoey.com".`;
+    }
+
+    return await processLookupResults(d.data, company_name, domain, add_to_pipeline, industry);
+  } catch(e) {
+    return `Could not look up ${company_name}: ${e.message}`;
+  }
+}
+
+async function processLookupResults(data, companyName, domain, addToPipeline, industry) {
+  const RELEVANT = ['marketing','brand','communications','content','social','digital','director','cmo','head of','principal','founder','owner','ceo','manager','sales'];
+  const emails = data.emails || [];
+
+  // Filter to relevant titles
+  const relevant = emails.filter(e => {
+    if (!e.position) return true;
+    const p = e.position.toLowerCase();
+    return RELEVANT.some(t => p.includes(t));
+  });
+
+  const contacts = relevant.length ? relevant : emails.slice(0, 5);
+
+  if (!contacts.length) return `Found the company but no individual contacts for ${companyName}.`;
+
+  let result = `Found ${contacts.length} contact${contacts.length!==1?'s':''} at ${companyName} (${domain}):\n\n`;
+  result += contacts.map(e => `• ${e.first_name||''} ${e.last_name||''} — ${e.position||'Unknown title'} (${e.value})`).join('\n');
+
+  if (addToPipeline) {
+    let added = 0;
+    for (const e of contacts) {
+      // Skip if already in pipeline
+      const exists = leads.some(l => (l.hunterEmail||'').toLowerCase() === e.value.toLowerCase() || (l.contact||'').toLowerCase() === e.value.toLowerCase());
+      if (exists) continue;
+      const lead = {
+        id: uid(), firstName: e.first_name||'', lastName: e.last_name||'',
+        company: companyName, website: domain,
+        industry: industry || 'corporate',
+        channel: 'email', contact: e.value, hunterEmail: e.value,
+        notes: e.position ? `Title: ${e.position}` : '',
+        researchNotes: '', companyDesc: '', status: 'new',
+        reelId: '', monthlyValue: 0, timeline: '[]',
+        contactedDate: null, followup1SentDate: null, followup2SentDate: null,
+        createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+      };
+      leads.unshift(lead);
+      apiSaveLead(lead);
+      added++;
+    }
+    save(); updateNavBadge(); renderLeads(); renderDashboard();
+    result += `\n\n✓ Added ${added} new lead${added!==1?'s':''} to your pipeline.`;
+    if (added < contacts.length) result += ` (${contacts.length - added} already in pipeline)`;
+  } else {
+    result += `\n\nWant me to add them to your pipeline? Just say yes and I'll do it now.`;
+  }
+
+  return result;
+}
+
 // ── JARVIS TOOLS (function calling) ──────────────────────────────────────────
 const JARVIS_TOOLS = [
   {
@@ -2127,6 +2210,20 @@ const JARVIS_TOOLS = [
     }
   },
   {
+    name: 'lookup_company',
+    description: 'Look up a company using Hunter.io to find contacts and optionally add them to the pipeline. Use when Oscar asks to look up, research, or find people at a specific company.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        company_name: { type: 'string', description: 'Name of the company to look up' },
+        domain: { type: 'string', description: 'Domain of the company e.g. barrenjoey.com — if not provided, Jarvis will guess from the company name' },
+        add_to_pipeline: { type: 'boolean', description: 'Whether to automatically add relevant contacts to the pipeline' },
+        industry: { type: 'string', enum: ['corporate','realestate','construction','automotive'], description: 'Industry to tag the leads as' }
+      },
+      required: ['company_name']
+    }
+  },
+  {
     name: 'set_lead_monthly_value',
     description: 'Set the monthly retainer value for a lead. Use when Oscar mentions how much a client is paying.',
     input_schema: {
@@ -2151,7 +2248,7 @@ function findLeadByName(name) {
   );
 }
 
-function executeJarvisTool(toolName, input) {
+async function executeJarvisTool(toolName, input) {
   switch(toolName) {
     case 'update_lead_status': {
       const l = findLeadByName(input.lead_name);
@@ -2198,6 +2295,9 @@ function executeJarvisTool(toolName, input) {
       openDetail(l.id);
       return `Opening lead detail for ${l.firstName} ${l.lastName} — scroll to the message preview to send Touch ${input.touch}.`;
     }
+    case 'lookup_company': {
+      return await jarvisLookupCompany(input);
+    }
     case 'set_lead_monthly_value': {
       const l = findLeadByName(input.lead_name);
       if (!l) return `Could not find a lead matching "${input.lead_name}".`;
@@ -2239,7 +2339,7 @@ async function sendJarvis() {
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 1000,
-        system: 'You are Jarvis, a sharp and efficient AI assistant for Oscar Green at Oscar Green Media, a Sydney videography business. You have tools to take actions directly in the app — use them when Oscar asks you to do something. Be concise and direct. Reference past conversation context when relevant.',
+        system: 'You are Jarvis, a sharp and efficient AI assistant for Oscar Green at Oscar Green Media, a Sydney videography business. You have tools to take real actions — use them proactively. Key capabilities: look up any company with Hunter.io and add contacts to the pipeline, update lead statuses, add notes, generate proposals, draft emails. When Oscar mentions a company, offer to look it up. Be concise and direct. Reference past conversation context when relevant.',
         tools: JARVIS_TOOLS,
         messages: validMessages
       })
@@ -2262,7 +2362,7 @@ async function sendJarvis() {
       const toolResults = [];
       for (const block of d.content) {
         if (block.type === 'tool_use') {
-          const result = executeJarvisTool(block.name, block.input);
+          const result = await executeJarvisTool(block.name, block.input);
           toolResults.push({ type: 'tool_result', tool_use_id: block.id, content: result });
           reply += (reply ? '\n' : '') + result;
         } else if (block.type === 'text' && block.text) {
