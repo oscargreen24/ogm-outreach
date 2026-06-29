@@ -2305,6 +2305,31 @@ async function sendJarvis() {
   }
 }
 
+// GUEST MODE — disable all write actions
+let isGuest = false;
+async function checkGuestMode() {
+  try {
+    const r = await fetch(API + '/api/session-role');
+    const d = await r.json();
+    if (d.role === 'guest') {
+      isGuest = true;
+      // Show guest banner
+      const banner = document.createElement('div');
+      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:999;background:#451a03;color:#fbbf24;text-align:center;font-size:12px;font-weight:600;padding:6px;letter-spacing:0.5px;';
+      banner.textContent = '👁 View-only mode — you are logged in as a guest';
+      document.body.prepend(banner);
+      // Push content down
+      document.getElementById('topbar').style.marginTop = '30px';
+      // Disable all buttons that mutate data
+      document.querySelectorAll('button[onclick*="submitAdd"],button[onclick*="deleteLead"],button[onclick*="markContacted"],button[onclick*="updateStatus"],button[onclick*="saveDetail"],button[onclick*="generateProposal"],button[onclick*="addCompetitor"],button[onclick*="saveSettings"]').forEach(b => {
+        b.disabled = true;
+        b.style.opacity = '0.4';
+        b.title = 'View-only mode';
+      });
+    }
+  } catch(e) {}
+}
+
 // INIT
 const dateEl = document.getElementById('topbar-date');
 if(dateEl) dateEl.textContent = new Date().toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'});
@@ -2316,6 +2341,7 @@ const _g=document.getElementById('dash-greeting');
 if(_g)_g.textContent=(_h<12?'Good morning':_h<17?'Good afternoon':'Good evening')+', Oscar.';
 // Sync from server
 (async()=>{
+  await checkGuestMode();
   try {
     await syncConfig();
     loadSettings();
