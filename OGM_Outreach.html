@@ -554,9 +554,15 @@
     <button onclick="testMorningBrief()" style="font-size:11px;background:#1a1a1a;border:1px solid #222;color:#a1a1aa;padding:4px 10px;border-radius:99px;cursor:pointer;">Send test brief</button>
   </div>
   <!-- Input -->
-  <div style="padding:12px 16px;border-top:1px solid #1a1a1a;display:flex;gap:8px;">
-    <input id="jarvis-input" placeholder="Ask Jarvis anything..." style="flex:1;background:#1a1a1a;border:1px solid #222;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendJarvis();}" />
-    <button onclick="sendJarvis()" style="background:#fff;color:#000;border:none;padding:9px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">↑</button>
+  <div style="padding:12px 16px;border-top:1px solid #1a1a1a;">
+    <div id="jarvis-doc-area" style="display:none;margin-bottom:8px;">
+      <textarea id="jarvis-doc" rows="3" placeholder="Paste any text, email, brief or document here..." style="width:100%;background:#1a1a1a;border:1px solid #333;color:#e5e5e5;font-size:12px;padding:8px 10px;border-radius:8px;resize:none;outline:none;"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button onclick="toggleJarvisDoc()" title="Paste document or text" style="background:none;border:1px solid #222;color:#52525b;padding:7px 9px;border-radius:8px;font-size:14px;cursor:pointer;flex-shrink:0;">📎</button>
+      <input id="jarvis-input" placeholder="Ask Jarvis anything..." style="flex:1;background:#1a1a1a;border:1px solid #222;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendJarvis();}" />
+      <button onclick="sendJarvis()" style="background:#fff;color:#000;border:none;padding:9px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">↑</button>
+    </div>
   </div>
 </div>
 
@@ -1888,23 +1894,51 @@ async function loadJarvisMemory() {
     const d = await r.json();
     if (d.messages && d.messages.length) {
       jarvisHistory = d.messages;
-      // Render past messages
       const msgs = document.getElementById('jarvis-messages');
-      // Clear default greeting if we have history
       msgs.innerHTML = '';
       jarvisHistory.forEach(m => addJarvisMessage(m.role, m.content, true));
-      // Add a separator
       const sep = document.createElement('div');
       sep.style.cssText = 'text-align:center;font-size:10px;color:#3f3f46;padding:4px 0;';
       sep.textContent = '— previous conversation —';
       msgs.insertBefore(sep, msgs.firstChild);
       msgs.scrollTop = msgs.scrollHeight;
-      // Hide quick actions since we have history
       const quick = document.getElementById('jarvis-quick');
       if (quick) quick.style.display = 'none';
+    } else {
+      // No history — send a proactive opening briefing
+      await sendProactiveBriefing();
     }
     jarvisMemoryLoaded = true;
-  } catch(e) {}
+  } catch(e) { jarvisMemoryLoaded = true; }
+}
+
+async function sendProactiveBriefing() {
+  const msgs = document.getElementById('jarvis-messages');
+  msgs.innerHTML = '';
+  const typing = addJarvisMessage('jarvis', '...');
+  typing.style.color = '#52525b';
+  try {
+    const context = buildJarvisContext();
+    const r = await fetch(API + '/api/jarvis/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 300,
+        system: 'You are Jarvis, proactive AI assistant for Oscar Green at Oscar Green Media. Give a brief, punchy opening message (3-4 sentences max). Mention 1-2 specific things that need attention from the pipeline data. Be direct and actionable. No fluff.',
+        messages: [{ role: 'user', content: context + '\n\nGive me a brief proactive opening summary of what needs my attention today. Be specific, mention actual lead names or numbers.' }]
+      })
+    });
+    const d = await r.json();
+    const reply = d.content && d.content[0] ? d.content[0].text : 'Good day, Oscar. How can I help?';
+    typing.textContent = reply;
+    typing.style.color = '#e5e5e5';
+    jarvisHistory.push({ role: 'assistant', content: reply });
+    saveJarvisMessage('assistant', reply);
+  } catch(e) {
+    typing.textContent = 'Good day, Oscar. I have full visibility of your pipeline. How can I help?';
+    typing.style.color = '#e5e5e5';
+  }
 }
 
 async function saveJarvisMessage(role, content) {
@@ -1957,6 +1991,7 @@ function buildJarvisContext() {
   const meetings = leads.filter(l => l.status === 'meeting');
   const replied = leads.filter(l => l.status === 'replied').length;
   const contacted = leads.filter(l => l.contactedDate).length;
+  const newLeads = leads.filter(l => l.status === 'new').length;
   const mrr = won.reduce((s,l) => s + (l.monthlyValue||0), 0);
   const pipeline = meetings.reduce((s,l) => s + (l.monthlyValue||0), 0);
   const due = leads.filter(l => { const na = nextAction(l); return na.date && isOverdue(na.date); })
@@ -1965,36 +2000,58 @@ function buildJarvisContext() {
     .filter(l => !['won','not_interested'].includes(l.status))
     .map(l => ({ ...l, score: scoreLead(l) }))
     .sort((a,b) => b.score - a.score)
-    .slice(0, 5)
-    .map(l => `- ${l.firstName} ${l.lastName} | ${l.company} | ${IND_LABELS[l.industry]||l.industry} | Status: ${STATUS_LABEL[l.status]||l.status} | Score: ${l.score}`);
+    .slice(0, 8)
+    .map(l => `- ${l.firstName} ${l.lastName} | ${l.company} | ${IND_LABELS[l.industry]||l.industry} | ${STATUS_LABEL[l.status]||l.status} | Score: ${l.score} | Email: ${l.hunterEmail||l.contact||'none'}`);
   const recent = leads
     .filter(l => l.updatedAt)
     .sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-    .slice(0, 3)
+    .slice(0, 5)
     .map(l => `${l.firstName} ${l.lastName} at ${l.company} — ${STATUS_LABEL[l.status]||l.status}`);
+  const industryBreakdown = Object.entries(
+    leads.reduce((acc,l) => { acc[l.industry]=(acc[l.industry]||0)+1; return acc; }, {})
+  ).map(([ind,n]) => `${IND_LABELS[ind]||ind}: ${n}`).join(', ');
 
-  return `You are Jarvis, the AI assistant for Oscar Green, founder of Oscar Green Media — a Sydney-based videography business specialising in short-form social media content for corporate/finance, real estate, construction and automotive clients.
+  return `You are Jarvis — the personal AI business assistant for Oscar Green, founder of Oscar Green Media, a Sydney-based solo videography business.
 
-Current date: ${now.toLocaleDateString('en-AU', {weekday:'long',day:'numeric',month:'long',year:'numeric'})}
+OSCAR'S BUSINESS:
+- Produces short-form social media video content (reels) for LinkedIn, Instagram and TikTok
+- Four verticals: Corporate/Finance, Real Estate, Construction, Automotive
+- Brand: strictly black and white, premium and professional
+- Based in Sydney, Australia
+- Solo operator — Oscar films, edits and manages outreach himself
+- Retainer model: Tier 1 $4,000/mo, Tier 2 $4,500/mo, Tier 3 $6,000/mo (all inc. GST)
+- Contact: oscar@oscargreenmedia.com | instagram.com/oscargreenmedia
 
-PIPELINE SUMMARY:
-- Total leads: ${total} | Active: ${active} | Contacted: ${contacted} | Replied: ${replied} | Meetings: ${meetings.length} | Won: ${won.length}
+CURRENT DATE: ${now.toLocaleDateString('en-AU', {weekday:'long',day:'numeric',month:'long',year:'numeric'})}
+
+PIPELINE:
+- Total: ${total} | New: ${newLeads} | Active: ${active} | Contacted: ${contacted} | Replied: ${replied} | Meetings: ${meetings.length} | Won: ${won.length}
 - Reply rate: ${contacted > 0 ? Math.round(replied/contacted*100) : 0}%
+- Industry mix: ${industryBreakdown || 'No leads yet'}
 
 REVENUE:
 - MRR: $${mrr.toLocaleString('en-AU')} | Pipeline: $${pipeline.toLocaleString('en-AU')} | ARR: $${(mrr*12).toLocaleString('en-AU')}
+- To hit $10k MRR needs: ${mrr >= 10000 ? '✓ Already there!' : `$${(10000-mrr).toLocaleString('en-AU')} more/mo`}
 
-DUE TODAY: ${due.length ? due.join(', ') : 'Nothing due.'}
+OVERDUE (${due.length}): ${due.length ? due.join(' | ') : 'Nothing overdue'}
 
-TOP LEADS:
-${topLeads.join('\n') || 'No leads yet.'}
+TOP 8 LEADS BY SCORE:
+${topLeads.join('\n') || 'No leads yet'}
 
 RECENT ACTIVITY:
-${recent.join('\n') || 'None.'}
+${recent.join('\n') || 'None'}
 
-RETAINER TIERS: Tier 1 $4,000/mo, Tier 2 $4,500/mo, Tier 3 $6,000/mo.
+YOUR CAPABILITIES:
+- web_search: Search internet for real-time info, news, company research
+- lookup_company: Search Hunter.io for contacts at any company and add to pipeline
+- update_lead_status: Update any lead's status
+- add_lead_note: Log notes/calls/meetings to lead timeline
+- add_lead: Add new lead manually
+- generate_proposal: Open proposal generator for a lead
+- draft_email: Open email draft for a lead
+- set_lead_monthly_value: Set retainer value for won clients
 
-Be concise, direct and genuinely useful. You have persistent memory — reference past conversations when relevant. Address Oscar by name occasionally.`;
+PERSONALITY: You are sharp, direct, efficient and genuinely helpful. You proactively suggest actions rather than just answering questions. You know Oscar's business deeply. You can write emails, captions, proposals, strategies. You search the web when you need current info. You refer to Oscar by name occasionally. You are not overly formal — conversational but professional.`;
 }
 
 function addJarvisMessage(role, text, silent = false) {
@@ -2059,6 +2116,21 @@ async function testMorningBrief() {
     if (d.ok) toast('✓ Morning brief sent! Check your inbox.');
     else toast('Error: ' + (d.error || 'Could not send brief. Check SMTP_USER and SMTP_PASS in Railway.'));
   } catch(e) { toast('Could not reach server.'); }
+}
+
+async function jarvisWebSearch(query) {
+  try {
+    const r = await fetch(API + '/api/search?q=' + encodeURIComponent(query));
+    if (r.status === 401) { window.location.href = '/login'; return 'Session expired.'; }
+    const d = await r.json();
+    if (d.error) return 'Search unavailable: ' + d.error;
+    if (!d.results || !d.results.length) return `No results found for "${query}".`;
+    return d.results.slice(0, 5).map((r, i) =>
+      `${i+1}. **${r.title}**\n${r.snippet}\n${r.url}`
+    ).join('\n\n');
+  } catch(e) {
+    return `Search failed: ${e.message}`;
+  }
 }
 
 async function jarvisLookupCompany(input) {
@@ -2210,6 +2282,17 @@ const JARVIS_TOOLS = [
     }
   },
   {
+    name: 'web_search',
+    description: 'Search the internet for real-time information. Use for company research, industry news, market trends, finding domains, recent events, or anything that needs current information.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Search query' }
+      },
+      required: ['query']
+    }
+  },
+  {
     name: 'lookup_company',
     description: 'Look up a company using Hunter.io to find contacts and optionally add them to the pipeline. Use when Oscar asks to look up, research, or find people at a specific company.',
     input_schema: {
@@ -2295,6 +2378,9 @@ async function executeJarvisTool(toolName, input) {
       openDetail(l.id);
       return `Opening lead detail for ${l.firstName} ${l.lastName} — scroll to the message preview to send Touch ${input.touch}.`;
     }
+    case 'web_search': {
+      return await jarvisWebSearch(input.query);
+    }
     case 'lookup_company': {
       return await jarvisLookupCompany(input);
     }
@@ -2310,14 +2396,33 @@ async function executeJarvisTool(toolName, input) {
   }
 }
 
+function toggleJarvisDoc() {
+  const area = document.getElementById('jarvis-doc-area');
+  area.style.display = area.style.display === 'none' ? 'block' : 'none';
+  if (area.style.display === 'block') document.getElementById('jarvis-doc').focus();
+}
+
 async function sendJarvis() {
   const input = document.getElementById('jarvis-input');
-  const text = input.value.trim();
-  if (!text) return;
+  const docArea = document.getElementById('jarvis-doc');
+  let text = input.value.trim();
+  const docContent = docArea ? docArea.value.trim() : '';
+  if (!text && !docContent) return;
+
+  // Combine message with any pasted document
+  let fullMessage = text;
+  if (docContent) {
+    fullMessage = text
+      ? `${text}\n\n[Attached document/text]:\n${docContent}`
+      : `Please read and analyse this:\n\n${docContent}`;
+    docArea.value = '';
+    document.getElementById('jarvis-doc-area').style.display = 'none';
+  }
+
   input.value = '';
-  addJarvisMessage('user', text);
-  jarvisHistory.push({ role: 'user', content: text });
-  saveJarvisMessage('user', text);
+  addJarvisMessage('user', text || '(document pasted)');
+  jarvisHistory.push({ role: 'user', content: fullMessage });
+  saveJarvisMessage('user', fullMessage);
   const typing = addJarvisMessage('jarvis', '...');
   typing.style.color = '#52525b';
   try {
@@ -2339,7 +2444,7 @@ async function sendJarvis() {
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 1000,
-        system: 'You are Jarvis, a sharp and efficient AI assistant for Oscar Green at Oscar Green Media, a Sydney videography business. You have tools to take real actions — use them proactively. Key capabilities: look up any company with Hunter.io and add contacts to the pipeline, update lead statuses, add notes, generate proposals, draft emails. When Oscar mentions a company, offer to look it up. Be concise and direct. Reference past conversation context when relevant.',
+        system: 'You are Jarvis — a sharp, proactive AI business assistant for Oscar Green at Oscar Green Media. You have tools including web search, Hunter.io company lookup, and full pipeline management. Use tools proactively — if someone mentions a company, offer to look it up. If asked about news or current events, search the web. Write well: emails, captions, strategies, proposals. Be genuinely useful, not just reactive. Keep responses focused and actionable.',
         tools: JARVIS_TOOLS,
         messages: validMessages
       })
