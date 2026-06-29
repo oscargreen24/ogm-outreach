@@ -222,8 +222,8 @@ app.get('/login', (req, res) => {
 <div class="logo">OGM</div><div class="logo-sub">Oscar Green Media</div>
 <div class="error" id="err">Incorrect email or password.</div>
 <form onsubmit="login(event)">
-<label>Email</label><input type="email" id="u" placeholder="oscar@oscargreenmedia.com" autocomplete="username"/>
-<label>Password</label><input type="password" id="p" placeholder="••••••••" autocomplete="current-password"/>
+<label>Username</label><input type="text" id="u" placeholder="Username" autocomplete="username"/>
+<label>Password</label><input type="password" id="p" placeholder="Password" autocomplete="current-password"/>
 <button type="submit" id="btn">Sign in</button>
 </form></div>
 <script>async function login(e){e.preventDefault();const btn=document.getElementById('btn');btn.textContent='Signing in...';btn.disabled=true;document.getElementById('err').style.display='none';const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:document.getElementById('u').value,password:document.getElementById('p').value})});const d=await r.json();if(d.ok){window.location.href='/';}else{document.getElementById('err').style.display='block';btn.textContent='Sign in';btn.disabled=false;}}</script>
