@@ -395,66 +395,6 @@
 
     <!-- CALENDAR -->
     <div id="page-calendar" class="page" style="padding:32px 36px;">
-      <div style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-        <div><h1 style="font-size:22px;font-weight:700;">Calendar</h1><p style="color:#52525b;font-size:13px;margin-top:4px;">Synced with your Google Calendar</p></div>
-        <div style="display:flex;gap:10px;align-items:center;">
-          <button onclick="calPrev()" style="background:#1a1a1a;border:1px solid #222;color:#e5e5e5;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:14px;">‹</button>
-          <span id="cal-title" style="font-size:14px;font-weight:600;min-width:160px;text-align:center;"></span>
-          <button onclick="calNext()" style="background:#1a1a1a;border:1px solid #222;color:#e5e5e5;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:14px;">›</button>
-          <button onclick="calToday()" style="background:none;border:1px solid #333;color:#71717a;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;">Today</button>
-          <button onclick="openNewEventModal()" style="background:#fff;color:#000;border:none;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">+ New event</button>
-        </div>
-      </div>
-      <!-- Calendar grid -->
-      <div style="background:#0f0f0f;border:1px solid #1a1a1a;border-radius:12px;overflow:hidden;">
-        <!-- Day headers -->
-        <div style="display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid #1a1a1a;">
-          <div style="padding:10px;text-align:center;font-size:11px;font-weight:600;color:#52525b;letter-spacing:1px;">MON</div>
-          <div style="padding:10px;text-align:center;font-size:11px;font-weight:600;color:#52525b;letter-spacing:1px;">TUE</div>
-          <div style="padding:10px;text-align:center;font-size:11px;font-weight:600;color:#52525b;letter-spacing:1px;">WED</div>
-          <div style="padding:10px;text-align:center;font-size:11px;font-weight:600;color:#52525b;letter-spacing:1px;">THU</div>
-          <div style="padding:10px;text-align:center;font-size:11px;font-weight:600;color:#52525b;letter-spacing:1px;">FRI</div>
-          <div style="padding:10px;text-align:center;font-size:11px;font-weight:600;color:#52525b;letter-spacing:1px;">SAT</div>
-          <div style="padding:10px;text-align:center;font-size:11px;font-weight:600;color:#52525b;letter-spacing:1px;">SUN</div>
-        </div>
-        <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);"></div>
-      </div>
-      <!-- Upcoming events list -->
-      <div style="margin-top:20px;">
-        <div style="font-size:13px;font-weight:600;color:#e5e5e5;margin-bottom:12px;">Upcoming</div>
-        <div id="cal-upcoming" style="display:flex;flex-direction:column;gap:8px;"></div>
-      </div>
-    </div>
-
-    <!-- NEW EVENT MODAL -->
-    <div id="modal-new-event" class="modal-bg">
-      <div style="background:#111;border:1px solid #333;border-radius:16px;width:100%;max-width:480px;padding:28px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-          <h2 style="font-size:16px;font-weight:600;">New event</h2>
-          <button onclick="closeModal('modal-new-event')" style="background:none;border:none;color:#52525b;font-size:20px;cursor:pointer;">×</button>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:14px;">
-          <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Title</label><input id="ev-title" placeholder="e.g. Shoot day — MA Financial" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" /></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Date</label><input id="ev-date" type="date" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" /></div>
-            <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Start time</label><input id="ev-start" type="time" value="09:00" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" /></div>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">End time</label><input id="ev-end" type="time" value="17:00" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" /></div>
-            <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Location (optional)</label><input id="ev-location" placeholder="e.g. CBD Sydney" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" /></div>
-          </div>
-          <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Description (optional)</label><textarea id="ev-desc" rows="2" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;resize:none;"></textarea></div>
-        </div>
-        <div style="display:flex;gap:10px;margin-top:20px;">
-          <button onclick="createCalendarEvent()" style="flex:1;background:#fff;color:#000;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Create event</button>
-          <button onclick="closeModal('modal-new-event')" style="background:#1a1a1a;border:1px solid #222;color:#71717a;padding:10px 16px;border-radius:8px;font-size:13px;cursor:pointer;">Cancel</button>
-        </div>
-        <div id="ev-error" style="display:none;color:#f87171;font-size:12px;margin-top:10px;"></div>
-      </div>
-    </div>
-
-    <!-- CALENDAR -->
-    <div id="page-calendar" class="page" style="padding:32px 36px;">
       <div class="page-header" style="margin-bottom:24px;">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
           <div>
