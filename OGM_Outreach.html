@@ -171,6 +171,14 @@
       <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"/><line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="10" x2="21" y2="10" stroke-width="2" stroke-linecap="round"/></svg>
       Bookings
     </div>
+    <div class="nav-item" id="nav-calendar" onclick="showPage('calendar','Business','Calendar')">
+      <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"/><line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="10" x2="21" y2="10" stroke-width="2" stroke-linecap="round"/><circle cx="8" cy="16" r="1" fill="currentColor"/><circle cx="12" cy="16" r="1" fill="currentColor"/><circle cx="16" cy="16" r="1" fill="currentColor"/></svg>
+      Calendar
+    </div>
+    <div class="nav-item" id="nav-calendar" onclick="showPage('calendar','Business','Calendar')">
+      <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"/><line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="10" x2="21" y2="10" stroke-width="2" stroke-linecap="round"/><circle cx="8" cy="15" r="1" fill="currentColor"/><circle cx="12" cy="15" r="1" fill="currentColor"/><circle cx="16" cy="15" r="1" fill="currentColor"/></svg>
+      Calendar
+    </div>
     <div class="nav-item" id="nav-proposals" onclick="showPage('proposals','Business','Proposals')">
       <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline stroke-width="2" stroke-linecap="round" points="14 2 14 8 20 8"/></svg>
       Proposals
@@ -380,6 +388,130 @@
           <div style="display:flex;gap:8px;">
             <select id="reel-industry" style="flex:1;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;"><option value="any">Any industry</option><option value="corporate">Corporate &amp; Finance</option><option value="realestate">Real Estate</option><option value="construction">Construction</option><option value="automotive">Automotive</option></select>
             <button onclick="addReel()" style="background:#fff;color:#000;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">+ Add reel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div id="page-calendar" class="page" style="padding:32px 36px;">
+      <div style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div><h1 style="font-size:22px;font-weight:700;">Calendar</h1><p style="color:#52525b;font-size:13px;margin-top:4px;">Synced with your Google Calendar</p></div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button onclick="calPrev()" style="background:#1a1a1a;border:1px solid #222;color:#e5e5e5;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:14px;">‹</button>
+          <span id="cal-title" style="font-size:14px;font-weight:600;min-width:160px;text-align:center;"></span>
+          <button onclick="calNext()" style="background:#1a1a1a;border:1px solid #222;color:#e5e5e5;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:14px;">›</button>
+          <button onclick="calToday()" style="background:none;border:1px solid #333;color:#71717a;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;">Today</button>
+          <button onclick="openNewEventModal()" style="background:#fff;color:#000;border:none;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">+ New event</button>
+        </div>
+      </div>
+      <!-- Calendar grid -->
+      <div style="background:#0f0f0f;border:1px solid #1a1a1a;border-radius:12px;overflow:hidden;">
+        <!-- Day headers -->
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid #1a1a1a;">
+          <div style="padding:10px;text-align:center;font-size:11px;font-weight:600;color:#52525b;letter-spacing:1px;">MON</div>
+          <div style="padding:10px;text-align:center;font-size:11px;font-weight:600;color:#52525b;letter-spacing:1px;">TUE</div>
+          <div style="padding:10px;text-align:center;font-size:11px;font-weight:600;color:#52525b;letter-spacing:1px;">WED</div>
+          <div style="padding:10px;text-align:center;font-size:11px;font-weight:600;color:#52525b;letter-spacing:1px;">THU</div>
+          <div style="padding:10px;text-align:center;font-size:11px;font-weight:600;color:#52525b;letter-spacing:1px;">FRI</div>
+          <div style="padding:10px;text-align:center;font-size:11px;font-weight:600;color:#52525b;letter-spacing:1px;">SAT</div>
+          <div style="padding:10px;text-align:center;font-size:11px;font-weight:600;color:#52525b;letter-spacing:1px;">SUN</div>
+        </div>
+        <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);"></div>
+      </div>
+      <!-- Upcoming events list -->
+      <div style="margin-top:20px;">
+        <div style="font-size:13px;font-weight:600;color:#e5e5e5;margin-bottom:12px;">Upcoming</div>
+        <div id="cal-upcoming" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+    </div>
+
+    <!-- NEW EVENT MODAL -->
+    <div id="modal-new-event" class="modal-bg">
+      <div style="background:#111;border:1px solid #333;border-radius:16px;width:100%;max-width:480px;padding:28px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <h2 style="font-size:16px;font-weight:600;">New event</h2>
+          <button onclick="closeModal('modal-new-event')" style="background:none;border:none;color:#52525b;font-size:20px;cursor:pointer;">×</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Title</label><input id="ev-title" placeholder="e.g. Shoot day — MA Financial" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" /></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Date</label><input id="ev-date" type="date" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" /></div>
+            <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Start time</label><input id="ev-start" type="time" value="09:00" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" /></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">End time</label><input id="ev-end" type="time" value="17:00" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" /></div>
+            <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Location (optional)</label><input id="ev-location" placeholder="e.g. CBD Sydney" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" /></div>
+          </div>
+          <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Description (optional)</label><textarea id="ev-desc" rows="2" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;resize:none;"></textarea></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:20px;">
+          <button onclick="createCalendarEvent()" style="flex:1;background:#fff;color:#000;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Create event</button>
+          <button onclick="closeModal('modal-new-event')" style="background:#1a1a1a;border:1px solid #222;color:#71717a;padding:10px 16px;border-radius:8px;font-size:13px;cursor:pointer;">Cancel</button>
+        </div>
+        <div id="ev-error" style="display:none;color:#f87171;font-size:12px;margin-top:10px;"></div>
+      </div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div id="page-calendar" class="page" style="padding:32px 36px;">
+      <div class="page-header" style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div class="page-title">Calendar</div>
+            <div class="page-sub">Synced with your Google Calendar — changes here reflect there and vice versa.</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button onclick="calPrev()" style="background:#1a1a1a;border:1px solid #222;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:14px;">←</button>
+            <button onclick="calToday()" style="background:#1a1a1a;border:1px solid #222;color:#a1a1aa;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;">Today</button>
+            <button onclick="calNext()" style="background:#1a1a1a;border:1px solid #222;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:14px;">→</button>
+            <button onclick="openNewEventModal()" style="background:#fff;color:#000;border:none;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">+ New event</button>
+          </div>
+        </div>
+        <div style="margin-top:16px;font-size:16px;font-weight:600;color:#fff;" id="cal-month-label"></div>
+      </div>
+
+      <!-- Calendar grid -->
+      <div style="background:#0f0f0f;border:1px solid #1a1a1a;border-radius:12px;overflow:hidden;">
+        <!-- Day headers -->
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid #1a1a1a;">
+          <div style="padding:10px;text-align:center;font-size:11px;color:#52525b;font-weight:500;">MON</div>
+          <div style="padding:10px;text-align:center;font-size:11px;color:#52525b;font-weight:500;">TUE</div>
+          <div style="padding:10px;text-align:center;font-size:11px;color:#52525b;font-weight:500;">WED</div>
+          <div style="padding:10px;text-align:center;font-size:11px;color:#52525b;font-weight:500;">THU</div>
+          <div style="padding:10px;text-align:center;font-size:11px;color:#52525b;font-weight:500;">FRI</div>
+          <div style="padding:10px;text-align:center;font-size:11px;color:#52525b;font-weight:500;">SAT</div>
+          <div style="padding:10px;text-align:center;font-size:11px;color:#52525b;font-weight:500;">SUN</div>
+        </div>
+        <!-- Calendar days -->
+        <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);"></div>
+      </div>
+
+      <!-- Upcoming events list -->
+      <div style="margin-top:20px;">
+        <div style="font-size:13px;font-weight:600;color:#e5e5e5;margin-bottom:12px;">Upcoming events</div>
+        <div id="cal-events-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+    </div>
+
+    <!-- NEW EVENT MODAL -->
+    <div id="modal-new-event" class="modal-bg">
+      <div style="background:#111;border:1px solid #333;border-radius:16px;width:100%;max-width:480px;padding:28px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <div style="font-size:16px;font-weight:600;">New event</div>
+          <button onclick="closeModal('modal-new-event')" style="background:none;border:none;color:#71717a;font-size:20px;cursor:pointer;">×</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:5px;">Title</label><input id="ev-title" placeholder="e.g. Shoot day — MA Financial" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" /></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:5px;">Date</label><input id="ev-date" type="date" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" /></div>
+            <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:5px;">Time</label><input id="ev-time" type="time" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" /></div>
+          </div>
+          <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:5px;">Duration</label><select id="ev-duration" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;"><option value="30">30 minutes</option><option value="60" selected>1 hour</option><option value="120">2 hours</option><option value="180">3 hours</option><option value="480">Full day (8 hours)</option></select></div>
+          <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:5px;">Notes (optional)</label><textarea id="ev-notes" rows="2" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;resize:none;"></textarea></div>
+          <div style="display:flex;gap:10px;margin-top:4px;">
+            <button onclick="closeModal('modal-new-event')" style="flex:1;background:#1a1a1a;border:1px solid #333;color:#a1a1aa;padding:10px;border-radius:8px;font-size:13px;cursor:pointer;">Cancel</button>
+            <button onclick="createCalendarEvent()" style="flex:2;background:#fff;color:#000;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Create event</button>
           </div>
         </div>
       </div>
@@ -768,7 +900,7 @@ function showPage(name,section,label){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.querySelectorAll('.nav-sub-item').forEach(n=>n.classList.remove('active'));
   const pg=document.getElementById('page-'+name);if(pg)pg.classList.add('active');
-  const navMap={dashboard:'nav-dashboard',leads:'nav-leads',finder:'nav-leads',ab:'nav-leads',competitors:'nav-competitors',bookings:'nav-bookings',proposals:'nav-proposals',revenue:'nav-revenue',portfolio:'nav-portfolio',ideas:'nav-ideas',settings:'nav-settings'};
+  const navMap={dashboard:'nav-dashboard',leads:'nav-leads',finder:'nav-leads',ab:'nav-leads',competitors:'nav-competitors',bookings:'nav-bookings',calendar:'nav-calendar',proposals:'nav-proposals',revenue:'nav-revenue',portfolio:'nav-portfolio',ideas:'nav-ideas',settings:'nav-settings'};
   const an=document.getElementById(navMap[name]);if(an)an.classList.add('active');
   const subMap={leads:'nav-leads-sub',finder:'nav-finder-sub',ab:'nav-ab-sub'};
   if(subMap[name]){const s=document.getElementById(subMap[name]);if(s)s.classList.add('active');}
@@ -781,6 +913,8 @@ function showPage(name,section,label){
   if(name==='portfolio') renderPortfolio();
   if(name==='settings')  { loadSettings(); checkGmailStatus(); }
   if(name==='bookings')  { renderBookings(); syncBookings(); }
+  if(name==='calendar')  renderCalendar();
+  if(name==='calendar')  { calYear=calYear||new Date().getFullYear(); calMonth=calMonth??new Date().getMonth(); loadCalendarEvents(); }
   if(name==='revenue')   renderRevenue();
   if(name==='competitors') renderCompetitors();
   if(name==='proposals') renderProposals();
@@ -2517,6 +2651,170 @@ async function sendJarvis() {
     typing.textContent = 'Something went wrong — ' + e.message;
     typing.style.color = '#f87171';
   }
+}
+
+// ── GOOGLE CALENDAR ───────────────────────────────────────────────────────────
+let calEvents = [];
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth(); // 0-indexed
+
+async function loadCalendarEvents() {
+  try {
+    const start = new Date(calYear, calMonth, 1).toISOString();
+    const end   = new Date(calYear, calMonth + 1, 0, 23, 59, 59).toISOString();
+    const r = await fetch(API + '/api/calendar/events?start=' + encodeURIComponent(start) + '&end=' + encodeURIComponent(end));
+    if (r.status === 401) { window.location.href = '/login'; return; }
+    const d = await r.json();
+    if (d.error) {
+      if (d.error.includes('not connected') || d.error.includes('token')) {
+        document.getElementById('cal-grid').innerHTML = '<div style="grid-column:1/-1;padding:40px;text-align:center;color:#52525b;">Gmail/Calendar not connected — go to Settings and click Connect Gmail to enable this feature.</div>';
+      }
+      return;
+    }
+    calEvents = d.events || [];
+    renderCalendar();
+  } catch(e) {
+    console.error('Calendar load error:', e);
+  }
+}
+
+function renderCalendar() {
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-title').textContent = monthNames[calMonth] + ' ' + calYear;
+
+  const grid = document.getElementById('cal-grid');
+  const firstDay = new Date(calYear, calMonth, 1);
+  const lastDay  = new Date(calYear, calMonth + 1, 0);
+  const today = new Date();
+
+  // Start from Monday — adjust first day
+  let startDow = firstDay.getDay(); // 0=Sun
+  startDow = startDow === 0 ? 6 : startDow - 1; // Mon=0
+
+  const totalCells = Math.ceil((startDow + lastDay.getDate()) / 7) * 7;
+  let html = '';
+
+  for (let i = 0; i < totalCells; i++) {
+    const dayNum = i - startDow + 1;
+    const isCurrentMonth = dayNum >= 1 && dayNum <= lastDay.getDate();
+    const date = isCurrentMonth ? new Date(calYear, calMonth, dayNum) : null;
+    const isToday = date && date.toDateString() === today.toDateString();
+
+    const dayEvents = isCurrentMonth ? calEvents.filter(e => {
+      const eStart = new Date(e.start?.dateTime || e.start?.date);
+      return eStart.getFullYear() === calYear && eStart.getMonth() === calMonth && eStart.getDate() === dayNum;
+    }) : [];
+
+    html += `<div onclick="${isCurrentMonth ? `openNewEventModalDate('${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}')` : ''}" style="min-height:90px;padding:8px 6px;border-right:1px solid #1a1a1a;border-bottom:1px solid #1a1a1a;${isCurrentMonth?'cursor:pointer;':'opacity:0.3;'}${isToday?'background:#111;':''}" onmouseover="if(${isCurrentMonth}&&!this.querySelector('.ev-item'))this.style.background='#0d0d0d'" onmouseout="this.style.background='${isToday?'#111':'transparent'}'">
+      <div style="font-size:12px;font-weight:${isToday?'700':'400'};color:${isToday?'#fff':'#52525b'};margin-bottom:4px;${isToday?'background:#fff;color:#000;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;':''}">${isCurrentMonth?dayNum:''}</div>
+      ${dayEvents.slice(0,3).map(e => {
+        const title = e.summary || 'Untitled';
+        const time = e.start?.dateTime ? new Date(e.start.dateTime).toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'}) : '';
+        const color = e.colorId ? ['#a4bdfc','#7ae7bf','#dbadff','#ff887c','#fbd75b','#ffb878','#46d6db','#e1e1e1','#5484ed','#51b749','#dc2127'][parseInt(e.colorId)-1]||'#fff' : '#fff';
+        return `<div class="ev-item" onclick="event.stopPropagation();showEventDetail('${e.id.replace(/'/g,"\\'")}','${encodeURIComponent(e.summary||'')}')" style="background:#1a1a1a;border-left:2px solid ${color};border-radius:3px;padding:2px 5px;font-size:10px;color:#e5e5e5;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;">${time?time+' ':''}${esc(title)}</div>`;
+      }).join('')}
+      ${dayEvents.length > 3 ? `<div style="font-size:10px;color:#52525b;padding:1px 4px;">+${dayEvents.length-3} more</div>` : ''}
+    </div>`;
+  }
+  grid.innerHTML = html;
+
+  // Upcoming events list
+  const upcoming = calEvents
+    .filter(e => new Date(e.start?.dateTime || e.start?.date) >= new Date())
+    .slice(0, 8);
+  const upEl = document.getElementById('cal-upcoming');
+  upEl.innerHTML = upcoming.length ? upcoming.map(e => {
+    const start = new Date(e.start?.dateTime || e.start?.date);
+    const end   = e.end?.dateTime ? new Date(e.end.dateTime) : null;
+    const isAllDay = !e.start?.dateTime;
+    return `<div style="background:#0f0f0f;border:1px solid #1a1a1a;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:14px;">
+      <div style="background:#1a1a1a;border-radius:8px;padding:6px 10px;text-align:center;min-width:52px;flex-shrink:0;">
+        <div style="font-size:10px;color:#52525b;">${start.toLocaleDateString('en-AU',{weekday:'short'})}</div>
+        <div style="font-size:18px;font-weight:700;">${start.getDate()}</div>
+        <div style="font-size:10px;color:#52525b;">${start.toLocaleDateString('en-AU',{month:'short'})}</div>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(e.summary||'Untitled')}</div>
+        <div style="font-size:11px;color:#52525b;margin-top:2px;">${isAllDay?'All day':start.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'})+(end?' – '+end.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'}):'')}${e.location?' · '+esc(e.location):''}</div>
+      </div>
+      <button onclick="deleteCalendarEvent('${e.id}')" style="background:none;border:none;color:#3f3f46;cursor:pointer;font-size:16px;padding:4px;flex-shrink:0;" title="Delete event">×</button>
+    </div>`;
+  }).join('') : '<p style="color:#52525b;font-size:13px;">No upcoming events.</p>';
+}
+
+function calPrev() { calMonth--; if(calMonth<0){calMonth=11;calYear--;} loadCalendarEvents(); }
+function calNext() { calMonth++; if(calMonth>11){calMonth=0;calYear++;} loadCalendarEvents(); }
+function calToday() { calYear=new Date().getFullYear(); calMonth=new Date().getMonth(); loadCalendarEvents(); }
+
+function showEventDetail(id, title) {
+  toast(decodeURIComponent(title));
+}
+
+function openNewEventModal() {
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('ev-date').value = today;
+  document.getElementById('ev-title').value = '';
+  document.getElementById('ev-location').value = '';
+  document.getElementById('ev-desc').value = '';
+  document.getElementById('ev-error').style.display = 'none';
+  openModal('modal-new-event');
+}
+
+function openNewEventModalDate(date) {
+  document.getElementById('ev-date').value = date;
+  document.getElementById('ev-title').value = '';
+  document.getElementById('ev-location').value = '';
+  document.getElementById('ev-desc').value = '';
+  document.getElementById('ev-error').style.display = 'none';
+  openModal('modal-new-event');
+  setTimeout(() => document.getElementById('ev-title').focus(), 100);
+}
+
+async function createCalendarEvent() {
+  const title    = document.getElementById('ev-title').value.trim();
+  const date     = document.getElementById('ev-date').value;
+  const startT   = document.getElementById('ev-start').value;
+  const endT     = document.getElementById('ev-end').value;
+  const location = document.getElementById('ev-location').value.trim();
+  const desc     = document.getElementById('ev-desc').value.trim();
+  const errEl    = document.getElementById('ev-error');
+
+  if (!title) { errEl.textContent='Please enter a title.'; errEl.style.display='block'; return; }
+  if (!date)  { errEl.textContent='Please select a date.'; errEl.style.display='block'; return; }
+  errEl.style.display = 'none';
+
+  const event = {
+    summary: title,
+    start: { dateTime: `${date}T${startT}:00`, timeZone: 'Australia/Sydney' },
+    end:   { dateTime: `${date}T${endT}:00`,   timeZone: 'Australia/Sydney' },
+  };
+  if (location) event.location = location;
+  if (desc)     event.description = desc;
+
+  try {
+    const r = await fetch(API + '/api/calendar/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(event)
+    });
+    const d = await r.json();
+    if (!d.ok) { errEl.textContent = d.error || 'Failed to create event.'; errEl.style.display='block'; return; }
+    closeModal('modal-new-event');
+    toast('Event created in Google Calendar.');
+    await loadCalendarEvents();
+  } catch(e) {
+    errEl.textContent = 'Error: ' + e.message;
+    errEl.style.display = 'block';
+  }
+}
+
+async function deleteCalendarEvent(id) {
+  if (!confirm('Delete this event from Google Calendar?')) return;
+  try {
+    await fetch(API + '/api/calendar/events/' + id, { method: 'DELETE' });
+    toast('Event deleted.');
+    await loadCalendarEvents();
+  } catch(e) { toast('Could not delete event.'); }
 }
 
 // GUEST MODE — disable all write actions
