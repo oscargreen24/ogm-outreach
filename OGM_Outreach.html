@@ -96,11 +96,43 @@
   
   .idea-card { background: #0f0f0f; border: 1px solid #1a1a1a; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
   .idea-card:hover { border-color: #2a2a2a; }
+
+  /* ── Mobile ────────────────────────────────────────────────────────────────── */
+  #hamburger { display: none; background: none; border: none; cursor: pointer; padding: 8px; color: #e5e5e5; flex-shrink: 0; }
+  #sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 90; }
+
+  @media (max-width: 768px) {
+    #sidebar {
+      position: fixed; top: 0; left: -224px; height: 100vh; z-index: 100;
+      transition: transform 0.25s ease, left 0.25s ease;
+      box-shadow: none;
+    }
+    #sidebar.open { left: 0; box-shadow: 8px 0 32px rgba(0,0,0,0.9); }
+    #sidebar-overlay { display: none; }
+    #sidebar-overlay.open { display: block; }
+    #hamburger { display: flex; align-items: center; justify-content: center; }
+    #main { width: 100%; }
+    #topbar { padding: 0 14px; gap: 8px; }
+    .topbar-date { display: none; }
+    .breadcrumb { font-size: 13px; }
+    .page { padding: 20px 14px 100px; }
+    .stat-card { padding: 14px; }
+    .stat-val { font-size: 22px; }
+    .modal-bg { padding: 0; align-items: flex-end; }
+    #detail-content { border-radius: 16px 16px 0 0 !important; max-height: 94vh !important; width: 100% !important; max-width: 100% !important; }
+    #jarvis-panel { width: calc(100vw - 24px); right: 12px; }
+    #jarvis-btn { bottom: 20px; right: 16px; }
+    #toast { top: auto; bottom: 90px; right: 12px; left: auto; max-width: 280px; }
+    #ideas-grid { grid-template-columns: 1fr !important; }
+  }
 </style>
 </head>
 <body>
 
 <div id="toast" style="display:none;position:fixed;top:1rem;right:1rem;z-index:100;background:#fff;color:#000;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;max-width:320px;"></div>
+
+<!-- Sidebar overlay (mobile tap-to-close) -->
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
 
 <!-- SIDEBAR -->
 <div id="sidebar">
@@ -177,10 +209,15 @@
 
   <!-- TOP BAR -->
   <div id="topbar">
-    <div class="breadcrumb">
-      <span id="bc-section"></span>
-      <span class="bc-sep" id="bc-sep" style="display:none;">›</span>
-      <span class="bc-current" id="bc-page">Dashboard</span>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button id="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="12" x2="21" y2="12" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="18" x2="21" y2="18" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <div class="breadcrumb">
+        <span id="bc-section"></span>
+        <span class="bc-sep" id="bc-sep" style="display:none;">›</span>
+        <span class="bc-current" id="bc-page">Dashboard</span>
+      </div>
     </div>
     <div class="topbar-right">
       <span class="topbar-date" id="topbar-date"></span>
@@ -707,7 +744,19 @@ async function runWiki(company){
 }
 
 // NAV
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  const ov=document.getElementById('sidebar-overlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('open');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
 function showPage(name,section,label){
+  closeSidebar();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.querySelectorAll('.nav-sub-item').forEach(n=>n.classList.remove('active'));
