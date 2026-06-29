@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OGM — Oscar Green Media</title>
+<title>OGM - Oscar Green Media</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #e5e5e5; height: 100vh; overflow: hidden; display: flex; }
@@ -364,7 +364,7 @@
           </div>
           <div>
             <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Hunter.io API key</label>
-            <p style="font-size:13px;color:#4ade80;padding:10px 12px;background:#052e16;border-radius:8px;">✓ Connected — your Hunter.io key is securely stored on the server and never exposed in this file.</p>
+            <p style="font-size:13px;color:#4ade80;padding:10px 12px;background:#052e16;border-radius:8px;">✓ Connected - your Hunter.io key is securely stored on the server and never exposed in this file.</p>
           </div>
           <div>
             <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Gmail integration</label>
@@ -397,7 +397,7 @@
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
           <div>
             <div class="page-title">Calendar</div>
-            <div class="page-sub">Synced with your Google Calendar — changes here reflect there and vice versa.</div>
+            <div class="page-sub">Synced with your Google Calendar - changes here reflect there and vice versa.</div>
           </div>
           <div style="display:flex;gap:8px;">
             <button onclick="calPrev()" style="background:#1a1a1a;border:1px solid #222;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:14px;">←</button>
@@ -440,7 +440,7 @@
           <button onclick="closeModal('modal-new-event')" style="background:none;border:none;color:#71717a;font-size:20px;cursor:pointer;">×</button>
         </div>
         <div style="display:flex;flex-direction:column;gap:12px;">
-          <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:5px;">Title</label><input id="ev-title" placeholder="e.g. Shoot day — MA Financial" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" /></div>
+          <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:5px;">Title</label><input id="ev-title" placeholder="e.g. Shoot day - MA Financial" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" /></div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
             <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:5px;">Date</label><input id="ev-date" type="date" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" /></div>
             <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:5px;">Time</label><input id="ev-time" type="time" style="width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" /></div>
@@ -464,10 +464,10 @@
       <div style="background:#111;border:1px solid #1a6b3c;border-radius:14px;padding:20px;margin-bottom:24px;">
         <div style="font-size:14px;font-weight:600;margin-bottom:8px;color:#4ade80;">Setup checklist</div>
         <div style="display:flex;flex-direction:column;gap:10px;">
-          <div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#4ade80;font-size:16px;">✓</span><div><div style="font-size:13px;font-weight:500;">Step 1 — Google Calendar appointment page</div><div style="font-size:12px;color:#71717a;margin-top:2px;">calendar.google.com → + Create → Appointment schedule. Add custom questions: Company, Shoot type, Budget. Copy the booking URL for your Instagram bio.</div></div></div>
-          <div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#71717a;font-size:16px;">○</span><div><div style="font-size:13px;font-weight:500;">Step 2 — Set Railway environment variables</div><div style="font-size:12px;color:#71717a;margin-top:2px;">In Railway → Variables, add: <code style="background:#1c1c1e;padding:1px 5px;border-radius:4px;">GOOGLE_WEBHOOK_TOKEN</code> (any random string), <code style="background:#1c1c1e;padding:1px 5px;border-radius:4px;">GOOGLE_CALENDAR_ID</code> (your Gmail address), <code style="background:#1c1c1e;padding:1px 5px;border-radius:4px;">RAILWAY_PUBLIC_DOMAIN</code> (ogm-outreach-production.up.railway.app)</div></div></div>
-          <div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#71717a;font-size:16px;">○</span><div><div style="font-size:13px;font-weight:500;">Step 3 — Upload service account key</div><div style="font-size:12px;color:#71717a;margin-top:2px;">Go to console.cloud.google.com → APIs & Services → Enable Calendar API → Credentials → Create Service Account → download the JSON key → upload it to your Railway project as <code style="background:#1c1c1e;padding:1px 5px;border-radius:4px;">/app/google-service-account.json</code> using Railway's file mount feature.</div></div></div>
-          <div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#71717a;font-size:16px;">○</span><div><div style="font-size:13px;font-weight:500;">Step 4 — Register the webhook (once)</div><div style="font-size:12px;color:#71717a;margin-top:2px;">After deploying, open your browser and go to: <code style="background:#1c1c1e;padding:1px 5px;border-radius:4px;">https://ogm-outreach-production.up.railway.app/api/calendar/register</code> (POST request — use a tool like Postman or the button below).</div><button onclick="registerWebhook()" style="margin-top:8px;background:none;border:1px solid #333;color:#a1a1aa;font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;" id="register-btn">Register webhook now</button><div id="register-result" style="font-size:12px;color:#71717a;margin-top:6px;"></div></div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#4ade80;font-size:16px;">✓</span><div><div style="font-size:13px;font-weight:500;">Step 1 - Google Calendar appointment page</div><div style="font-size:12px;color:#71717a;margin-top:2px;">calendar.google.com → + Create → Appointment schedule. Add custom questions: Company, Shoot type, Budget. Copy the booking URL for your Instagram bio.</div></div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#71717a;font-size:16px;">○</span><div><div style="font-size:13px;font-weight:500;">Step 2 - Set Railway environment variables</div><div style="font-size:12px;color:#71717a;margin-top:2px;">In Railway → Variables, add: <code style="background:#1c1c1e;padding:1px 5px;border-radius:4px;">GOOGLE_WEBHOOK_TOKEN</code> (any random string), <code style="background:#1c1c1e;padding:1px 5px;border-radius:4px;">GOOGLE_CALENDAR_ID</code> (your Gmail address), <code style="background:#1c1c1e;padding:1px 5px;border-radius:4px;">RAILWAY_PUBLIC_DOMAIN</code> (ogm-outreach-production.up.railway.app)</div></div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#71717a;font-size:16px;">○</span><div><div style="font-size:13px;font-weight:500;">Step 3 - Upload service account key</div><div style="font-size:12px;color:#71717a;margin-top:2px;">Go to console.cloud.google.com → APIs & Services → Enable Calendar API → Credentials → Create Service Account → download the JSON key → upload it to your Railway project as <code style="background:#1c1c1e;padding:1px 5px;border-radius:4px;">/app/google-service-account.json</code> using Railway's file mount feature.</div></div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#71717a;font-size:16px;">○</span><div><div style="font-size:13px;font-weight:500;">Step 4 - Register the webhook (once)</div><div style="font-size:12px;color:#71717a;margin-top:2px;">After deploying, open your browser and go to: <code style="background:#1c1c1e;padding:1px 5px;border-radius:4px;">https://ogm-outreach-production.up.railway.app/api/calendar/register</code> (POST request - use a tool like Postman or the button below).</div><button onclick="registerWebhook()" style="margin-top:8px;background:none;border:1px solid #333;color:#a1a1aa;font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;" id="register-btn">Register webhook now</button><div id="register-result" style="font-size:12px;color:#71717a;margin-top:6px;"></div></div></div>
         </div>
       </div>
       <div style="background:#111;border:1px solid #222;border-radius:14px;overflow:hidden;">
@@ -504,7 +504,7 @@
           <input id="comp-name" placeholder="Display name  e.g. Sydney Video Co" style="flex:2;min-width:180px;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;" />
           <button onclick="addCompetitor()" style="background:#fff;color:#000;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">+ Add</button>
         </div>
-        <p style="font-size:12px;color:#52525b;margin-top:12px;">Add their Instagram handle. The tool generates a pre-written outreach message targeting their followers. Note: Instagram does not expose follower lists via a public API — use this as a research prompt to check manually or via a third-party tool.</p>
+        <p style="font-size:12px;color:#52525b;margin-top:12px;">Add their Instagram handle. The tool generates a pre-written outreach message targeting their followers. Note: Instagram does not expose follower lists via a public API - use this as a research prompt to check manually or via a third-party tool.</p>
       </div>
       <div id="comp-list" style="display:flex;flex-direction:column;gap:10px;"></div>
     </div>
@@ -516,7 +516,7 @@
         <h3 style="font-size:14px;font-weight:600;margin-bottom:16px;">Generate a proposal</h3>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
           <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Select lead / company</label><select id="prop-lead" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;"><option value="">Choose a lead...</option></select></div>
-          <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Recommended tier</label><select id="prop-tier" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;"><option value="1">Tier 1 — Essential ($4,000/mo)</option><option value="2" selected>Tier 2 — Professional ($4,500/mo)</option><option value="3">Tier 3 — Premium ($6,000/mo)</option></select></div>
+          <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Recommended tier</label><select id="prop-tier" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;"><option value="1">Tier 1 - Essential ($4,000/mo)</option><option value="2" selected>Tier 2 - Professional ($4,500/mo)</option><option value="3">Tier 3 - Premium ($6,000/mo)</option></select></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
           <div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Custom intro note (optional)</label><textarea id="prop-note" rows="2" placeholder="e.g. Great to meet at the Finance Summit last week..." style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;resize:none;"></textarea></div>
@@ -545,9 +545,9 @@
           <option value="automotive">Automotive</option>
         </select>
         <select id="bulk-touch" style="background:#111;border:1px solid #1a1a1a;color:#e5e5e5;font-size:13px;padding:8px 12px;border-radius:8px;">
-          <option value="1">Touch 1 — Initial outreach</option>
-          <option value="2">Touch 2 — Follow-up 1</option>
-          <option value="3">Touch 3 — Follow-up 2</option>
+          <option value="1">Touch 1 - Initial outreach</option>
+          <option value="2">Touch 2 - Follow-up 1</option>
+          <option value="3">Touch 3 - Follow-up 2</option>
         </select>
         <button onclick="bulkSelectAll()" style="background:#1a1a1a;border:1px solid #222;color:#a1a1aa;font-size:13px;padding:8px 14px;border-radius:8px;cursor:pointer;">Select all</button>
         <button onclick="bulkDeselectAll()" style="background:#1a1a1a;border:1px solid #222;color:#a1a1aa;font-size:13px;padding:8px 14px;border-radius:8px;cursor:pointer;">Deselect all</button>
@@ -591,8 +591,8 @@
         <div class="page-sub">Leads are split 50/50 between two message variants. Track which converts better over time.</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
-        <div class="card"><div class="card-head"><div class="card-head-title">Variant A — original</div><span class="badge badge-blue">Control</span></div><div class="card-body" id="ab-a-stats"><div style="color:#52525b;font-size:13px;">Send some outreach to start tracking.</div></div></div>
-        <div class="card"><div class="card-head"><div class="card-head-title">Variant B — alternative</div><span class="badge badge-purple">Challenger</span></div><div class="card-body" id="ab-b-stats"><div style="color:#52525b;font-size:13px;">Send some outreach to start tracking.</div></div></div>
+        <div class="card"><div class="card-head"><div class="card-head-title">Variant A - original</div><span class="badge badge-blue">Control</span></div><div class="card-body" id="ab-a-stats"><div style="color:#52525b;font-size:13px;">Send some outreach to start tracking.</div></div></div>
+        <div class="card"><div class="card-head"><div class="card-head-title">Variant B - alternative</div><span class="badge badge-purple">Challenger</span></div><div class="card-body" id="ab-b-stats"><div style="color:#52525b;font-size:13px;">Send some outreach to start tracking.</div></div></div>
       </div>
       <div class="card"><div class="card-head"><div class="card-head-title">Subject line comparison</div></div><div class="card-body" id="ab-subjects" style="display:flex;flex-direction:column;gap:12px;"></div></div>
     </div>
@@ -651,7 +651,7 @@
   <!-- Messages -->
   <div id="jarvis-messages" style="height:340px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;">
     <div class="jmsg jarvis" style="background:#1a1a1a;border-radius:10px 10px 10px 2px;padding:12px 14px;font-size:13px;color:#e5e5e5;max-width:90%;line-height:1.5;">
-      Good day, Oscar. I'm Jarvis — I have full visibility of your pipeline, leads, revenue and bookings. How can I help?
+      Good day, Oscar. I'm Jarvis - I have full visibility of your pipeline, leads, revenue and bookings. How can I help?
     </div>
   </div>
   <!-- Quick actions -->
@@ -701,7 +701,7 @@ async function syncLeads() {
     if(r.status===401){ window.location.href='/login'; return; }
     const d = await r.json();
     if(d.leads){ leads = d.leads; save(); renderLeads(); renderDashboard(); updateNavBadge(); }
-  } catch(e) { toast('Offline — showing cached data.'); }
+  } catch(e) { toast('Offline - showing cached data.'); }
 }
 
 async function logout() {
@@ -1044,58 +1044,58 @@ function saveDetail(id){
 
 // TEMPLATES
 const SUBJECTS={
-  corporate:{1:'Video content for [co]',2:'Following up: [co]',3:'Closing the loop: [co]'},
-  realestate:{1:'Video content for your listings',2:'Following up: [co]',3:'Closing the loop: [co]'},
-  construction:{1:'Turning your builds into content',2:'Following up: [co]',3:'Closing the loop: [co]'},
-  automotive:{1:'Video content for [co]',2:'Following up: [co]',3:'Closing the loop: [co]'},
+  corporate:{1:'Short-form video content for [co]',2:'Following up: [co]',3:'Last note: [co]'},
+  realestate:{1:'Video content for your listings and brand',2:'Following up: [co]',3:'Last one from me'},
+  construction:{1:'Turning your projects into content',2:'Following up: [co]',3:'Last note from me'},
+  automotive:{1:'Short-form video content for [co]',2:'Following up: [co]',3:'Last message: [co]'},
 };
 const TMPLS={
   corporate:{
     email:{
-      1:"Hi [first],\n\nI came across [co]. [insight].\n\nI'm a videographer specialising in social content for professional services firms. I work with companies like yours to produce 8-10 short-form videos per month, the kind that build credibility with clients on LinkedIn and Instagram, not just fill a feed.\n\nWould it make sense to have a quick chat?\n\n[signature]",
-      2:"Hi [first],\n\nJust following up. Here's a recent example: [add reel link]. Happy to put together a quick brief for [co] if that's useful.\n\n[signature]",
-      3:"Hi [first],\n\nLast one from me. Happy to reconnect whenever the timing's right.\n\n[signature]",
+      1:"Hi [first],\n\nI came across [co] and wanted to reach out. [insight].\n\nMy name is Oscar. I am a Sydney-based videographer with over 8 years of experience producing short-form video content for corporate and financial services brands. I work with firms to deliver 8 to 10 reels per month, the kind that build genuine credibility with clients on LinkedIn and Instagram rather than just filling a feed.\n\nWould it be worth a quick chat to see if it could be a good fit?\n\n[signature]",
+      2:"Hi [first],\n\nJust following up on my last note. Here is a recent example of my work: [add reel link]. Happy to put together a brief tailored to [co] if that would be useful.\n\n[signature]",
+      3:"Hi [first],\n\nLast one from me. Happy to reconnect whenever the timing is right.\n\n[signature]",
     },
     instagram:{
-      1:"Hey [first], [insight].\n\nI do video content for finance brands, short-form stuff that actually performs on social. Happy to share some examples.\n\nWorth a chat?",
-      2:"Hey [first], following up. Here's a quick example: [add reel link]. Happy to chat if the timing works.",
+      1:"Hey [first], [insight].\n\nI am a Sydney videographer with 8+ years experience creating short-form content for finance and corporate brands. Happy to share some examples if it is of interest.\n\nWorth a chat?",
+      2:"Hey [first], just following up. Here is a recent example: [add reel link]. Happy to chat if the timing works.",
       3:"Hey [first], last one from me. Happy to reconnect whenever. [myname]",
     },
   },
   realestate:{
     email:{
-      1:"Hi [first],\n\nI noticed you're selling some great properties. [insight].\n\nI'm a videographer working with agents to produce listing videos and social content that builds your brand between sales.\n\nIs this something you're looking to improve?\n\n[signature]",
-      2:"Hi [first],\n\nFollowing up. Here's a recent example: [add reel link]. Happy to put something together for you on a trial basis.\n\n[signature]",
-      3:"Hi [first],\n\nLast one. Happy to reconnect whenever it makes sense.\n\n[signature]",
+      1:"Hi [first],\n\nI noticed some of the properties you are marketing and wanted to reach out. [insight].\n\nI am Oscar, a Sydney-based videographer with over 8 years of experience working with real estate agents to produce listing videos and brand content that builds a following between sales. The goal is content that actually drives enquiry, not just looks good.\n\nIs this something you are looking to improve?\n\n[signature]",
+      2:"Hi [first],\n\nFollowing up on my last note. Here is a recent example of my work: [add reel link]. Happy to put something together for you on a trial basis.\n\n[signature]",
+      3:"Hi [first],\n\nLast one from me. Happy to reconnect whenever it makes sense.\n\n[signature]",
     },
     instagram:{
-      1:"Hey [first], [insight].\n\nI do video for real estate agents: listing content and short-form social that helps you stand out. Happy to show you some examples.\n\nWorth a chat?",
-      2:"Hey [first], following up. Here's a recent example: [add reel link]. Happy to chat if it's of interest.",
+      1:"Hey [first], [insight].\n\nI am a Sydney videographer with 8+ years experience creating listing content and short-form social for real estate agents. Happy to show you some examples if you are keen.\n\nWorth a chat?",
+      2:"Hey [first], following up on my last message. Here is a recent example: [add reel link]. Happy to chat if it is of interest.",
       3:"Hey [first], last one from me. Happy to reconnect whenever. [myname]",
     },
   },
   construction:{
     email:{
-      1:"Hi [first],\n\nCame across [co]. [insight].\n\nI work with builders to document their projects: time-lapses, before/afters, site progress, reveals. Content that shows clients exactly what you're capable of.\n\nIs this something you're currently doing?\n\n[signature]",
-      2:"Hi [first],\n\nQuick follow-up. Here's a short example: [add reel link]. Happy to walk you through how it works.\n\n[signature]",
-      3:"Hi [first], last one. If there's a project coming up where this could be useful, happy to reconnect.\n\n[signature]",
+      1:"Hi [first],\n\nI came across [co] and wanted to get in touch. [insight].\n\nI am Oscar, a Sydney-based videographer with over 8 years of experience documenting construction projects. I work with builders to produce time-lapses, before and afters, site progress reels and project reveals. Content that shows clients exactly what you are capable of before they even pick up the phone.\n\nIs this something you are currently doing?\n\n[signature]",
+      2:"Hi [first],\n\nQuick follow-up on my last note. Here is a short example of my work: [add reel link]. Happy to walk you through how it could work for [co].\n\n[signature]",
+      3:"Hi [first],\n\nLast one from me. If there is a project coming up where this could be useful, happy to reconnect.\n\n[signature]",
     },
     instagram:{
-      1:"Hey [first], [insight].\n\nI do video for builders: time-lapses, reveals, before/afters. Content that turns your builds into leads.\n\nWorth a chat?",
-      2:"Hey [first], following up. Here's a recent example: [add reel link]. Happy to chat if it's of interest.",
-      3:"Hey [first], last one. Happy to reconnect whenever. [myname]",
+      1:"Hey [first], [insight].\n\nI am a Sydney videographer with 8+ years experience documenting construction projects. Time-lapses, reveals, before and afters. Content that turns your builds into new leads.\n\nWorth a chat?",
+      2:"Hey [first], following up on my last message. Here is a recent example: [add reel link]. Happy to chat if it is of interest.",
+      3:"Hey [first], last one from me. Happy to reconnect whenever. [myname]",
     },
   },
   automotive:{
     email:{
-      1:"Hi [first],\n\nI've been following [co]. [insight].\n\nI produce automotive video content for dealerships: walk-arounds, delivery moments, lifestyle content. The kind that makes inventory move and builds a following.\n\nWould you be open to a quick call?\n\n[signature]",
-      2:"Hi [first],\n\nFollowing up. Here's a recent example: [add reel link]. Happy to put something together for your inventory.\n\n[signature]",
-      3:"Hi [first], last message from me. Happy to reconnect whenever.\n\n[signature]",
+      1:"Hi [first],\n\nI have been following [co] and wanted to reach out. [insight].\n\nI am Oscar, a Sydney-based videographer with over 8 years of experience producing automotive video content for dealerships. Walk-arounds, delivery moments, lifestyle content. The kind that moves inventory and builds a brand people actually follow.\n\nWould you be open to a quick call?\n\n[signature]",
+      2:"Hi [first],\n\nFollowing up on my last note. Here is a recent example of my work: [add reel link]. Happy to put something together for your team.\n\n[signature]",
+      3:"Hi [first],\n\nLast message from me. Happy to reconnect whenever the timing suits.\n\n[signature]",
     },
     instagram:{
-      1:"Hey [first], [insight].\n\nI do automotive video: walk-arounds, delivery moments, lifestyle content. Stuff that makes cars sell and builds the brand.\n\nWorth a chat?",
-      2:"Hey [first], following up. Here's a recent example: [add reel link]. Happy to chat.",
-      3:"Hey [first], last one. Happy to reconnect whenever. [myname]",
+      1:"Hey [first], [insight].\n\nI am a Sydney videographer with 8+ years experience creating automotive content. Walk-arounds, delivery moments, lifestyle reels. Stuff that makes cars sell and builds the brand.\n\nWorth a chat?",
+      2:"Hey [first], following up on my last message. Here is a recent example: [add reel link]. Happy to chat.",
+      3:"Hey [first], last one from me. Happy to reconnect whenever. [myname]",
     },
   },
 };
@@ -1134,9 +1134,9 @@ function openDetail(id){
   const sbadge='<span id="status-badge-'+id+'" style="font-size:11px;padding:3px 10px;border-radius:999px;'+(STATUS_STYLE[l.status]||'')+'">'+(STATUS_LABEL[l.status]||l.status)+'</span>';
   const btnStyle='background:#fff;color:#000;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;';
   let actionBtns='';
-  if(l.status==='new') actionBtns='<button onclick="sendMsg(\''+id+'\',1)" style="'+btnStyle+'">'+(l.channel==='email'?'&#9993;&#65039; Open in Gmail':'&#128248; Copy and open Instagram')+' — Initial outreach</button>';
-  else if(l.status==='contacted'||l.status==='followup1_due') actionBtns='<button onclick="sendMsg(\''+id+'\',2)" style="'+btnStyle+'">'+(l.channel==='email'?'&#9993;&#65039; Open in Gmail':'&#128248; Copy and open Instagram')+' — Follow-up 1</button>';
-  else if(l.status==='followup1_sent'||l.status==='followup2_due') actionBtns='<button onclick="sendMsg(\''+id+'\',3)" style="'+btnStyle+'">'+(l.channel==='email'?'&#9993;&#65039; Open in Gmail':'&#128248; Copy and open Instagram')+' — Follow-up 2</button>';
+  if(l.status==='new') actionBtns='<button onclick="sendMsg(\''+id+'\',1)" style="'+btnStyle+'">'+(l.channel==='email'?'&#9993;&#65039; Open in Gmail':'&#128248; Copy and open Instagram')+' - Initial outreach</button>';
+  else if(l.status==='contacted'||l.status==='followup1_due') actionBtns='<button onclick="sendMsg(\''+id+'\',2)" style="'+btnStyle+'">'+(l.channel==='email'?'&#9993;&#65039; Open in Gmail':'&#128248; Copy and open Instagram')+' - Follow-up 1</button>';
+  else if(l.status==='followup1_sent'||l.status==='followup2_due') actionBtns='<button onclick="sendMsg(\''+id+'\',3)" style="'+btnStyle+'">'+(l.channel==='email'?'&#9993;&#65039; Open in Gmail':'&#128248; Copy and open Instagram')+' - Follow-up 2</button>';
   const touch=l.status==='new'?1:(l.status==='contacted'||l.status==='followup1_due')?2:(l.status==='followup1_sent'||l.status==='followup2_due')?3:1;
   document.getElementById('detail-content').innerHTML=
     '<div style="display:flex;align-items:flex-start;justify-content:space-between;padding:20px 24px;border-bottom:1px solid #222;">'+
@@ -1156,7 +1156,7 @@ function openDetail(id){
           '<a href="https://www.linkedin.com/search/results/people/?keywords='+encodeURIComponent(l.firstName+' '+l.lastName+' '+l.company)+'" target="_blank" style="font-size:12px;color:#a1a1aa;border:1px solid #333;padding:4px 10px;border-radius:6px;text-decoration:none;">&#128188; LinkedIn</a>'+
           '<a href="https://www.google.com/search?q='+encodeURIComponent(l.company+' news')+'" target="_blank" style="font-size:12px;color:#a1a1aa;border:1px solid #333;padding:4px 10px;border-radius:6px;text-decoration:none;">&#128240; News</a>'+
         '</div>'+
-        '<label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Personalisation hook — drops into the email automatically</label>'+
+        '<label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Personalisation hook - drops into the email automatically</label>'+
         '<textarea id="rn-'+id+'" rows="2" placeholder="e.g. recently expanded your team or saw your post about the new office" style="width:100%;background:#111;border:1px solid #333;color:#fff;font-size:12px;padding:8px 10px;border-radius:8px;resize:vertical;">'+esc(l.researchNotes||'')+'</textarea>'+
       '</div>'+
       '<div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:16px;">'+
@@ -1195,7 +1195,7 @@ function openDetail(id){
   if(!l.companyDesc) runResearch(id,true);
 }
 
-// LEADS PAGE — GROUPED BY COMPANY
+// LEADS PAGE - GROUPED BY COMPANY
 function renderLeads(){
   refreshStatuses();
   const fi=document.getElementById('f-industry')&&document.getElementById('f-industry').value||'';
@@ -1505,44 +1505,44 @@ function markReply(id){
 }
 
 // ── A/B TEMPLATES ─────────────────────────────────────────────────────────────
-// Variant B templates — alternate subject lines and openers
+// Variant B templates - alternate subject lines and openers
 const SUBJECTS_B={
-  corporate:{1:'A quick question about [co]\'s social presence',2:'One more thought — [co]',3:'Last note: [co]'},
-  realestate:{1:'Your listings deserve better video',2:'Quick follow-up on the video idea',3:'Last one from me'},
-  construction:{1:'Turning [co]\'s projects into content',2:'Following up on the content idea',3:'Closing the loop'},
-  automotive:{1:'Video content that moves cars',2:'Quick follow-up — [co]',3:'Last message from me'},
+  corporate:{1:'Quick question about [co]',2:'One more thought: [co]',3:'Last note: [co]'},
+  realestate:{1:'Video content for your listings and brand',2:'Following up on the video idea',3:'Last one from me'},
+  construction:{1:'Documenting [co] projects',2:'Following up on the content idea',3:'Last note from me'},
+  automotive:{1:'Short-form video for [co]',2:'Following up: [co]',3:'Last message from me'},
 };
 const TMPLS_B={
   corporate:{
     email:{
-      1:"Hi [first],\n\nQuick question — is [co] producing any regular video content at the moment?\n\nI work with financial services firms in Sydney to produce 8-10 short-form reels per month — the kind that actually builds trust with clients on LinkedIn.\n\nWould you be open to a 10-minute call?\n\n[signature]",
-      2:"Hi [first],\n\nFollowing up from last week. Here's an example of what I produce: [add reel link].\n\nHappy to put a brief together for [co] if that's useful.\n\n[signature]",
-      3:"Hi [first],\n\nLast message from me — happy to reconnect whenever the timing suits.\n\n[signature]",
+      1:"Hi [first],\n\nQuick question - is [co] producing regular short-form video content at the moment?\n\nI am Oscar, a Sydney-based videographer with over 8 years of experience. I partner with financial services firms to produce 8 to 10 reels per month. The kind that builds genuine trust with clients on LinkedIn rather than just filling a content calendar.\n\nWould you be open to a 10-minute call?\n\n[signature]",
+      2:"Hi [first],\n\nFollowing up from last week. Here is an example of the work I produce: [add reel link]. Happy to put a brief together specifically for [co] if that would be useful.\n\n[signature]",
+      3:"Hi [first],\n\nLast message from me. Happy to reconnect whenever the timing suits.\n\n[signature]",
     },
   },
   realestate:{
     email:{
-      1:"Hi [first],\n\nI noticed [co]'s listings online. [insight].\n\nI produce listing and brand videos for agents in Sydney — content that sells properties and builds a following between campaigns.\n\nWorth a quick chat?\n\n[signature]",
-      2:"Hi [first],\n\nFollowing up. Here's a recent example: [add reel link]. Happy to do a trial shoot for you.\n\n[signature]",
-      3:"Hi [first],\n\nLast one from me. Happy to chat whenever the timing's right.\n\n[signature]",
+      1:"Hi [first],\n\nI noticed [co] online. [insight].\n\nI am Oscar, a Sydney-based videographer with over 8 years of experience. I produce listing videos and brand content for agents that builds a profile between campaigns, not just during them.\n\nWorth a quick chat?\n\n[signature]",
+      2:"Hi [first],\n\nFollowing up on my last note. Here is a recent example of my work: [add reel link]. Happy to organise a trial shoot if you would like to see what is possible.\n\n[signature]",
+      3:"Hi [first],\n\nLast one from me. Happy to chat whenever the timing is right.\n\n[signature]",
     },
   },
   construction:{
     email:{
-      1:"Hi [first],\n\nI've been following [co]'s work. [insight].\n\nI document construction projects — time-lapses, reveals, before/afters. Content that wins you the next job.\n\nWorth a call?\n\n[signature]",
-      2:"Hi [first],\n\nFollowing up. Here's an example: [add reel link]. Happy to walk you through what's possible.\n\n[signature]",
-      3:"Hi [first],\n\nLast one. If a project's coming up, happy to reconnect.\n\n[signature]",
+      1:"Hi [first],\n\nI have been following [co]. [insight].\n\nI am Oscar, a Sydney-based videographer with over 8 years of experience documenting construction projects. Time-lapses, project reveals, before and afters. Content that wins you the next job before you even tender.\n\nWorth a call?\n\n[signature]",
+      2:"Hi [first],\n\nFollowing up on my last note. Here is a recent example of my work: [add reel link]. Happy to walk you through what would be possible for [co].\n\n[signature]",
+      3:"Hi [first],\n\nLast one. If there is a project coming up, happy to reconnect.\n\n[signature]",
     },
   },
   automotive:{
     email:{
-      1:"Hi [first],\n\nLove what [co] is doing. [insight].\n\nI produce automotive content for Sydney dealerships — walk-arounds, delivery moments, lifestyle. Stuff that sells and builds a brand.\n\nOpen to a quick call?\n\n[signature]",
-      2:"Hi [first],\n\nFollowing up. Here's a recent example: [add reel link].\n\n[signature]",
-      3:"Hi [first],\n\nLast message from me — happy to reconnect whenever.\n\n[signature]",
+      1:"Hi [first],\n\nI have been following [co] and wanted to reach out. [insight].\n\nI am Oscar, a Sydney-based videographer with over 8 years of experience producing automotive content for dealerships. Walk-arounds, delivery moments, lifestyle reels. Content that moves cars and builds a brand worth following.\n\nOpen to a quick call?\n\n[signature]",
+      2:"Hi [first],\n\nFollowing up on my last note. Here is a recent example of my work: [add reel link]. Happy to chat whenever suits.\n\n[signature]",
+      3:"Hi [first],\n\nLast message from me. Happy to reconnect whenever.\n\n[signature]",
     },
   },
 };
-// Track which variant each lead uses (A if even id char, B if odd — simple 50/50 split)
+// Track which variant each lead uses (A if even id char, B if odd - simple 50/50 split)
 function getVariant(l){return (parseInt(l.id.charCodeAt(0),36)%2===0)?'A':'B';}
 function buildMsgAB(l,touch){
   const variant=getVariant(l);
@@ -1620,8 +1620,8 @@ function renderCompetitors(){
 }
 function copyCompOutreach(id){
   const c=getCompetitors().find(x=>x.id===id);if(!c)return;
-  const msg='Hey [first], I noticed you follow @'+c.handle+'. I also do videography for businesses in Sydney — short-form content for LinkedIn and Instagram. Would love to show you what I produce. Worth a chat?\n\n'+((cfg.name)||'Oscar');
-  navigator.clipboard.writeText(msg).then(()=>toast('Outreach message copied to clipboard.')).catch(()=>toast('Could not copy — try manually.'));
+  const msg='Hey [first], I noticed you follow @'+c.handle+'. I also do videography for businesses in Sydney - short-form content for LinkedIn and Instagram. Would love to show you what I produce. Worth a chat?\n\n'+((cfg.name)||'Oscar');
+  navigator.clipboard.writeText(msg).then(()=>toast('Outreach message copied to clipboard.')).catch(()=>toast('Could not copy - try manually.'));
 }
 
 // ── PERSONALISATION ASSISTANT ─────────────────────────────────────────────────
@@ -1643,7 +1643,7 @@ async function runPersonalisationAssist(id){
       rn.value=hint;l.researchNotes=hint;save();apiSaveLead(l);
       toast('Research note pre-filled from Wikipedia. Edit to personalise.');
     } else if(rn&&rn.value.trim()){
-      toast('Research note already filled — edit it manually.');
+      toast('Research note already filled - edit it manually.');
     } else {
       toast('No Wikipedia entry found for '+l.company+'. Try adding a personalisation note manually.');
     }
@@ -1659,7 +1659,7 @@ function renderProposals(){
   const sel=document.getElementById('prop-lead');if(!sel)return;
   const current=sel.value;
   sel.innerHTML='<option value="">Choose a lead...</option>'+
-    leads.filter(l=>l.firstName||l.company).map(l=>'<option value="'+l.id+'"'+(l.id===current?' selected':'')+'>'+esc(l.firstName+' '+l.lastName)+' — '+esc(l.company)+'</option>').join('');
+    leads.filter(l=>l.firstName||l.company).map(l=>'<option value="'+l.id+'"'+(l.id===current?' selected':'')+'>'+esc(l.firstName+' '+l.lastName)+' - '+esc(l.company)+'</option>').join('');
   // History
   const hist=document.getElementById('prop-history');
   hist.innerHTML=proposalHistory.length?proposalHistory.slice().reverse().map(p=>'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1c1c1e;"><div><div style="font-size:13px;font-weight:500;">'+esc(p.company)+'</div><div style="font-size:12px;color:#71717a;">Tier '+p.tier+' &middot; '+new Date(p.createdAt).toLocaleDateString('en-AU')+'</div></div><button onclick="downloadProposal(\''+p.id+'\')" style="background:none;border:1px solid #333;color:#a1a1aa;font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;">Re-download</button></div>').join(''):'<p style="color:#52525b;font-size:13px;">No proposals generated yet.</p>';
@@ -1678,7 +1678,7 @@ async function generateProposal(){
   const TIER_DATA={
     1:{name:'Essential',price:'$4,000',tagline:'Structured monthly production with ad hoc flexibility',bullets:['One scheduled shoot day per month','One additional ad hoc shoot day per month','8–10 professionally edited short-form reels per month','Full post-production: colour grading, captions, music and sound design','Two rounds of revisions per content batch','Monthly content planning session']},
     2:{name:'Professional',price:'$4,500',tagline:'Expanded coverage with reactive shoot capability',bullets:['One scheduled shoot day per month','Two to three additional reactive shoot days per month at no extra charge','8–10 professionally edited short-form reels per month','Full post-production: colour grading, captions, music and sound design','Two rounds of revisions per content batch','Monthly content planning session']},
-    3:{name:'Premium',price:'$6,000',tagline:'Comprehensive production with unlimited reactive access',bullets:['One scheduled shoot day per month','Unlimited reactive shoot days throughout the month — no cap','Priority scheduling: 24-hour notice for reactive shoots','8–15 professionally edited short-form reels per month','Full post-production: colour grading, captions, music and sound design','Two rounds of revisions per content batch','Monthly content planning session plus a dedicated quarterly strategy review']},
+    3:{name:'Premium',price:'$6,000',tagline:'Comprehensive production with unlimited reactive access',bullets:['One scheduled shoot day per month','Unlimited reactive shoot days throughout the month - no cap','Priority scheduling: 24-hour notice for reactive shoots','8–15 professionally edited short-form reels per month','Full post-production: colour grading, captions, music and sound design','Two rounds of revisions per content batch','Monthly content planning session plus a dedicated quarterly strategy review']},
   };
   const td=TIER_DATA[tier];
   const company=l.company||'Your Company';
@@ -1687,7 +1687,7 @@ async function generateProposal(){
   const validUntil=new Date(Date.now()+validity*86400000).toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
 
   // Build PDF as HTML → print window
-  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>OGM Proposal — ${company}</title><style>
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>OGM Proposal - ${company}</title><style>
     *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:'Arial',sans-serif;color:#0a0a0a;background:#fff;padding:0;}
     .page{width:210mm;min-height:297mm;padding:18mm 18mm 22mm;margin:0 auto;position:relative;}
@@ -1712,7 +1712,7 @@ async function generateProposal(){
     ul li{font-size:11px;line-height:1.8;color:#333;}
     .incl-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;margin-bottom:20px;}
     .incl-item{font-size:10px;color:#333;padding:3px 0;display:flex;gap:6px;}
-    .incl-item::before{content:'—';color:#0a0a0a;font-weight:700;}
+    .incl-item::before{content:'-';color:#0a0a0a;font-weight:700;}
     .next-steps{margin-bottom:20px;}
     .next-steps p{font-size:11px;line-height:1.7;color:#333;margin-bottom:6px;}
     .signoff{border-top:2px solid #0a0a0a;padding-top:12px;margin-top:8px;}
@@ -1725,15 +1725,15 @@ async function generateProposal(){
   <div class="page">
     <div class="header">
       <div><div class="logo">OGM</div><div class="logo-sub">OSCAR GREEN MEDIA</div></div>
-      <div class="prepared"><div class="prep-label">Prepared for</div><div class="company-name">${company}</div><div class="subtitle">Social Media Video Production — Retainer Proposal</div></div>
+      <div class="prepared"><div class="prep-label">Prepared for</div><div class="company-name">${company}</div><div class="subtitle">Social Media Video Production - Retainer Proposal</div></div>
     </div>
     <div style="height:24px;"></div>
     <div class="section-label">Introduction</div><hr class="rule">
     ${note?'<p class="intro">'+note.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</p>':''}<p class="intro">Oscar Green Media specialises in short-form video content for corporate and financial services brands. The following retainer package has been prepared specifically for ${company}, offering a structured, cost-effective approach to building a consistent and high-quality social media presence.</p>
     <div style="height:16px;"></div>
-    <div class="section-label">Recommended Retainer — Tier ${tier}: ${td.name}</div><hr class="rule">
+    <div class="section-label">Recommended Retainer - Tier ${tier}: ${td.name}</div><hr class="rule">
     <div class="tier-box">
-      <div class="tier-label">Tier ${tier} — ${td.name}</div>
+      <div class="tier-label">Tier ${tier} - ${td.name}</div>
       <div class="tier-price">${td.price}</div>
       <div class="tier-per">per month · inc. GST</div>
       <hr class="tier-divider">
@@ -1777,7 +1777,7 @@ async function generateProposal(){
   localStorage.setItem('ogm_proposals',JSON.stringify(proposalHistory));
   statusEl.style.display='none';
   renderProposals();
-  toast('PDF opened — use Cmd/Ctrl+P or the print dialog to save as PDF.');
+  toast('PDF opened - use Cmd/Ctrl+P or the print dialog to save as PDF.');
 }
 
 function downloadProposal(id){
@@ -1872,17 +1872,17 @@ function renderBookings() {
 
 // ── REEL IDEAS ────────────────────────────────────────────────────────────────
 const REEL_IDEAS = [
-  {idea:'Day in the life — videographer on set',format:'Vlog / BTS',heat:'High',tags:['BTS','Creator']},
+  {idea:'Day in the life - videographer on set',format:'Vlog / BTS',heat:'High',tags:['BTS','Creator']},
   {idea:'Before/after colour grade reveal',format:'Transition',heat:'High',tags:['Editing','Tutorial']},
   {idea:'Gear bag walkthrough',format:'Educational',heat:'Medium',tags:['Gear','Creator']},
   {idea:'POV: golden hour shoot in Sydney',format:'Aesthetic / POV',heat:'High',tags:['Cinematic','Sydney']},
-  {idea:'Client reaction — first reel delivery',format:'Testimonial',heat:'High',tags:['Client','Authentic']},
+  {idea:'Client reaction - first reel delivery',format:'Testimonial',heat:'High',tags:['Client','Authentic']},
   {idea:'30-second property listing reveal',format:'Real estate',heat:'High',tags:['Real estate','Business']},
-  {idea:'Time-lapse — construction site start to finish',format:'Time-lapse',heat:'Medium',tags:['Construction','Cinematic']},
-  {idea:'Porsche walk-around — golden hour',format:'Automotive',heat:'High',tags:['Automotive','Cinematic']},
+  {idea:'Time-lapse - construction site start to finish',format:'Time-lapse',heat:'Medium',tags:['Construction','Cinematic']},
+  {idea:'Porsche walk-around - golden hour',format:'Automotive',heat:'High',tags:['Automotive','Cinematic']},
   {idea:'"What I charge vs what you get" breakdown',format:'Educational',heat:'High',tags:['Business','Creator']},
   {idea:'Finance firm office ambience shoot',format:'Corporate BTS',heat:'Medium',tags:['Corporate','BTS']},
-  {idea:'Packing the car for a shoot — ASMR',format:'ASMR / Lifestyle',heat:'Medium',tags:['Creator','Lifestyle']},
+  {idea:'Packing the car for a shoot - ASMR',format:'ASMR / Lifestyle',heat:'Medium',tags:['Creator','Lifestyle']},
   {idea:'Camera settings I use for every shoot',format:'Tutorial',heat:'Medium',tags:['Tutorial','Gear']},
 ];
 
@@ -1916,7 +1916,7 @@ function addIdeaToCalendar(idx){
   let slot = 0; while(used.includes(slot) && slot<14) slot++;
   calendarItems.push({idx, idea:r.idea, format:r.format, dayOffset:slot, addedAt:new Date().toISOString()});
   saveCal(); renderIdeasCalendar();
-  toast('Added to calendar — '+r.idea.slice(0,30)+'...');
+  toast('Added to calendar - '+r.idea.slice(0,30)+'...');
 }
 
 function removeCalItem(i){ calendarItems.splice(i,1); saveCal(); renderIdeasCalendar(); }
@@ -1955,7 +1955,7 @@ async function generateMoreIdeas(){
     REEL_IDEAS.push(...newIdeas);
     renderIdeasPage();
     toast(newIdeas.length+' new ideas added!');
-  } catch(e){ toast('Could not generate ideas — check your connection.'); }
+  } catch(e){ toast('Could not generate ideas - check your connection.'); }
   if(btn){btn.textContent='⚡ Generate more';btn.disabled=false;}
 }
 
@@ -1969,11 +1969,11 @@ function renderABPage(){
   const bCont=bLeads.filter(l=>l.contactedDate).length;
   const aMeet=aLeads.filter(l=>['meeting','won'].includes(l.status)).length;
   const bMeet=bLeads.filter(l=>['meeting','won'].includes(l.status)).length;
-  const fmt=(n,d)=>d>0?Math.round(n/d*100)+'%':'—';
+  const fmt=(n,d)=>d>0?Math.round(n/d*100)+'%':'-';
   const statRow=(label,a,b)=>'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1a1a1a;font-size:13px;"><span style="color:#52525b;">'+label+'</span><div style="display:flex;gap:40px;"><span>'+a+'</span><span>'+b+'</span></div></div>';
   const aEl=document.getElementById('ab-a-stats'); const bEl=document.getElementById('ab-b-stats');
   if(aEl) aEl.innerHTML='<div style="font-size:28px;font-weight:700;color:#fff;margin-bottom:4px;">'+fmt(aReplies,aCont)+'</div><div style="font-size:12px;color:#52525b;margin-bottom:14px;">reply rate</div>'+statRow('Leads assigned',aLeads.length,'').replace('</div>','<span style="color:#52525b;font-size:11px;">vs B</span></div>')+statRow('Contacted',aCont,bCont)+statRow('Replies',aReplies,bReplies)+statRow('Meetings',aMeet,bMeet);
-  if(bEl) bEl.innerHTML='<div style="font-size:28px;font-weight:700;color:'+(bReplies>aReplies?'#4ade80':'#fff')+';">'+(bCont>0?fmt(bReplies,bCont):'—')+'</div><div style="font-size:12px;color:#52525b;margin-bottom:14px;">reply rate '+(bReplies>aReplies?'↑ winning':'')+'</div>';
+  if(bEl) bEl.innerHTML='<div style="font-size:28px;font-weight:700;color:'+(bReplies>aReplies?'#4ade80':'#fff')+';">'+(bCont>0?fmt(bReplies,bCont):'-')+'</div><div style="font-size:12px;color:#52525b;margin-bottom:14px;">reply rate '+(bReplies>aReplies?'↑ winning':'')+'</div>';
   const subEl=document.getElementById('ab-subjects'); if(!subEl) return;
   const industries=['corporate','realestate','construction','automotive'];
   subEl.innerHTML=industries.map(ind=>{
@@ -2157,7 +2157,7 @@ function renderFunnel() {
       const avg=Math.round(days.reduce((a,b)=>a+b,0)/days.length);
       return `<div style="padding:8px 0;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;"><span style="font-size:13px;">${IND_LABELS[ind]||ind}</span><span style="font-size:13px;font-weight:600;color:#a1a1aa;">${avg} days avg (${days.length} won)</span></div>`;
     });
-    ctEl.innerHTML=rows.length?rows.join(''):'<p style="color:#52525b;font-size:13px;">No won leads yet — close your first client to see this data.</p>';
+    ctEl.innerHTML=rows.length?rows.join(''):'<p style="color:#52525b;font-size:13px;">No won leads yet - close your first client to see this data.</p>';
   }
 }
 
@@ -2195,13 +2195,13 @@ async function loadJarvisMemory() {
       jarvisHistory.forEach(m => addJarvisMessage(m.role, m.content, true));
       const sep = document.createElement('div');
       sep.style.cssText = 'text-align:center;font-size:10px;color:#3f3f46;padding:4px 0;';
-      sep.textContent = '— previous conversation —';
+      sep.textContent = '- previous conversation -';
       msgs.insertBefore(sep, msgs.firstChild);
       msgs.scrollTop = msgs.scrollHeight;
       const quick = document.getElementById('jarvis-quick');
       if (quick) quick.style.display = 'none';
     } else {
-      // No history — send a proactive opening briefing
+      // No history - send a proactive opening briefing
       await sendProactiveBriefing();
     }
     jarvisMemoryLoaded = true;
@@ -2302,19 +2302,19 @@ function buildJarvisContext() {
     .filter(l => l.updatedAt)
     .sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt))
     .slice(0, 5)
-    .map(l => `${l.firstName} ${l.lastName} at ${l.company} — ${STATUS_LABEL[l.status]||l.status}`);
+    .map(l => `${l.firstName} ${l.lastName} at ${l.company} - ${STATUS_LABEL[l.status]||l.status}`);
   const industryBreakdown = Object.entries(
     leads.reduce((acc,l) => { acc[l.industry]=(acc[l.industry]||0)+1; return acc; }, {})
   ).map(([ind,n]) => `${IND_LABELS[ind]||ind}: ${n}`).join(', ');
 
-  return `You are Jarvis — the personal AI business assistant for Oscar Green, founder of Oscar Green Media, a Sydney-based solo videography business.
+  return `You are Jarvis - the personal AI business assistant for Oscar Green, founder of Oscar Green Media, a Sydney-based solo videography business.
 
 OSCAR'S BUSINESS:
 - Produces short-form social media video content (reels) for LinkedIn, Instagram and TikTok
 - Four verticals: Corporate/Finance, Real Estate, Construction, Automotive
 - Brand: strictly black and white, premium and professional
 - Based in Sydney, Australia
-- Solo operator — Oscar films, edits and manages outreach himself
+- Solo operator - Oscar films, edits and manages outreach himself
 - Retainer model: Tier 1 $4,000/mo, Tier 2 $4,500/mo, Tier 3 $6,000/mo (all inc. GST)
 - Contact: oscar@oscargreenmedia.com | instagram.com/oscargreenmedia
 
@@ -2347,7 +2347,7 @@ YOUR CAPABILITIES:
 - draft_email: Open email draft for a lead
 - set_lead_monthly_value: Set retainer value for won clients
 
-PERSONALITY: You are sharp, direct, efficient and genuinely helpful. You proactively suggest actions rather than just answering questions. You know Oscar's business deeply. You can write emails, captions, proposals, strategies. You search the web when you need current info. You refer to Oscar by name occasionally. You are not overly formal — conversational but professional.`;
+PERSONALITY: You are sharp, direct, efficient and genuinely helpful. You proactively suggest actions rather than just answering questions. You know Oscar's business deeply. You can write emails, captions, proposals, strategies. You search the web when you need current info. You refer to Oscar by name occasionally. You are not overly formal - conversational but professional.`;
 }
 
 function addJarvisMessage(role, text, silent = false) {
@@ -2372,7 +2372,7 @@ async function scanGmailReplies() {
     const d = await r.json();
     if (d.error) {
       if (d.error.includes('not connected')) {
-        toast('Gmail not connected — click "Connect Gmail" in Settings.');
+        toast('Gmail not connected - click "Connect Gmail" in Settings.');
       } else {
         toast('Error: ' + d.error);
       }
@@ -2380,11 +2380,11 @@ async function scanGmailReplies() {
     }
     await syncLeads();
     if (d.updated > 0) {
-      toast(`✓ Found ${d.updated} new repl${d.updated===1?'y':'ies'} — leads updated automatically.`);
+      toast(`✓ Found ${d.updated} new repl${d.updated===1?'y':'ies'} - leads updated automatically.`);
     } else if (d.replies && d.replies.length > 0) {
-      toast(`Scanned ${d.scanned} emails — ${d.replies.length} from leads, all already marked.`);
+      toast(`Scanned ${d.scanned} emails - ${d.replies.length} from leads, all already marked.`);
     } else {
-      toast(`Scanned ${d.scanned} emails — no new replies from leads found.`);
+      toast(`Scanned ${d.scanned} emails - no new replies from leads found.`);
     }
   } catch(e) { toast('Could not reach server.'); }
 }
@@ -2399,8 +2399,8 @@ async function checkGmailStatus() {
     const d = await r.json();
     const el = document.getElementById('gmail-status');
     if (el) el.innerHTML = d.connected
-      ? '<span style="color:#4ade80;">✓ Connected — Gmail is scanning for replies hourly</span>'
-      : '<span style="color:#f87171;">Not connected</span> — <button onclick="connectGmail()" style="background:#fff;color:#000;border:none;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;margin-left:6px;">Connect Gmail</button>';
+      ? '<span style="color:#4ade80;">✓ Connected - Gmail is scanning for replies hourly</span>'
+      : '<span style="color:#f87171;">Not connected</span> - <button onclick="connectGmail()" style="background:#fff;color:#000;border:none;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;margin-left:6px;">Connect Gmail</button>';
   } catch(e) {}
 }
 
@@ -2453,7 +2453,7 @@ async function jarvisLookupCompany(input) {
           return await processLookupResults(d2.data, company_name, domain2, add_to_pipeline, industry);
         }
       }
-      return `No contacts found for ${company_name} (tried ${domain}). Try providing the exact domain — e.g. "look up barrenjoey.com".`;
+      return `No contacts found for ${company_name} (tried ${domain}). Try providing the exact domain - e.g. "look up barrenjoey.com".`;
     }
 
     return await processLookupResults(d.data, company_name, domain, add_to_pipeline, industry);
@@ -2478,7 +2478,7 @@ async function processLookupResults(data, companyName, domain, addToPipeline, in
   if (!contacts.length) return `Found the company but no individual contacts for ${companyName}.`;
 
   let result = `Found ${contacts.length} contact${contacts.length!==1?'s':''} at ${companyName} (${domain}):\n\n`;
-  result += contacts.map(e => `• ${e.first_name||''} ${e.last_name||''} — ${e.position||'Unknown title'} (${e.value})`).join('\n');
+  result += contacts.map(e => `• ${e.first_name||''} ${e.last_name||''} - ${e.position||'Unknown title'} (${e.value})`).join('\n');
 
   if (addToPipeline) {
     let added = 0;
@@ -2595,7 +2595,7 @@ const JARVIS_TOOLS = [
       type: 'object',
       properties: {
         company_name: { type: 'string', description: 'Name of the company to look up' },
-        domain: { type: 'string', description: 'Domain of the company e.g. barrenjoey.com — if not provided, Jarvis will guess from the company name' },
+        domain: { type: 'string', description: 'Domain of the company e.g. barrenjoey.com - if not provided, Jarvis will guess from the company name' },
         add_to_pipeline: { type: 'boolean', description: 'Whether to automatically add relevant contacts to the pipeline' },
         industry: { type: 'string', enum: ['corporate','realestate','construction','automotive'], description: 'Industry to tag the leads as' }
       },
@@ -2666,13 +2666,13 @@ async function executeJarvisTool(toolName, input) {
       document.getElementById('prop-tier') && (document.getElementById('prop-tier').value = input.tier);
       showPage('proposals', 'Business', 'Proposals');
       setTimeout(() => generateProposal(), 400);
-      return `Opening proposal generator for ${l.firstName} ${l.lastName} at ${l.company} — Tier ${input.tier}.`;
+      return `Opening proposal generator for ${l.firstName} ${l.lastName} at ${l.company} - Tier ${input.tier}.`;
     }
     case 'draft_email': {
       const l = findLeadByName(input.lead_name);
       if (!l) return `Could not find a lead matching "${input.lead_name}".`;
       openDetail(l.id);
-      return `Opening lead detail for ${l.firstName} ${l.lastName} — scroll to the message preview to send Touch ${input.touch}.`;
+      return `Opening lead detail for ${l.firstName} ${l.lastName} - scroll to the message preview to send Touch ${input.touch}.`;
     }
     case 'web_search': {
       return await jarvisWebSearch(input.query);
@@ -2740,7 +2740,7 @@ async function sendJarvis() {
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 1000,
-        system: 'You are Jarvis — a sharp, proactive AI business assistant for Oscar Green at Oscar Green Media. You have tools including web search, Hunter.io company lookup, and full pipeline management. Use tools proactively — if someone mentions a company, offer to look it up. If asked about news or current events, search the web. Write well: emails, captions, strategies, proposals. Be genuinely useful, not just reactive. Keep responses focused and actionable.',
+        system: 'You are Jarvis - a sharp, proactive AI business assistant for Oscar Green at Oscar Green Media. You have tools including web search, Hunter.io company lookup, and full pipeline management. Use tools proactively - if someone mentions a company, offer to look it up. If asked about news or current events, search the web. Write well: emails, captions, strategies, proposals. Be genuinely useful, not just reactive. Keep responses focused and actionable.',
         tools: JARVIS_TOOLS,
         messages: validMessages
       })
@@ -2801,7 +2801,7 @@ async function sendJarvis() {
     if (jarvisHistory.length > 40) jarvisHistory = jarvisHistory.slice(-40);
 
   } catch(e) {
-    typing.textContent = 'Something went wrong — ' + e.message;
+    typing.textContent = 'Something went wrong - ' + e.message;
     typing.style.color = '#f87171';
   }
 }
@@ -2820,7 +2820,7 @@ async function loadCalendarEvents() {
     const d = await r.json();
     if (d.error) {
       if (d.error.includes('not connected') || d.error.includes('token')) {
-        document.getElementById('cal-grid').innerHTML = '<div style="grid-column:1/-1;padding:40px;text-align:center;color:#52525b;">Gmail/Calendar not connected — go to Settings and click Connect Gmail to enable this feature.</div>';
+        document.getElementById('cal-grid').innerHTML = '<div style="grid-column:1/-1;padding:40px;text-align:center;color:#52525b;">Gmail/Calendar not connected - go to Settings and click Connect Gmail to enable this feature.</div>';
       }
       return;
     }
@@ -2840,7 +2840,7 @@ function renderCalendar() {
   const lastDay  = new Date(calYear, calMonth + 1, 0);
   const today = new Date();
 
-  // Start from Monday — adjust first day
+  // Start from Monday - adjust first day
   let startDow = firstDay.getDay(); // 0=Sun
   startDow = startDow === 0 ? 6 : startDow - 1; // Mon=0
 
@@ -2970,7 +2970,7 @@ async function deleteCalendarEvent(id) {
   } catch(e) { toast('Could not delete event.'); }
 }
 
-// GUEST MODE — disable all write actions
+// GUEST MODE - disable all write actions
 let isGuest = false;
 async function checkGuestMode() {
   try {
@@ -2981,7 +2981,7 @@ async function checkGuestMode() {
       // Show guest banner
       const banner = document.createElement('div');
       banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:999;background:#451a03;color:#fbbf24;text-align:center;font-size:12px;font-weight:600;padding:6px;letter-spacing:0.5px;';
-      banner.textContent = '👁 View-only mode — you are logged in as a guest';
+      banner.textContent = '👁 View-only mode - you are logged in as a guest';
       document.body.prepend(banner);
       // Push content down
       document.getElementById('topbar').style.marginTop = '30px';
@@ -3013,7 +3013,7 @@ if(_g)_g.textContent=(_h<12?'Good morning':_h<17?'Good afternoon':'Good evening'
   } catch(e) {}
   try {
     await syncLeads();
-  } catch(e) { toast('Could not sync leads — check your connection.'); }
+  } catch(e) { toast('Could not sync leads - check your connection.'); }
   try {
     await syncBookings();
   } catch(e) {}
