@@ -104,7 +104,7 @@ async function addJarvisEndpoints(app) {
       res.json({ messages: r.rows.reverse() });
     } catch(e) { res.status(500).json({ error: e.message }); }
   });
-  app.post('/api/jarvis/memory', async (req, res) => {
+  app.post('/api/jarvis/memory', requireWrite, async (req, res) => {
     try {
       const { role, content } = req.body;
       await query(`INSERT INTO jarvis_memory (role, content, "createdAt") VALUES ($1,$2,$3)`,
@@ -113,7 +113,7 @@ async function addJarvisEndpoints(app) {
       res.json({ ok: true });
     } catch(e) { res.status(500).json({ error: e.message }); }
   });
-  app.delete('/api/jarvis/memory', async (req, res) => {
+  app.delete('/api/jarvis/memory', requireWrite, async (req, res) => {
     try {
       await query('DELETE FROM jarvis_memory');
       res.json({ ok: true });
@@ -124,12 +124,14 @@ async function addJarvisEndpoints(app) {
 // ── Auth ──────────────────────────────────────────────────────────────────────
 const AUTH_USER      = process.env.AUTH_USER      || 'oscar@oscargreenmedia.com';
 const AUTH_PASS      = process.env.AUTH_PASS      || 'Chucky24';
+const GUEST_USER     = process.env.GUEST_USER     || 'guest@oscargreenmedia.com';
+const GUEST_PASS     = process.env.GUEST_PASS     || 'ViewOnly2026';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'ogm-default-secret-change-me';
 const sessions = new Map();
 
-function createSession() {
+function createSession(role = 'admin') {
   const token = crypto.randomBytes(32).toString('hex');
-  sessions.set(token, { expires: Date.now() + 1 * 24 * 60 * 60 * 1000 });
+  sessions.set(token, { expires: Date.now() + 1 * 24 * 60 * 60 * 1000, role });
   return token;
 }
 function isValidSession(token) {
@@ -138,6 +140,28 @@ function isValidSession(token) {
   if (!s) return false;
   if (Date.now() > s.expires) { sessions.delete(token); return false; }
   return true;
+}
+function getSessionRole(token) {
+  const s = sessions.get(token);
+  return s ? s.role : null;
+}
+function isGuestSession(req) {
+  const token = parseCookies(req).ogm_session;
+  return getSessionRole(token) === 'guest';
+}
+
+// Write methods that guests cannot use
+const WRITE_PATHS = [
+  '/api/leads', '/api/leads/bulk', '/api/bookings',
+  '/api/config', '/api/jarvis/memory', '/api/generate-leads',
+  '/api/morning-brief', '/api/send', '/api/gmail/scan',
+  '/api/gmail/auth', '/api/logout'
+];
+function requireWrite(req, res, next) {
+  if (isGuestSession(req)) {
+    return res.status(403).json({ error: 'Read-only access — you are logged in as a guest.' });
+  }
+  next();
 }
 
 // Clean up expired sessions every hour to prevent memory buildup
@@ -238,11 +262,19 @@ app.post('/api/login', (req, res) => {
     return res.status(429).json({ ok: false, error: 'Too many attempts. Try again in 15 minutes.' });
   }
   const { username, password } = req.body || {};
+  // Admin login
   if (safeEqual(username, AUTH_USER) && safeEqual(password, AUTH_PASS)) {
     clearLoginAttempts(ip);
-    const token = createSession();
+    const token = createSession('admin');
     res.setHeader('Set-Cookie', `ogm_session=${token}; Path=/; HttpOnly; SameSite=Strict; Secure; Max-Age=${1 * 24 * 60 * 60}`);
-    return res.json({ ok: true });
+    return res.json({ ok: true, role: 'admin' });
+  }
+  // Guest login
+  if (safeEqual(username, GUEST_USER) && safeEqual(password, GUEST_PASS)) {
+    clearLoginAttempts(ip);
+    const token = createSession('guest');
+    res.setHeader('Set-Cookie', `ogm_session=${token}; Path=/; HttpOnly; SameSite=Strict; Secure; Max-Age=${1 * 24 * 60 * 60}`);
+    return res.json({ ok: true, role: 'guest' });
   }
   recordFailedLogin(ip);
   res.status(401).json({ ok: false, error: 'Invalid credentials' });
@@ -263,7 +295,7 @@ app.get('/api/leads', async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/leads', async (req, res) => {
+app.post('/api/leads', requireWrite, async (req, res) => {
   try {
     const l = req.body;
     await query(`
@@ -281,7 +313,7 @@ app.post('/api/leads', async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-app.put('/api/leads/:id', async (req, res) => {
+app.put('/api/leads/:id', requireWrite, async (req, res) => {
   try {
     const l = req.body;
     const r = await query(`
@@ -311,14 +343,14 @@ app.put('/api/leads/:id', async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-app.delete('/api/leads/:id', async (req, res) => {
+app.delete('/api/leads/:id', requireWrite, async (req, res) => {
   try {
     await query('DELETE FROM leads WHERE id=$1', [req.params.id]);
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/leads/bulk', async (req, res) => {
+app.post('/api/leads/bulk', requireWrite, async (req, res) => {
   try {
     const { leads } = req.body;
     let added = 0;
@@ -371,7 +403,7 @@ app.get('/api/hunter/account', async (req, res) => {
 });
 
 // ── EMAIL ─────────────────────────────────────────────────────────────────────
-app.post('/api/send', async (req, res) => {
+app.post('/api/send', requireWrite, async (req, res) => {
   try {
     const { to, subject, body, leadId, touch } = req.body;
     const smtpUser = process.env.SMTP_USER;
@@ -407,7 +439,7 @@ app.get('/api/config', async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-app.put('/api/config', async (req, res) => {
+app.put('/api/config', requireWrite, async (req, res) => {
   try {
     for (const [k, v] of Object.entries(req.body)) {
       await query(`INSERT INTO config (key,value) VALUES ($1,$2) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value`, [k, JSON.stringify(v)]);
@@ -424,7 +456,7 @@ app.get('/api/bookings', async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/bookings', async (req, res) => {
+app.post('/api/bookings', requireWrite, async (req, res) => {
   try {
     const b = req.body;
     const id = b.id || uid();
@@ -443,7 +475,7 @@ app.post('/api/bookings', async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-app.delete('/api/bookings/:id', async (req, res) => {
+app.delete('/api/bookings/:id', requireWrite, async (req, res) => {
   try {
     await query('DELETE FROM bookings WHERE id=$1', [req.params.id]);
     res.json({ ok: true });
@@ -527,7 +559,7 @@ async function generateLeads() {
   return totalAdded;
 }
 
-app.post('/api/generate-leads', async (req, res) => {
+app.post('/api/generate-leads', requireWrite, async (req, res) => {
   try { const added = await generateLeads(); res.json({ ok: true, added }); }
   catch(e) { res.status(500).json({ error: e.message }); }
 });
@@ -679,7 +711,7 @@ cron.schedule('0 21 * * *', () => {
 });
 
 // Manual trigger
-app.post('/api/morning-brief', async (req, res) => {
+app.post('/api/morning-brief', requireWrite, async (req, res) => {
   try { await sendMorningBrief(); res.json({ ok: true }); }
   catch(e) { res.status(500).json({ error: e.message }); }
 });
@@ -880,6 +912,13 @@ app.get('/api/gmail/scan', async (req, res) => {
     console.error('[gmail] Scan error:', e.message);
     res.status(500).json({ error: e.message });
   }
+});
+
+// Session role check (used by client to detect guest mode)
+app.get('/api/session-role', (req, res) => {
+  const token = parseCookies(req).ogm_session;
+  const role = getSessionRole(token) || 'admin';
+  res.json({ role });
 });
 
 // ── HEALTH ────────────────────────────────────────────────────────────────────
