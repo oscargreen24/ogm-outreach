@@ -716,6 +716,58 @@ app.post('/api/morning-brief', requireWrite, async (req, res) => {
   catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── WEB SEARCH PROXY ─────────────────────────────────────────────────────────
+// Uses DuckDuckGo instant answers API (free, no key needed)
+app.get('/api/search', async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q) return res.status(400).json({ error: 'No query provided' });
+
+    // Use DuckDuckGo HTML search scraping via their API endpoint
+    const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(q)}`;
+    const r = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; OGMOutreach/1.0)',
+        'Accept': 'text/html'
+      }
+    });
+    const html = await r.text();
+
+    // Parse results from DuckDuckGo HTML
+    const results = [];
+    const resultRegex = /<a class="result__a" href="([^"]+)"[^>]*>([^<]+)<\/a>[\s\S]*?<a class="result__snippet"[^>]*>([^<]+)<\/a>/g;
+    let match;
+    while ((match = resultRegex.exec(html)) !== null && results.length < 8) {
+      const url2 = match[1];
+      const title = match[2].trim();
+      const snippet = match[3].trim();
+      if (url2 && title && !url2.includes('duckduckgo.com')) {
+        results.push({ url: url2, title, snippet });
+      }
+    }
+
+    // Fallback: try DuckDuckGo instant answer API
+    if (!results.length) {
+      const iaUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&no_html=1&skip_disambig=1`;
+      const iaR = await fetch(iaUrl);
+      const iaD = await iaR.json();
+      if (iaD.AbstractText) {
+        results.push({ title: iaD.Heading || q, snippet: iaD.AbstractText, url: iaD.AbstractURL || '' });
+      }
+      if (iaD.RelatedTopics) {
+        for (const t of iaD.RelatedTopics.slice(0, 4)) {
+          if (t.Text && t.FirstURL) results.push({ title: t.Text.split(' - ')[0], snippet: t.Text, url: t.FirstURL });
+        }
+      }
+    }
+
+    res.json({ results, query: q });
+  } catch(e) {
+    console.error('[search] Error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── ANTHROPIC PROXY (for Jarvis) ─────────────────────────────────────────────
 // Simple in-memory rate limit: max 30 calls per minute
 const jarvisRateLimit = { count: 0, resetAt: Date.now() + 60000 };
