@@ -250,8 +250,8 @@
         <div style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;"><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;">Reply Rate</div><div style="font-size:36px;font-weight:700;margin-top:6px;" id="stat-reply">0%</div></div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px;">
-        <div style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;border-left:3px solid #4ade80;"><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;">Monthly MRR</div><div style="font-size:28px;font-weight:700;margin-top:6px;color:#4ade80;" id="stat-mrr">$0</div><div style="font-size:11px;color:#52525b;margin-top:4px;" id="stat-mrr-sub">0 active retainers</div></div>
-        <div style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;border-left:3px solid #fbbf24;"><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;">Pipeline Value</div><div style="font-size:28px;font-weight:700;margin-top:6px;color:#fbbf24;" id="stat-pipeline-val">$0</div><div style="font-size:11px;color:#52525b;margin-top:4px;" id="stat-pipeline-sub">0 in meetings</div></div>
+        <div style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;border-left:3px solid #4ade80;"><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;">Leads Contacted</div><div style="font-size:28px;font-weight:700;margin-top:6px;color:#4ade80;" id="stat-mrr">0</div><div style="font-size:11px;color:#52525b;margin-top:4px;" id="stat-mrr-sub">0% reply rate</div></div>
+        <div style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;border-left:3px solid #fbbf24;"><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;">Leads Won</div><div style="font-size:28px;font-weight:700;margin-top:6px;color:#fbbf24;" id="stat-pipeline-val">0</div><div style="font-size:11px;color:#52525b;margin-top:4px;" id="stat-pipeline-sub">$0 MRR</div></div>
         <div style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;border-left:3px solid #818cf8;"><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;">Top Lead Today</div><div style="font-size:14px;font-weight:600;margin-top:8px;" id="stat-top-lead">No scored leads yet</div></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
@@ -1751,13 +1751,15 @@ function downloadProposal(id){
 function revenueStats(){
   const won=leads.filter(l=>l.status==='won');
   const meetings=leads.filter(l=>l.status==='meeting');
+  const contacted=leads.filter(l=>l.contactedDate).length;
+  const replied=leads.filter(l=>['replied','meeting','won'].includes(l.status)).length;
   const mrr=won.reduce((s,l)=>s+(l.monthlyValue||0),0);
   const pipeline=meetings.reduce((s,l)=>s+(l.monthlyValue||0),0);
   const fmt=n=>n?'$'+n.toLocaleString('en-AU'):'$0';
-  const mrrEl=document.getElementById('stat-mrr');if(mrrEl)mrrEl.textContent=fmt(mrr);
-  const mrrSub=document.getElementById('stat-mrr-sub');if(mrrSub)mrrSub.textContent=won.length+' active retainer'+(won.length!==1?'s':'');
-  const pipEl=document.getElementById('stat-pipeline-val');if(pipEl)pipEl.textContent=fmt(pipeline);
-  const pipSub=document.getElementById('stat-pipeline-sub');if(pipSub)pipSub.textContent=meetings.length+' in meetings';
+  const mrrEl=document.getElementById('stat-mrr');if(mrrEl)mrrEl.textContent=contacted;
+  const mrrSub=document.getElementById('stat-mrr-sub');if(mrrSub)mrrSub.textContent=(contacted>0?Math.round(replied/contacted*100):0)+'% reply rate';
+  const pipEl=document.getElementById('stat-pipeline-val');if(pipEl)pipEl.textContent=won.length;
+  const pipSub=document.getElementById('stat-pipeline-sub');if(pipSub)pipSub.textContent='$'+mrr.toLocaleString('en-AU')+' MRR';
   // Top scored lead
   const scored=leads.filter(l=>!['won','not_interested'].includes(l.status)).map(l=>({l,score:scoreLead(l)})).sort((a,b)=>b.score-a.score);
   const topEl=document.getElementById('stat-top-lead');
