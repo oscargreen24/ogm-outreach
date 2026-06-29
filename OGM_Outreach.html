@@ -156,7 +156,7 @@
       <span id="nav-badge" style="margin-left:auto;background:#1a1a1a;color:#52525b;font-size:10px;font-weight:600;padding:1px 6px;border-radius:999px;display:none;"></span>
     </div>
     <div class="nav-sub" id="subnav-leads">
-      <div class="nav-sub-item active" id="nav-leads-sub" onclick="showPage('leads','Outreach','Pipeline')">Pipeline</div>
+      <div class="nav-sub-item" id="nav-leads-sub" onclick="showPage('leads','Outreach','Pipeline')">Pipeline</div>
       <div class="nav-sub-item" id="nav-finder-sub" onclick="showPage('finder','Outreach','Find leads')">Find leads</div>
       <div class="nav-sub-item" id="nav-ab-sub" onclick="showPage('ab','Outreach','A/B results')">A/B results</div>
     </div>
@@ -841,7 +841,16 @@ function nextAction(l){
   if(l.status==='replied') return {label:'Book a meeting',date:null};
   return {label:'',date:null};
 }
-function updateStatus(id,status){const l=leads.find(x=>x.id===id);if(!l)return;l.status=status;if(!l.contactedDate&&['contacted','followup1_due','followup1_sent','followup2_due','followup2_sent','replied','meeting','won'].includes(status))l.contactedDate=today();save();apiSaveLead(l);openDetail(id);renderDashboard();toast('Status updated.');}
+function updateStatus(id,status){
+  const l=leads.find(x=>x.id===id);if(!l)return;
+  l.status=status;
+  if(!l.contactedDate&&['contacted','followup1_due','followup1_sent','followup2_due','followup2_sent','replied','meeting','won'].includes(status))l.contactedDate=today();
+  save();apiSaveLead(l);renderDashboard();renderLeads();
+  // Update badge in-place without closing modal
+  const badge=document.getElementById('status-badge-'+id);
+  if(badge){badge.textContent=STATUS_LABEL[status]||status;badge.style.cssText='font-size:11px;padding:3px 10px;border-radius:999px;'+(STATUS_STYLE[status]||'');}
+  toast('Status updated to: '+(STATUS_LABEL[status]||status));
+}
 function markContacted(id){const l=leads.find(x=>x.id===id);if(!l)return;l.status='contacted';l.contactedDate=today();save();apiSaveLead(l);openDetail(id);renderDashboard();toast('Marked contacted. Follow-up 1 due in 5 days.');}
 function markF1Sent(id){const l=leads.find(x=>x.id===id);if(!l)return;l.status='followup1_sent';l.followup1SentDate=today();save();apiSaveLead(l);openDetail(id);renderDashboard();toast('Follow-up 1 logged.');}
 function markF2Sent(id){const l=leads.find(x=>x.id===id);if(!l)return;l.status='followup2_sent';l.followup2SentDate=today();save();apiSaveLead(l);openDetail(id);renderDashboard();toast('Sequence complete.');}
@@ -1006,7 +1015,7 @@ function sendMsg(id,touch){
 function openDetail(id){
   const l=leads.find(x=>x.id===id);if(!l)return;
   const na=nextAction(l);const isDue=na.date&&isOverdue(na.date);
-  const sbadge='<span style="font-size:11px;padding:3px 10px;border-radius:999px;'+(STATUS_STYLE[l.status]||'')+'">'+(STATUS_LABEL[l.status]||l.status)+'</span>';
+  const sbadge='<span id="status-badge-'+id+'" style="font-size:11px;padding:3px 10px;border-radius:999px;'+(STATUS_STYLE[l.status]||'')+'">'+(STATUS_LABEL[l.status]||l.status)+'</span>';
   const btnStyle='background:#fff;color:#000;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;';
   let actionBtns='';
   if(l.status==='new') actionBtns='<button onclick="sendMsg(\''+id+'\',1)" style="'+btnStyle+'">'+(l.channel==='email'?'&#9993;&#65039; Open in Gmail':'&#128248; Copy and open Instagram')+' — Initial outreach</button>';
@@ -1049,8 +1058,8 @@ function openDetail(id){
         '</select>'+
       '</div>'+
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">'+
-        '<div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Contact '+(l.channel==='email'?'email':'@handle')+'</label><input id="ci-'+id+'" value="'+esc(l.hunterEmail||l.contact||'')+'" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:8px 10px;border-radius:8px;" /></div>'+
-        '<div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Monthly retainer value (if Won)</label><input id="mv-'+id+'" type="number" value="'+(l.monthlyValue||'')+'" placeholder="e.g. 4500" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:8px 10px;border-radius:8px;" /></div>'+
+        '<div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Contact '+(l.channel==='email'?'email':'@handle')+'</label><input id="ci-'+id+'" value="'+esc(l.hunterEmail||l.contact||'')+'" onblur="saveDetail(\''+id+'\')" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:8px 10px;border-radius:8px;" /></div>'+
+        '<div><label style="font-size:11px;color:#52525b;display:block;margin-bottom:6px;">Monthly retainer value (if Won)</label><input id="mv-'+id+'" type="number" value="'+(l.monthlyValue||'')+'" placeholder="e.g. 4500" onblur="saveDetail(\''+id+'\')" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:8px 10px;border-radius:8px;" /></div>'+
         '<div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:16px;">'+
           '<div style="font-size:13px;font-weight:600;margin-bottom:12px;">Activity Timeline</div>'+
           '<div id="timeline-'+id+'" style="display:flex;flex-direction:column;gap:8px;max-height:180px;overflow-y:auto;margin-bottom:12px;">'+(buildTimeline(l))+'</div>'+
