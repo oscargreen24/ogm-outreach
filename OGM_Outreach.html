@@ -159,6 +159,8 @@
       <div class="nav-sub-item" id="nav-leads-sub" onclick="showPage('leads','Outreach','Pipeline')">Pipeline</div>
       <div class="nav-sub-item" id="nav-finder-sub" onclick="showPage('finder','Outreach','Find leads')">Find leads</div>
       <div class="nav-sub-item" id="nav-ab-sub" onclick="showPage('ab','Outreach','A/B results')">A/B results</div>
+      <div class="nav-sub-item" id="nav-bulk-sub" onclick="showPage('bulk','Outreach','Bulk outreach')">Bulk outreach</div>
+      <div class="nav-sub-item" id="nav-funnel-sub" onclick="showPage('funnel','Outreach','Funnel')">Funnel</div>
     </div>
     <div class="nav-item" id="nav-competitors" onclick="showPage('competitors','Outreach','Competitors')">
       <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>
@@ -526,6 +528,47 @@
       <div style="background:#111;border:1px solid #222;border-radius:14px;overflow:hidden;"><div style="padding:16px 20px;border-bottom:1px solid #222;"><span style="font-weight:600;font-size:15px;">Recent proposals</span></div><div id="prop-history" style="padding:20px;"></div></div>
     </div>
 
+    <!-- BULK OUTREACH -->
+    <div id="page-bulk" class="page" style="padding:32px 36px;">
+      <div class="page-header" style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div><div class="page-title">Bulk outreach</div><div class="page-sub">Select leads and send personalised outreach to all of them at once.</div></div>
+          <button onclick="openBulkSelected()" id="bulk-send-btn" style="background:#fff;color:#000;border:none;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:none;">Open Gmail for selected (0)</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+        <select id="bulk-industry" onchange="renderBulkOutreach()" style="background:#111;border:1px solid #1a1a1a;color:#e5e5e5;font-size:13px;padding:8px 12px;border-radius:8px;">
+          <option value="">All industries</option>
+          <option value="corporate">Corporate</option>
+          <option value="realestate">Real estate</option>
+          <option value="construction">Construction</option>
+          <option value="automotive">Automotive</option>
+        </select>
+        <select id="bulk-touch" style="background:#111;border:1px solid #1a1a1a;color:#e5e5e5;font-size:13px;padding:8px 12px;border-radius:8px;">
+          <option value="1">Touch 1 — Initial outreach</option>
+          <option value="2">Touch 2 — Follow-up 1</option>
+          <option value="3">Touch 3 — Follow-up 2</option>
+        </select>
+        <button onclick="bulkSelectAll()" style="background:#1a1a1a;border:1px solid #222;color:#a1a1aa;font-size:13px;padding:8px 14px;border-radius:8px;cursor:pointer;">Select all</button>
+        <button onclick="bulkDeselectAll()" style="background:#1a1a1a;border:1px solid #222;color:#a1a1aa;font-size:13px;padding:8px 14px;border-radius:8px;cursor:pointer;">Deselect all</button>
+      </div>
+      <div id="bulk-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+
+    <!-- FUNNEL -->
+    <div id="page-funnel" class="page" style="padding:32px 36px;">
+      <div class="page-header" style="margin-bottom:28px;">
+        <div class="page-title">Conversion funnel</div>
+        <div class="page-sub">Where leads are dropping out, and your close rate at each stage.</div>
+      </div>
+      <div id="funnel-chart" style="margin-bottom:28px;"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+        <div class="card"><div class="card-head"><div class="card-head-title">Revenue forecast</div></div><div class="card-body" id="forecast-body"></div></div>
+        <div class="card"><div class="card-head"><div class="card-head-title">Best performing industry</div></div><div class="card-body" id="industry-body"></div></div>
+      </div>
+      <div class="card"><div class="card-head"><div class="card-head-title">Time to close by industry</div></div><div class="card-body" id="close-time-body"></div></div>
+    </div>
+
     <!-- REEL IDEAS -->
     <div id="page-ideas" class="page" style="padding:32px 36px;">
       <div class="page-header" style="margin-bottom:28px;">
@@ -836,9 +879,9 @@ function showPage(name,section,label){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.querySelectorAll('.nav-sub-item').forEach(n=>n.classList.remove('active'));
   const pg=document.getElementById('page-'+name);if(pg)pg.classList.add('active');
-  const navMap={dashboard:'nav-dashboard',leads:'nav-leads',finder:'nav-leads',ab:'nav-leads',competitors:'nav-competitors',bookings:'nav-bookings',calendar:'nav-calendar',proposals:'nav-proposals',revenue:'nav-revenue',portfolio:'nav-portfolio',ideas:'nav-ideas',settings:'nav-settings'};
+  const navMap={dashboard:'nav-dashboard',leads:'nav-leads',finder:'nav-leads',ab:'nav-leads',bulk:'nav-leads',funnel:'nav-leads',competitors:'nav-competitors',bookings:'nav-bookings',calendar:'nav-calendar',proposals:'nav-proposals',revenue:'nav-revenue',portfolio:'nav-portfolio',ideas:'nav-ideas',settings:'nav-settings'};
   const an=document.getElementById(navMap[name]);if(an)an.classList.add('active');
-  const subMap={leads:'nav-leads-sub',finder:'nav-finder-sub',ab:'nav-ab-sub'};
+  const subMap={leads:'nav-leads-sub',finder:'nav-finder-sub',ab:'nav-ab-sub',bulk:'nav-bulk-sub',funnel:'nav-funnel-sub'};
   if(subMap[name]){const s=document.getElementById(subMap[name]);if(s)s.classList.add('active');}
   const bcSection=document.getElementById('bc-section');
   const bcSep=document.getElementById('bc-sep');
@@ -855,6 +898,8 @@ function showPage(name,section,label){
   if(name==='proposals') renderProposals();
   if(name==='ideas')     renderIdeasPage();
   if(name==='ab')        renderABPage();
+  if(name==='bulk')      renderBulkOutreach();
+  if(name==='funnel')    renderFunnel();
 }
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
@@ -1083,6 +1128,8 @@ function sendMsg(id,touch){
 // LEAD DETAIL
 function openDetail(id){
   const l=leads.find(x=>x.id===id);if(!l)return;
+  // Trigger background enrichment if research notes empty
+  if(!l.researchNotes||!l.researchNotes.trim()) setTimeout(()=>enrichLead(id), 800);
   const na=nextAction(l);const isDue=na.date&&isOverdue(na.date);
   const sbadge='<span id="status-badge-'+id+'" style="font-size:11px;padding:3px 10px;border-radius:999px;'+(STATUS_STYLE[l.status]||'')+'">'+(STATUS_LABEL[l.status]||l.status)+'</span>';
   const btnStyle='background:#fff;color:#000;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;';
@@ -1943,6 +1990,175 @@ function renderABPage(){
         '<div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:10px;"><div style="font-size:10px;color:#52525b;margin-bottom:4px;">Variant B</div><div style="font-size:12px;color:#a1a1aa;margin-bottom:6px;">'+esc(sb.replace('[co]','[Company]'))+'</div><div style="font-size:11px;color:#52525b;">'+bInd.length+' sent · '+bR+' replies</div></div>'+
       '</div></div>';
   }).join('');
+}
+
+// ── BULK OUTREACH ─────────────────────────────────────────────────────────────
+let bulkSelected = new Set();
+
+function renderBulkOutreach() {
+  const industry = document.getElementById('bulk-industry')?.value || '';
+  const el = document.getElementById('bulk-list'); if (!el) return;
+  const eligible = leads.filter(l => {
+    if (l.status === 'won' || l.status === 'not_interested') return false;
+    if (!(l.hunterEmail || l.contact)) return false;
+    if (industry && l.industry !== industry) return false;
+    return true;
+  }).sort((a,b) => scoreLead(b) - scoreLead(a));
+  if (!eligible.length) { el.innerHTML = '<p style="color:#52525b;font-size:13px;">No eligible leads. Leads need an email address and must not be Won or Not interested.</p>'; return; }
+  el.innerHTML = eligible.map(l => {
+    const checked = bulkSelected.has(l.id);
+    const score = scoreLead(l);
+    const email = l.hunterEmail || l.contact;
+    return `<div style="display:flex;align-items:center;gap:12px;background:#0f0f0f;border:1px solid ${checked?'#3f3f46':'#1a1a1a'};border-radius:10px;padding:12px 16px;cursor:pointer;" onclick="toggleBulkLead('${l.id}')" id="bulk-row-${l.id}">
+      <div style="width:18px;height:18px;border-radius:4px;border:1px solid ${checked?'#fff':'#333'};background:${checked?'#fff':'transparent'};flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+        ${checked?'<svg width="11" height="11" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" stroke="#000" stroke-width="2" fill="none" stroke-linecap="round"/></svg>':''}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:500;">${esc(l.firstName+' '+l.lastName)}</div>
+        <div style="font-size:11px;color:#71717a;">${esc(l.company)} · ${esc(email)}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+        <span style="font-size:10px;background:#1a1a1a;border:1px solid #222;color:#818cf8;padding:2px 7px;border-radius:999px;">Score ${score}</span>
+        <span style="font-size:10px;padding:2px 7px;border-radius:999px;${STATUS_STYLE[l.status]||''}">${STATUS_LABEL[l.status]||l.status}</span>
+      </div>
+    </div>`;
+  }).join('');
+  updateBulkBtn();
+}
+
+function toggleBulkLead(id) {
+  if (bulkSelected.has(id)) bulkSelected.delete(id); else bulkSelected.add(id);
+  renderBulkOutreach();
+}
+function bulkSelectAll() {
+  const industry = document.getElementById('bulk-industry')?.value || '';
+  leads.filter(l=>l.status!=='won'&&l.status!=='not_interested'&&(l.hunterEmail||l.contact)&&(!industry||l.industry===industry)).forEach(l=>bulkSelected.add(l.id));
+  renderBulkOutreach();
+}
+function bulkDeselectAll() { bulkSelected.clear(); renderBulkOutreach(); }
+function updateBulkBtn() {
+  const btn = document.getElementById('bulk-send-btn'); if (!btn) return;
+  btn.style.display = bulkSelected.size > 0 ? 'block' : 'none';
+  btn.textContent = `Open Gmail for selected (${bulkSelected.size})`;
+}
+function openBulkSelected() {
+  const touch = parseInt(document.getElementById('bulk-touch')?.value || '1');
+  const selectedLeads = leads.filter(l => bulkSelected.has(l.id));
+  if (!selectedLeads.length) { toast('No leads selected.'); return; }
+  if (selectedLeads.length > 15 && !confirm(`Open ${selectedLeads.length} Gmail windows?`)) return;
+  selectedLeads.forEach((l, i) => {
+    setTimeout(() => {
+      const email = l.hunterEmail || l.contact; if (!email) return;
+      window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(email)+'&su='+encodeURIComponent(buildSubject(l,touch))+'&body='+encodeURIComponent(buildMsg(l,touch)), '_blank');
+      if (touch===1&&l.status==='new'){ l.status='contacted'; l.contactedDate=today(); save(); apiSaveLead(l); }
+    }, i * 350);
+  });
+  toast('Opening Gmail for '+selectedLeads.length+' leads...');
+}
+
+// ── LEAD ENRICHMENT ───────────────────────────────────────────────────────────
+async function enrichLead(id) {
+  const l = leads.find(x=>x.id===id); if (!l || l.enriched) return;
+  try {
+    const query = `${l.company} ${l.firstName} ${l.lastName} ${l.industry} Sydney`;
+    const r = await fetch(API+'/api/search?q='+encodeURIComponent(query));
+    const d = await r.json();
+    if (!d.results || !d.results.length) return;
+    const note = d.results.slice(0,3).map(r=>`• ${r.title}: ${r.snippet}`).join('\n');
+    if (!l.researchNotes || !l.researchNotes.trim()) {
+      l.researchNotes = note; l.enriched = true;
+      save(); apiSaveLead(l);
+      const rn = document.getElementById('rn-'+id); if (rn) rn.value = note;
+      toast('Research notes auto-filled.');
+    }
+  } catch(e) {}
+}
+
+// ── CONVERSION FUNNEL ─────────────────────────────────────────────────────────
+function renderFunnel() {
+  const stages = [
+    {key:'new',label:'New'},
+    {key:'contacted',label:'Contacted'},
+    {key:'replied',label:'Replied'},
+    {key:'meeting',label:'Meeting booked'},
+    {key:'won',label:'Won'},
+  ];
+  const counts = {
+    new:       leads.filter(l=>l.status==='new').length,
+    contacted: leads.filter(l=>['contacted','followup1_due','followup1_sent','followup2_due','followup2_sent'].includes(l.status)).length,
+    replied:   leads.filter(l=>['replied','meeting','won'].includes(l.status)).length,
+    meeting:   leads.filter(l=>['meeting','won'].includes(l.status)).length,
+    won:       leads.filter(l=>l.status==='won').length,
+  };
+  const total = leads.length||1;
+  const maxCount = Math.max(...Object.values(counts),1);
+  const colours=['#818cf8','#60a5fa','#4ade80','#fbbf24','#f472b6'];
+  const el = document.getElementById('funnel-chart'); if (!el) return;
+  el.innerHTML = stages.map((s,i)=>{
+    const count=counts[s.key]||0;
+    const pct=Math.round(count/total*100);
+    const barPct=Math.round(count/maxCount*100);
+    const prev=i>0?counts[stages[i-1].key]||1:total;
+    const dropoff=i>0?Math.round((1-count/prev)*100):0;
+    return `<div style="margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:13px;font-weight:500;color:#e5e5e5;">${s.label}</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          ${i>0&&dropoff>0?`<span style="font-size:11px;color:#f87171;">↓ ${dropoff}% drop-off</span>`:''}
+          <span style="font-size:15px;font-weight:700;color:${colours[i]};">${count}</span>
+          <span style="font-size:11px;color:#52525b;width:32px;text-align:right;">${pct}%</span>
+        </div>
+      </div>
+      <div style="background:#1a1a1a;border-radius:4px;height:12px;overflow:hidden;">
+        <div style="background:${colours[i]};height:100%;border-radius:4px;width:${barPct}%;"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Revenue forecast
+  const won=leads.filter(l=>l.status==='won');
+  const mrr=won.reduce((s,l)=>s+(l.monthlyValue||0),0);
+  const meetings=leads.filter(l=>l.status==='meeting');
+  const closeRate=counts.won>0&&counts.meeting>0?counts.won/(counts.won+counts.meeting):0.3;
+  const avgRetainer=won.length>0?mrr/won.length:4500;
+  const f30=mrr+Math.round(meetings.length*closeRate)*avgRetainer;
+  const f90=mrr+Math.round(counts.replied*closeRate*0.5)*avgRetainer;
+  const fEl=document.getElementById('forecast-body'); if(fEl){
+    fEl.innerHTML=`<div style="margin-bottom:10px;"><div style="font-size:11px;color:#52525b;">Current MRR</div><div style="font-size:22px;font-weight:700;color:#4ade80;margin-top:3px;">$${mrr.toLocaleString('en-AU')}</div></div>
+    <div style="margin-bottom:10px;"><div style="font-size:11px;color:#52525b;">30-day forecast</div><div style="font-size:18px;font-weight:600;color:#fbbf24;margin-top:3px;">$${f30.toLocaleString('en-AU')}</div><div style="font-size:11px;color:#3f3f46;">${meetings.length} meetings · ${Math.round(closeRate*100)}% est. close rate</div></div>
+    <div><div style="font-size:11px;color:#52525b;">90-day forecast</div><div style="font-size:18px;font-weight:600;color:#818cf8;margin-top:3px;">$${Math.round(f90).toLocaleString('en-AU')}</div><div style="font-size:11px;color:#3f3f46;">Pipeline conversion estimate</div></div>`;
+  }
+
+  // Industry performance
+  const iEl=document.getElementById('industry-body'); if(iEl){
+    const indStats=['corporate','realestate','construction','automotive'].map(ind=>{
+      const il=leads.filter(l=>l.industry===ind);
+      const ic=il.filter(l=>l.contactedDate).length;
+      const ir=il.filter(l=>['replied','meeting','won'].includes(l.status)).length;
+      const iw=il.filter(l=>l.status==='won').length;
+      return{ind,total:il.length,contacted:ic,replied:ir,won:iw,replyRate:ic>0?Math.round(ir/ic*100):0};
+    }).filter(x=>x.total>0).sort((a,b)=>b.replyRate-a.replyRate);
+    iEl.innerHTML=indStats.length?indStats.map(x=>`<div style="padding:8px 0;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:center;">
+      <div><div style="font-size:13px;font-weight:500;">${IND_LABELS[x.ind]||x.ind}</div><div style="font-size:11px;color:#52525b;">${x.total} leads · ${x.won} won</div></div>
+      <div style="text-align:right;"><div style="font-size:13px;font-weight:600;color:#4ade80;">${x.replyRate}% reply rate</div></div>
+    </div>`).join(''):'<p style="color:#52525b;font-size:13px;">Send some outreach to see industry data.</p>';
+  }
+
+  // Time to close
+  const ctEl=document.getElementById('close-time-body'); if(ctEl){
+    const won2=leads.filter(l=>l.status==='won'&&l.contactedDate&&l.createdAt);
+    const byInd={};
+    won2.forEach(l=>{
+      const days=Math.round((new Date(l.contactedDate)-new Date(l.createdAt))/86400000);
+      if(!byInd[l.industry])byInd[l.industry]=[];
+      byInd[l.industry].push(Math.max(0,days));
+    });
+    const rows=Object.entries(byInd).map(([ind,days])=>{
+      const avg=Math.round(days.reduce((a,b)=>a+b,0)/days.length);
+      return `<div style="padding:8px 0;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;"><span style="font-size:13px;">${IND_LABELS[ind]||ind}</span><span style="font-size:13px;font-weight:600;color:#a1a1aa;">${avg} days avg (${days.length} won)</span></div>`;
+    });
+    ctEl.innerHTML=rows.length?rows.join(''):'<p style="color:#52525b;font-size:13px;">No won leads yet — close your first client to see this data.</p>';
+  }
 }
 
 // MANUAL LEAD GENERATION TRIGGER
