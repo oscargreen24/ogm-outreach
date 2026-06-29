@@ -716,6 +716,104 @@ app.post('/api/morning-brief', requireWrite, async (req, res) => {
   catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── GOOGLE CALENDAR ───────────────────────────────────────────────────────────
+app.get('/api/calendar/events', async (req, res) => {
+  try {
+    const accessToken = await getGmailAccessToken();
+    const { start, end } = req.query;
+    const timeMin = start || new Date(Date.now() - 7 * 86400000).toISOString();
+    const timeMax = end   || new Date(Date.now() + 60 * 86400000).toISOString();
+    const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&singleEvents=true&orderBy=startTime&maxResults=100`;
+    const r = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
+    const d = await r.json();
+    if (d.error) return res.status(400).json({ error: d.error.message });
+    res.json({ events: d.items || [] });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/calendar/events', requireWrite, async (req, res) => {
+  try {
+    const accessToken = await getGmailAccessToken();
+    const event = req.body;
+    const r = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(event)
+    });
+    const d = await r.json();
+    if (d.error) return res.status(400).json({ error: d.error.message });
+    res.json({ ok: true, event: d });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.put('/api/calendar/events/:eventId', requireWrite, async (req, res) => {
+  try {
+    const accessToken = await getGmailAccessToken();
+    const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${req.params.eventId}`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body)
+    });
+    const d = await r.json();
+    if (d.error) return res.status(400).json({ error: d.error.message });
+    res.json({ ok: true, event: d });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.delete('/api/calendar/events/:eventId', requireWrite, async (req, res) => {
+  try {
+    const accessToken = await getGmailAccessToken();
+    await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${req.params.eventId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── GOOGLE CALENDAR ───────────────────────────────────────────────────────────
+app.get('/api/calendar/events', async (req, res) => {
+  try {
+    const accessToken = await getGmailAccessToken();
+    const { start, end } = req.query;
+    const calId = process.env.GOOGLE_CALENDAR_ID || 'primary';
+    const timeMin = start || new Date(Date.now() - 7 * 86400000).toISOString();
+    const timeMax = end   || new Date(Date.now() + 60 * 86400000).toISOString();
+    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events?timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&singleEvents=true&orderBy=startTime&maxResults=50`;
+    const r = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
+    const d = await r.json();
+    if (d.error) return res.status(400).json({ error: d.error.message });
+    res.json({ events: d.items || [] });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/calendar/events', async (req, res) => {
+  try {
+    const accessToken = await getGmailAccessToken();
+    const calId = process.env.GOOGLE_CALENDAR_ID || 'primary';
+    const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body)
+    });
+    const d = await r.json();
+    if (d.error) return res.status(400).json({ error: d.error.message });
+    res.json({ ok: true, event: d });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.delete('/api/calendar/events/:eventId', async (req, res) => {
+  try {
+    const accessToken = await getGmailAccessToken();
+    const calId = process.env.GOOGLE_CALENDAR_ID || 'primary';
+    await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events/${req.params.eventId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 // ── WEB SEARCH PROXY ─────────────────────────────────────────────────────────
 // Uses DuckDuckGo instant answers API (free, no key needed)
 app.get('/api/search', async (req, res) => {
@@ -807,7 +905,7 @@ app.post('/api/jarvis/chat', async (req, res) => {
 const GMAIL_CLIENT_ID     = process.env.GMAIL_CLIENT_ID     || '';
 const GMAIL_CLIENT_SECRET = process.env.GMAIL_CLIENT_SECRET || '';
 const GMAIL_REDIRECT_URI  = process.env.GMAIL_REDIRECT_URI  || '';
-const GMAIL_SCOPES        = 'https://www.googleapis.com/auth/gmail.readonly';
+const GMAIL_SCOPES = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar';
 
 // Store tokens in DB
 async function getGmailTokens() {
