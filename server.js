@@ -209,7 +209,6 @@ app.use(requireAuth);
 const now = () => new Date().toISOString();
 const uid = () => crypto.randomBytes(8).toString('hex');
 const hunterKey = () => process.env.HUNTER_API_KEY || '';
-const apolloKey = () => process.env.APOLLO_API_KEY || '';
 
 // ── LOGIN ─────────────────────────────────────────────────────────────────────
 app.get('/login', (req, res) => {
@@ -403,38 +402,31 @@ app.get('/api/hunter/account', async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// ── APOLLO PROXY (location-filtered people search) ────────────────────────────
-app.post('/api/apollo/search', async (req, res) => {
+// ── HUNTER DISCOVER (location-filtered company search, Sydney NSW only) ───────
+app.post('/api/hunter/discover', async (req, res) => {
   try {
-    const key = apolloKey();
-    if (!key) return res.status(400).json({ error: 'Apollo API key not configured.' });
-    const { titles, industry, location, perPage } = req.body;
+    const key = hunterKey();
+    if (!key) return res.status(400).json({ error: 'Hunter API key not configured.' });
+    const { industry, keywords, limit } = req.body;
 
     const body = {
-      person_titles: titles || [],
-      person_locations: location ? [location] : ['Sydney, New South Wales, Australia'],
-      page: 1,
-      per_page: perPage || 10,
-    };
-    if (industry) body.organization_industry_tag_ids = undefined; // Apollo uses keyword search instead
-    if (industry) body.q_keywords = industry;
-
-    const r = await fetch('https://api.apollo.io/v1/mixed_people/search', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Api-Key': key
+      headquarters_location: {
+        include: [{ city: 'Sydney', state: 'New South Wales', country: 'Australia' }]
       },
+      limit: limit || 20
+    };
+    if (industry) body.industry = { include: [industry] };
+    if (keywords) body.keywords = { include: [keywords], match: 'any' };
+
+    const r = await fetch(`https://api.hunter.io/v2/discover?api_key=${key}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
     const d = await r.json();
-    if (d.error) return res.status(400).json({ error: d.error });
+    if (d.errors) return res.status(400).json({ error: d.errors[0]?.details || 'Discover search failed.' });
     res.json(d);
   } catch(e) { res.status(500).json({ error: e.message }); }
-});
-
-app.get('/api/apollo/status', (req, res) => {
-  res.json({ configured: !!apolloKey() });
 });
 
 // ── EMAIL ─────────────────────────────────────────────────────────────────────
@@ -518,43 +510,19 @@ app.delete('/api/bookings/:id', requireWrite, async (req, res) => {
 });
 
 // ── AUTO LEAD GENERATION ──────────────────────────────────────────────────────
-const COMPANIES = {
-  corporate: [
-    {name:'Barrenjoey',domain:'barrenjoey.com'},{name:'Pitcher Partners Sydney',domain:'pitcher.com.au'},
-    {name:'Wilsons Advisory',domain:'wilsonsadvisory.com.au'},{name:'Prime Financial Group',domain:'primefinancial.com.au'},
-    {name:'Shaw and Partners',domain:'shaw.com.au'},{name:'Morgans Financial Sydney',domain:'morgans.com.au'},
-    {name:'Clime Investment Management',domain:'clime.com.au'},{name:'FIIG Securities',domain:'fiig.com.au'},
-    {name:'Centennial Asset Management',domain:'centennial.com.au'},{name:'Evans and Partners Sydney',domain:'evansandpartners.com.au'},
-    {name:'Escala Partners',domain:'escalapartners.com.au'},{name:'Stanford Brown',domain:'stanfordbrown.com.au'},
-  ],
-  realestate: [
-    {name:'Ray White Double Bay',domain:'raywhitedoublebay.com.au'},{name:'McGrath Paddington',domain:'mcgrath.com.au'},
-    {name:'Belle Property Mosman',domain:'belleproperty.com'},{name:'Stone Real Estate Sydney',domain:'stonerealestategroup.com.au'},
-    {name:'The Agency Sydney',domain:'theagency.com.au'},{name:'Raine and Horne Newtown',domain:'raineandhorne.com.au'},
-    {name:'Laing+Simmons',domain:'laingandsimmons.com.au'},{name:'BresicWhitney',domain:'bresicwhitney.com.au'},
-    {name:'Ballard Property',domain:'ballardproperty.com.au'},{name:'PPD Real Estate',domain:'ppdgroup.com.au'},
-  ],
-  construction: [
-    {name:'Buildcorp',domain:'buildcorp.com.au'},{name:'Hansen Yuncken NSW',domain:'hansenyuncken.com.au'},
-    {name:'Richard Crookes Constructions',domain:'richardcrookes.com.au'},{name:'Built NSW',domain:'built.com.au'},
-    {name:'FDC Construction Sydney',domain:'fdcbuilding.com.au'},{name:'Hutchinson Builders Sydney',domain:'hutchinsonbuilders.com.au'},
-    {name:'Roberts Co',domain:'robertsco.com.au'},{name:'Taylor Construction',domain:'taylorconstruction.com.au'},
-    {name:'Ganellen',domain:'ganellen.com.au'},{name:'Toga Group',domain:'toga.com.au'},
-  ],
-  automotive: [
-    {name:'Peter Warren Automotive',domain:'peterwarren.com.au'},{name:'Trivett',domain:'trivett.com.au'},
-    {name:'Dutton Garage Sydney',domain:'duttongarage.com.au'},{name:'Autopact',domain:'autopact.com.au'},
-    {name:'Sydney City Toyota',domain:'sydneycitytoyota.com.au'},{name:'Suttons Group',domain:'suttonsmotors.com.au'},
-    {name:'Lakeside Auto Group',domain:'lakeside.com.au'},{name:'Frasers Sydney',domain:'frasers.com.au'},
-    {name:'Zupps Sydney',domain:'zupps.com.au'},{name:'CMG Motor Group',domain:'cmgmotorgroup.com.au'},
-  ],
-};
-
 const RELEVANT_TITLES = {
   corporate:    ['marketing','brand','communications','content','social','digital','media','director','cmo','head of'],
   realestate:   ['principal','director','agent','marketing','brand','sales','head of','manager'],
   construction: ['marketing','communications','brand','business development','director','cmo','head of'],
   automotive:   ['marketing','brand','digital','social','dealer','principal','sales','director','head of'],
+};
+
+// Industry keywords used to drive Hunter Discover, scoped to Sydney NSW headquarters only
+const DISCOVER_KEYWORDS = {
+  corporate:    'financial services',
+  realestate:   'real estate agency',
+  construction: 'construction company',
+  automotive:   'car dealership',
 };
 
 function isRelevantTitle(position, industry) {
@@ -563,12 +531,41 @@ function isRelevantTitle(position, industry) {
   return (RELEVANT_TITLES[industry] || []).some(t => p.includes(t));
 }
 
+// Find Sydney-headquartered companies for an industry via Hunter Discover
+async function discoverSydneyCompanies(industry, limit = 12) {
+  const key = hunterKey();
+  if (!key) return [];
+  try {
+    const body = {
+      headquarters_location: {
+        include: [{ city: 'Sydney', state: 'New South Wales', country: 'Australia' }]
+      },
+      keywords: { include: [DISCOVER_KEYWORDS[industry]], match: 'any' },
+      limit
+    };
+    const r = await fetch(`https://api.hunter.io/v2/discover?api_key=${key}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const d = await r.json();
+    if (d.errors || !d.data) { console.error(`[discover] ${industry}:`, JSON.stringify(d.errors||d)); return []; }
+    return d.data.map(c => ({ name: c.organization, domain: c.domain }));
+  } catch(e) {
+    console.error(`[discover] Error on ${industry}:`, e.message);
+    return [];
+  }
+}
+
 async function generateLeads() {
   const key = hunterKey();
   if (!key) { console.log('[scheduler] No Hunter key.'); return 0; }
   let totalAdded = 0;
-  for (const [industry, companies] of Object.entries(COMPANIES)) {
+  for (const industry of Object.keys(DISCOVER_KEYWORDS)) {
+    const companies = await discoverSydneyCompanies(industry, 12);
+    console.log(`[scheduler] Discover found ${companies.length} Sydney companies for ${industry}.`);
     for (const co of companies) {
+      if (!co.domain) continue;
       try {
         await new Promise(r => setTimeout(r, 400));
         const r = await fetch(`https://api.hunter.io/v2/domain-search?domain=${encodeURIComponent(co.domain)}&api_key=${key}&limit=10`);
@@ -583,7 +580,7 @@ async function generateLeads() {
               "hunterEmail",notes,"researchNotes","companyDesc",status,"reelId","monthlyValue",
               timeline,"contactedDate","followup1SentDate","followup2SentDate","createdAt","updatedAt")
             VALUES ($1,$2,$3,$4,$5,$6,'email',$7,$7,$8,'','','new','',0,'[]',null,null,null,$9,$9)
-          `, [uid(),e.first_name||'',e.last_name||'',co.name,co.domain,industry,e.value,
+          `, [uid(),e.first_name||'',e.last_name||'',co.name||co.domain,co.domain,industry,e.value,
               e.position?`Title: ${e.position}`:'',now()]);
           totalAdded++;
         }
