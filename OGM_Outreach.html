@@ -271,12 +271,13 @@
     <!-- LEADS -->
     <div id="page-leads" class="page" style="padding:40px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
-        <div><h1 style="font-size:24px;font-weight:700;">Leads</h1><p style="color:#71717a;font-size:14px;margin-top:4px;">Grouped by company</p></div>
+        <div><h1 style="font-size:24px;font-weight:700;">Leads</h1><p style="color:#71717a;font-size:14px;margin-top:4px;" id="leads-subtitle">Grouped by company</p></div>
         <button onclick="openAddModal()" style="background:#fff;color:#000;border:none;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">+ Add Lead</button>
       </div>
       <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
         <select id="f-industry" onchange="renderLeads()" style="background:#111;border:1px solid #333;color:#fff;font-size:13px;padding:8px 12px;border-radius:8px;"><option value="">All industries</option><option value="corporate">Corporate &amp; Finance</option><option value="realestate">Real Estate</option><option value="construction">Construction</option><option value="automotive">Automotive</option></select>
         <select id="f-status" onchange="renderLeads()" style="background:#111;border:1px solid #333;color:#fff;font-size:13px;padding:8px 12px;border-radius:8px;"><option value="">All statuses</option><option value="new">New</option><option value="contacted">Contacted</option><option value="followup1_due">Follow-up 1 due</option><option value="followup1_sent">Follow-up 1 sent</option><option value="followup2_due">Follow-up 2 due</option><option value="followup2_sent">Follow-up 2 sent</option><option value="replied">Replied</option><option value="meeting">Meeting booked</option><option value="won">Won</option><option value="not_interested">Not interested</option></select>
+        <select id="f-groupby" onchange="renderLeads()" style="background:#111;border:1px solid #333;color:#fff;font-size:13px;padding:8px 12px;border-radius:8px;"><option value="company">Group by company</option><option value="suburb">Group by suburb</option></select>
         <input id="f-search" oninput="renderLeads()" placeholder="Search..." style="background:#111;border:1px solid #333;color:#fff;font-size:13px;padding:8px 12px;border-radius:8px;flex:1;min-width:160px;" />
         <button onclick="runGenerateNow()" id="gen-btn" style="background:#fff;color:#000;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">⚡ Run now</button>
         <button onclick="expandAll(true)"  style="background:none;border:1px solid #333;color:#71717a;font-size:12px;padding:8px 12px;border-radius:8px;cursor:pointer;">Expand all</button>
@@ -386,6 +387,14 @@
           <div>
             <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Hunter.io API key</label>
             <p style="font-size:13px;color:#4ade80;padding:10px 12px;background:#052e16;border-radius:8px;">✓ Connected - your Hunter.io key is securely stored on the server and never exposed in this file.</p>
+          </div>
+          <div>
+            <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Backfill suburbs</label>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+              <button onclick="backfillSuburbs()" id="backfill-btn" style="background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 16px;border-radius:8px;cursor:pointer;">Run backfill</button>
+              <span id="backfill-status" style="font-size:12px;color:#71717a;"></span>
+            </div>
+            <p style="font-size:11px;color:#52525b;margin-top:6px;">Looks up the suburb for any existing lead missing one, using their company website. Uses one Hunter credit per unique company.</p>
           </div>
           <div>
             <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Gmail integration</label>
@@ -632,6 +641,7 @@
       </div>
       <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Company *</label><input name="company" required style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;" /></div>
       <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Company website (for email lookup)</label><input name="website" placeholder="e.g. mafinancial.com" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;" /></div>
+      <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Suburb</label><input name="suburb" placeholder="e.g. Double Bay" style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;" /></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Industry *</label><select name="industry" required style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;"><option value="">Select...</option><option value="corporate">Corporate &amp; Finance</option><option value="realestate">Real Estate</option><option value="construction">Construction</option><option value="automotive">Automotive</option></select></div>
         <div><label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#71717a;display:block;margin-bottom:6px;">Channel *</label><select name="channel" required style="width:100%;background:#1c1c1e;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;"><option value="email">Email</option><option value="instagram">Instagram</option></select></div>
@@ -851,18 +861,23 @@ async function pullDiscoverContacts(i, industry) {
   const resultsEl = document.getElementById('discover-results');
   toast('Pulling contacts from '+(co.organization||co.domain)+'...');
   try {
-    const r = await fetch(API+'/api/hunter/domain?domain='+encodeURIComponent(co.domain)+'&limit=10');
+    const [r, suburbR] = await Promise.all([
+      fetch(API+'/api/hunter/domain?domain='+encodeURIComponent(co.domain)+'&limit=10'),
+      fetch(API+'/api/hunter/company-location?domain='+encodeURIComponent(co.domain))
+    ]);
     const d = await r.json();
+    const suburbD = await suburbR.json().catch(()=>({suburb:''}));
+    const suburb = suburbD.suburb || 'Sydney';
     if (d.errors && d.errors.length) { toast('Error: '+(d.errors[0].details||'Could not fetch contacts.')); return; }
     if (!d.data || !d.data.emails || !d.data.emails.length) { toast('No contacts found at this company.'); return; }
     const found = d.data.emails.filter(e=>isRelevant(e.position,industry)).map(e=>({
       firstName:e.first_name||'', lastName:e.last_name||'', email:e.value,
       position:e.position||'', company:co.organization||co.domain, domain:co.domain,
-      confidence:e.confidence||0
+      confidence:e.confidence||0, suburb
     }));
     if (!found.length) { toast('No relevant contacts found at this company.'); return; }
     document.getElementById('finder-results').style.display='block';
-    document.getElementById('results-heading').textContent=(co.organization||co.domain)+', Sydney';
+    document.getElementById('results-heading').textContent=(co.organization||co.domain)+', '+suburb;
     document.getElementById('results-sub').textContent=found.length+' contacts found';
     renderFoundLeads(found, industry);
     document.getElementById('results-grid').scrollIntoView({behavior:'smooth', block:'start'});
@@ -908,11 +923,16 @@ async function findLeads(industry) {
     document.getElementById('progress-count').textContent=done+'/'+companies.length;
     document.getElementById('progress-bar').style.width=(done/companies.length*100)+'%';
     try {
-      const r=await fetch(API+'/api/hunter/domain?domain='+encodeURIComponent(co.domain)+'&limit=10');
+      const [r, suburbR] = await Promise.all([
+        fetch(API+'/api/hunter/domain?domain='+encodeURIComponent(co.domain)+'&limit=10'),
+        fetch(API+'/api/hunter/company-location?domain='+encodeURIComponent(co.domain))
+      ]);
       const d=await r.json();
+      const suburbD = await suburbR.json().catch(()=>({suburb:''}));
+      const suburb = suburbD.suburb || 'Sydney';
       if(d.errors&&d.errors.length){ errMsg=d.errors[0].details||d.errors[0].id||'Hunter.io returned an error.'; }
       else if(d.data&&d.data.emails){
-        found.push(...d.data.emails.filter(e=>isRelevant(e.position,industry)).map(e=>({firstName:e.first_name||'',lastName:e.last_name||'',email:e.value,position:e.position||'',company:co.organization||co.domain,domain:co.domain,confidence:e.confidence||0})));
+        found.push(...d.data.emails.filter(e=>isRelevant(e.position,industry)).map(e=>({firstName:e.first_name||'',lastName:e.last_name||'',email:e.value,position:e.position||'',company:co.organization||co.domain,domain:co.domain,confidence:e.confidence||0,suburb})));
       }
     } catch(e){ if(!errMsg) errMsg='Could not reach Hunter.io (network or CORS error).'; }
     done++;
@@ -953,6 +973,7 @@ function quickAdd(i,industry){
     notes:contact.position?'Title: '+contact.position:'',
     status:'new',contactedDate:null,followup1SentDate:null,followup2SentDate:null,
     researchNotes:'',companyDesc:'',reelId:'',monthlyValue:0,timeline:'[]',
+    suburb:contact.suburb||'Sydney',
     createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()
   };
   leads.unshift(lead);save();updateNavBadge();apiSaveLead(lead);renderFoundLeads(foundContacts,industry);
@@ -1097,6 +1118,7 @@ function submitAdd(e){
     lastName:(fd.get('lastName')||'').trim(),
     company:fd.get('company').trim(),
     website,
+    suburb:(fd.get('suburb')||'Sydney').trim()||'Sydney',
     industry:fd.get('industry'),
     channel:fd.get('channel'),
     contact:(fd.get('contact')||'').trim(),
@@ -1308,15 +1330,70 @@ function openDetail(id){
   if(!l.companyDesc) runResearch(id,true);
 }
 
-// LEADS PAGE - GROUPED BY COMPANY
+// LEADS PAGE - GROUPED BY COMPANY OR SUBURB
 function renderLeads(){
   refreshStatuses();
   const fi=document.getElementById('f-industry')&&document.getElementById('f-industry').value||'';
   const fs=document.getElementById('f-status')&&document.getElementById('f-status').value||'';
   const fq=((document.getElementById('f-search')&&document.getElementById('f-search').value)||'').toLowerCase();
+  const groupBy=document.getElementById('f-groupby')&&document.getElementById('f-groupby').value||'company';
   const filtered=leads.filter(l=>(!fi||l.industry===fi)&&(!fs||l.status===fs)&&(!fq||(l.firstName+' '+l.lastName+' '+l.company).toLowerCase().includes(fq)));
   const container=document.getElementById('leads-groups');
+  const subtitleEl=document.getElementById('leads-subtitle');
+  if(subtitleEl) subtitleEl.textContent='Grouped by '+(groupBy==='suburb'?'suburb':'company');
   if(filtered.length===0){container.innerHTML='<div style="background:#111;border:1px solid #222;border-radius:12px;padding:48px;text-align:center;color:#52525b;font-size:13px;">'+(leads.length===0?'No leads yet. Head to Find Leads to get started.':'No leads match your filters.')+'</div>';return;}
+
+  if(groupBy==='suburb'){
+    const groups={};
+    filtered.forEach(l=>{const k=l.suburb&&l.suburb.trim()?l.suburb.trim():'Unspecified';if(!groups[k])groups[k]={leads:[]};groups[k].leads.push(l);});
+    const sortedKeys=Object.keys(groups).sort((a,b)=>{
+      const aDue=groups[a].leads.some(l=>{const na=nextAction(l);return na.date&&isOverdue(na.date);});
+      const bDue=groups[b].leads.some(l=>{const na=nextAction(l);return na.date&&isOverdue(na.date);});
+      if(aDue&&!bDue)return -1;if(!aDue&&bDue)return 1;
+      if(a==='Unspecified')return 1;if(b==='Unspecified')return -1;
+      return a.localeCompare(b);
+    });
+    container.innerHTML=sortedKeys.map(suburb=>{
+      const g=groups[suburb];
+      const hasOverdue=g.leads.some(l=>{const na=nextAction(l);return na.date&&isOverdue(na.date);});
+      const statusCounts={};g.leads.forEach(l=>{statusCounts[l.status]=(statusCounts[l.status]||0)+1;});
+      const topStatus=Object.entries(statusCounts).sort((a,b)=>b[1]-a[1])[0]?.[0];
+      const companyCount=new Set(g.leads.map(l=>l.company)).size;
+      const rowsHtml=g.leads.map(l=>{
+        const na=nextAction(l);const due=na.date&&isOverdue(na.date);
+        return '<div class="lead-row" onclick="openDetail(\''+l.id+'\')">'+
+          '<div style="flex:2;min-width:0;"><div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(l.firstName+' '+l.lastName)+'</div>'+
+          '<div style="font-size:11px;color:#52525b;margin-top:1px;">'+esc(l.company)+'<span style="color:#3f3f46;"> &middot; </span>'+(l.channel==='email'?'&#9993;&#65039;':'&#128248;')+' '+esc(l.hunterEmail||l.contact||'No contact yet')+'</div></div>'+
+          '<div style="flex-shrink:0;font-size:10px;background:#1a1a1a;border:1px solid #2a2a2a;color:#818cf8;padding:1px 6px;border-radius:999px;margin-right:8px;">'+(IND_ICON[l.industry]||'')+'</div>'+
+          '<div style="flex:1.5;padding:0 12px;"><span style="font-size:11px;padding:3px 9px;border-radius:999px;'+(STATUS_STYLE[l.status]||'')+'">'+(STATUS_LABEL[l.status]||l.status)+'</span></div>'+
+          '<div style="flex:1.5;font-size:12px;'+(due?'color:#fbbf24;font-weight:500;':'color:#52525b;')+'">'+na.label+(na.date?' &middot; '+fmtDate(na.date)+(due?' &#9888;&#65039;':''):'')+'</div>'+
+          '<div style="color:#3f3f46;font-size:12px;">&#8594;</div></div>';
+      }).join('');
+      return '<div class="co-group">'+
+        '<div class="co-header" onclick="toggleGroup(this)">'+
+          '<div style="display:flex;align-items:center;gap:12px;">'+
+            '<span style="font-size:18px;">&#128205;</span>'+
+            '<div>'+
+              '<div style="font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;">'+esc(suburb)+(hasOverdue?'<span style="font-size:10px;background:#451a03;color:#fbbf24;padding:2px 7px;border-radius:999px;">Action due</span>':'')+'</div>'+
+              '<div style="font-size:11px;color:#52525b;margin-top:2px;">'+companyCount+' compan'+(companyCount!==1?'ies':'y')+' &middot; '+g.leads.length+' contact'+(g.leads.length!==1?'s':'')+'</div>'+
+            '</div>'+
+          '</div>'+
+          '<div style="display:flex;align-items:center;gap:10px;">'+
+            '<span style="font-size:11px;padding:3px 9px;border-radius:999px;'+(STATUS_STYLE[topStatus]||'')+'">'+(STATUS_LABEL[topStatus]||topStatus)+'</span>'+
+            '<svg class="chevron" width="16" height="16" fill="none" stroke="#52525b" viewBox="0 0 24 24" style="transition:transform 0.2s;flex-shrink:0;"><path stroke-width="2" stroke-linecap="round" d="M6 9l6 6 6-6"/></svg>'+
+          '</div>'+
+        '</div>'+
+        '<div class="co-rows">'+
+          '<div style="display:flex;padding:8px 16px;font-size:11px;color:#52525b;border-bottom:1px solid #1c1c1e;">'+
+            '<div style="flex:2;">Contact</div><div style="flex:1.5;padding:0 12px;">Status</div><div style="flex:1.5;">Next action</div><div style="width:20px;"></div>'+
+          '</div>'+
+          rowsHtml+
+        '</div>'+
+      '</div>';
+    }).join('');
+    return;
+  }
+
   const groups={};
   filtered.forEach(l=>{const k=l.company||'Unknown';if(!groups[k])groups[k]={leads:[],industry:l.industry};groups[k].leads.push(l);});
   const sortedKeys=Object.keys(groups).sort((a,b)=>{
@@ -1326,6 +1403,7 @@ function renderLeads(){
   });
   container.innerHTML=sortedKeys.map(company=>{
     const g=groups[company];const ind=g.leads[0].industry;
+    const suburb=g.leads[0].suburb;
     const hasOverdue=g.leads.some(l=>{const na=nextAction(l);return na.date&&isOverdue(na.date);});
     const statusCounts={};g.leads.forEach(l=>{statusCounts[l.status]=(statusCounts[l.status]||0)+1;});
     const topStatus=Object.entries(statusCounts).sort((a,b)=>b[1]-a[1])[0]?.[0];
@@ -1345,7 +1423,7 @@ function renderLeads(){
           '<span style="font-size:18px;">'+(IND_ICON[ind]||'🏢')+'</span>'+
           '<div>'+
             '<div style="font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;">'+esc(company)+(hasOverdue?'<span style="font-size:10px;background:#451a03;color:#fbbf24;padding:2px 7px;border-radius:999px;">Action due</span>':'')+'</div>'+
-            '<div style="font-size:11px;color:#52525b;margin-top:2px;">'+(IND_LABELS[ind]||ind)+' &middot; '+g.leads.length+' contact'+(g.leads.length!==1?'s':'')+'</div>'+
+            '<div style="font-size:11px;color:#52525b;margin-top:2px;">'+(IND_LABELS[ind]||ind)+(suburb?' &middot; '+esc(suburb):'')+' &middot; '+g.leads.length+' contact'+(g.leads.length!==1?'s':'')+'</div>'+
           '</div>'+
         '</div>'+
         '<div style="display:flex;align-items:center;gap:10px;">'+
@@ -2504,6 +2582,29 @@ async function scanGmailReplies() {
 
 async function connectGmail() {
   window.location.href = API + '/api/gmail/auth';
+}
+
+async function backfillSuburbs() {
+  const btn = document.getElementById('backfill-btn');
+  const statusEl = document.getElementById('backfill-status');
+  if (btn) { btn.disabled = true; btn.textContent = 'Running...'; }
+  if (statusEl) { statusEl.textContent = 'Checking leads missing a suburb...'; statusEl.style.color = '#71717a'; }
+  try {
+    const r = await fetch(API + '/api/leads/backfill-suburbs', { method: 'POST' });
+    const d = await r.json();
+    if (d.error) {
+      if (statusEl) { statusEl.textContent = 'Error: ' + d.error; statusEl.style.color = '#f87171'; }
+    } else if (d.updated === 0) {
+      if (statusEl) { statusEl.textContent = 'All leads already have a suburb.'; statusEl.style.color = '#71717a'; }
+    } else {
+      if (statusEl) { statusEl.textContent = `✓ Updated ${d.updated} leads across ${d.uniqueCompanies} compan${d.uniqueCompanies!==1?'ies':'y'}.`; statusEl.style.color = '#4ade80'; }
+      await syncLeads();
+      toast('Suburbs backfilled. Try Group by suburb on the Leads page.');
+    }
+  } catch(e) {
+    if (statusEl) { statusEl.textContent = 'Could not reach server.'; statusEl.style.color = '#f87171'; }
+  }
+  if (btn) { btn.disabled = false; btn.textContent = 'Run backfill'; }
 }
 
 async function checkGmailStatus() {
