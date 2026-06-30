@@ -299,53 +299,51 @@
     <!-- FIND LEADS -->
     <div id="page-finder" class="page" style="padding:40px;">
       <div style="margin-bottom:8px;"><h1 style="font-size:24px;font-weight:700;">Find Leads</h1></div>
-      <p style="color:#71717a;font-size:14px;margin-bottom:20px;">Search Sydney NSW contacts directly via Apollo, or run the curated company list via Hunter below.</p>
+      <p style="color:#71717a;font-size:14px;margin-bottom:20px;">Discover Sydney NSW companies via Hunter, then pull verified contacts from each one.</p>
 
-      <!-- Apollo search -->
+      <!-- Hunter Discover search -->
       <div style="background:#0f0f0f;border:1px solid #1a1a1a;border-radius:14px;padding:20px;margin-bottom:28px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-          <div style="font-size:14px;font-weight:600;">Apollo search — Sydney NSW only</div>
-          <span id="apollo-status" style="font-size:11px;color:#52525b;"></span>
+          <div style="font-size:14px;font-weight:600;">Discover companies — Sydney NSW only</div>
+          <span id="discover-status" style="font-size:11px;color:#52525b;"></span>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;">
-          <input id="apollo-title" placeholder="Job title e.g. Marketing Director" style="background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" />
-          <select id="apollo-industry" style="background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;">
-            <option value="">Any industry</option>
-            <option value="financial services">Corporate / Finance</option>
-            <option value="real estate">Real estate</option>
+        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;">
+          <select id="discover-industry" style="background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;">
+            <option value="corporate">Corporate / Finance</option>
+            <option value="realestate">Real estate</option>
             <option value="construction">Construction</option>
             <option value="automotive">Automotive</option>
           </select>
-          <input id="apollo-suburb" placeholder="Suburb (optional)" style="background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" />
-          <button onclick="runApolloSearch()" style="background:#fff;color:#000;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Search</button>
+          <input id="discover-keywords" placeholder="Extra keywords (optional)" style="background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" />
+          <button onclick="runHunterDiscover()" style="background:#fff;color:#000;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Find companies</button>
         </div>
-        <div id="apollo-results" style="margin-top:16px;"></div>
+        <div id="discover-results" style="margin-top:16px;"></div>
       </div>
 
-      <div style="font-size:14px;font-weight:600;margin-bottom:12px;color:#a1a1aa;">Curated Sydney company list (via Hunter)</div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:12px;color:#a1a1aa;">Quick search by industry (also Sydney-only via Hunter Discover)</div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px;">
         <div onclick="findLeads('corporate')" style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;cursor:pointer;transition:border-color 0.15s;" onmouseover="this.style.borderColor='#3f3f46'" onmouseout="this.style.borderColor='#222'">
           <div style="font-size:22px;margin-bottom:10px;">🏦</div>
           <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Corporate &amp; Finance</div>
-          <div style="font-size:12px;color:#52525b;margin-bottom:12px;">12 Sydney firms</div>
+          <div style="font-size:12px;color:#52525b;margin-bottom:12px;">Sydney firms</div>
           <div id="state-corporate" style="font-size:12px;color:#71717a;">Click to search</div>
         </div>
         <div onclick="findLeads('realestate')" style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;cursor:pointer;transition:border-color 0.15s;" onmouseover="this.style.borderColor='#3f3f46'" onmouseout="this.style.borderColor='#222'">
           <div style="font-size:22px;margin-bottom:10px;">🏠</div>
           <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Real Estate</div>
-          <div style="font-size:12px;color:#52525b;margin-bottom:12px;">10 Sydney agencies</div>
+          <div style="font-size:12px;color:#52525b;margin-bottom:12px;">Sydney agencies</div>
           <div id="state-realestate" style="font-size:12px;color:#71717a;">Click to search</div>
         </div>
         <div onclick="findLeads('construction')" style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;cursor:pointer;transition:border-color 0.15s;" onmouseover="this.style.borderColor='#3f3f46'" onmouseout="this.style.borderColor='#222'">
           <div style="font-size:22px;margin-bottom:10px;">🏗️</div>
           <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Construction</div>
-          <div style="font-size:12px;color:#52525b;margin-bottom:12px;">10 Sydney builders</div>
+          <div style="font-size:12px;color:#52525b;margin-bottom:12px;">Sydney builders</div>
           <div id="state-construction" style="font-size:12px;color:#71717a;">Click to search</div>
         </div>
         <div onclick="findLeads('automotive')" style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;cursor:pointer;transition:border-color 0.15s;" onmouseover="this.style.borderColor='#3f3f46'" onmouseout="this.style.borderColor='#222'">
           <div style="font-size:22px;margin-bottom:10px;">🚗</div>
           <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Automotive</div>
-          <div style="font-size:12px;color:#52525b;margin-bottom:12px;">10 Sydney dealers</div>
+          <div style="font-size:12px;color:#52525b;margin-bottom:12px;">Sydney dealers</div>
           <div id="state-automotive" style="font-size:12px;color:#71717a;">Click to search</div>
         </div>
       </div>
@@ -788,12 +786,6 @@ const IND_ICON   = { corporate:'🏦', realestate:'🏠', construction:'🏗️'
 const STATUS_LABEL = { new:'New', contacted:'Contacted', followup1_due:'Follow-up 1 due', followup1_sent:'Follow-up 1 sent', followup2_due:'Follow-up 2 due', followup2_sent:'Follow-up 2 sent', replied:'Replied', meeting:'Meeting booked', won:'Won', not_interested:'Not interested' };
 const STATUS_STYLE = { new:'background:#27272a;color:#a1a1aa;', contacted:'background:#1e3a5f;color:#93c5fd;', followup1_due:'background:#451a03;color:#fbbf24;', followup1_sent:'background:#1e3a5f;color:#93c5fd;', followup2_due:'background:#431407;color:#fb923c;', followup2_sent:'background:#1e3a5f;color:#93c5fd;', replied:'background:#14532d;color:#4ade80;', meeting:'background:#052e16;color:#34d399;', won:'background:#052e16;color:#6ee7b7;', not_interested:'background:#1c1c1e;color:#52525b;' };
 
-const COMPANIES = {
-  corporate: [{name:'MA Financial Group',domain:'mafinancial.com'},{name:'Barrenjoey',domain:'barrenjoey.com'},{name:'Pitcher Partners Sydney',domain:'pitcher.com.au'},{name:'Wilsons Advisory',domain:'wilsonsadvisory.com.au'},{name:'Prime Financial Group',domain:'primefinancial.com.au'},{name:'Shaw and Partners',domain:'shaw.com.au'},{name:'Morgans Financial',domain:'morgans.com.au'},{name:'Perpetual',domain:'perpetual.com.au'},{name:'Equity Trustees',domain:'eqt.com.au'},{name:'Clime Investment Management',domain:'clime.com.au'},{name:'Centennial Asset Management',domain:'centennial.com.au'},{name:'FIIG Securities',domain:'fiig.com.au'}],
-  realestate: [{name:'McGrath Estate Agents',domain:'mcgrath.com.au'},{name:'Goodyer Real Estate',domain:'goodyer.com.au'},{name:'The Agency Real Estate',domain:'theagency.com.au'},{name:'BresicWhitney',domain:'bresicwhitney.com.au'},{name:'DiJones',domain:'dijones.com.au'},{name:'Belle Property',domain:'belleproperty.com'},{name:'Laing+Simmons',domain:'laingsimmons.com.au'},{name:'Stone Real Estate',domain:'stonerealstate.com.au'},{name:'Sydney Sothebys',domain:'sothebysrealty.com.au'},{name:'Cobden & Hayson',domain:'cobdenhayson.com.au'}],
-  construction: [{name:'Infinity Constructions',domain:'infinityconstructions.com.au'},{name:'Buildcorp',domain:'buildcorp.com.au'},{name:'Lords Group',domain:'lordsgroup.com.au'},{name:'CD Construction Group',domain:'cdconstruction.com.au'},{name:'Ganellen',domain:'ganellen.com.au'},{name:'Built',domain:'built.com.au'},{name:'FDC Construction',domain:'fdcgroup.com.au'},{name:'Lipman',domain:'lipman.com.au'},{name:'Schiavello',domain:'schiavello.com.au'},{name:'Hansen Yuncken',domain:'hansenyuncken.com.au'}],
-  automotive: [{name:'Peter Warren Automotive',domain:'peterwarren.com.au'},{name:'Inchcape Australasia',domain:'inchcapeautomotive.com.au'},{name:'Sydney City Toyota',domain:'sydneycitytoyota.com.au'},{name:'Trivett Group',domain:'trivett.com.au'},{name:'Autopact Group',domain:'autopact.com.au'},{name:'CMG Automotive',domain:'cmgautomotive.com.au'},{name:'Scuderia Graziani',domain:'scuderiagraziani.com'},{name:'Autosports Group',domain:'autosportsgroup.com.au'},{name:'Parramatta City Nissan',domain:'parramattanissan.com.au'},{name:'Macarthur Automotive',domain:'macarthurautomotive.com.au'}],
-};
 const RELEVANT = {
   corporate: ['marketing','communications','brand','digital','content','media','cmo'],
   realestate: ['agent','director','principal','property','sales','partner','head'],
@@ -803,89 +795,117 @@ const RELEVANT = {
 function isRelevant(pos, ind) { if(!pos) return true; const p=pos.toLowerCase(); return RELEVANT[ind].some(k=>p.includes(k)); }
 
 // FIND LEADS
-// ── APOLLO SEARCH (Sydney-only people search) ─────────────────────────────────
-async function checkApolloStatus() {
-  try {
-    const r = await fetch(API + '/api/apollo/status');
-    const d = await r.json();
-    const el = document.getElementById('apollo-status');
-    if (el) el.textContent = d.configured ? '✓ Connected' : 'Not configured';
-    if (el) el.style.color = d.configured ? '#4ade80' : '#f87171';
-  } catch(e) {}
-}
+// ── HUNTER DISCOVER (Sydney-only company search) ──────────────────────────────
+const DISCOVER_INDUSTRY_LABEL = {
+  corporate: 'financial services',
+  realestate: 'real estate agency',
+  construction: 'construction company',
+  automotive: 'car dealership',
+};
 
-async function runApolloSearch() {
-  const title = document.getElementById('apollo-title').value.trim();
-  const industry = document.getElementById('apollo-industry').value;
-  const suburb = document.getElementById('apollo-suburb').value.trim();
-  const resultsEl = document.getElementById('apollo-results');
+let discoverResults = [];
 
-  resultsEl.innerHTML = '<div style="color:#52525b;font-size:13px;padding:12px 0;">Searching Sydney contacts...</div>';
+async function runHunterDiscover() {
+  const industry = document.getElementById('discover-industry').value;
+  const keywords = document.getElementById('discover-keywords').value.trim();
+  const resultsEl = document.getElementById('discover-results');
+  const statusEl = document.getElementById('discover-status');
 
-  const location = suburb ? `${suburb}, New South Wales, Australia` : 'Sydney, New South Wales, Australia';
+  resultsEl.innerHTML = '<div style="color:#52525b;font-size:13px;padding:12px 0;"><span class="spin">&#8635;</span> Discovering Sydney companies...</div>';
 
   try {
-    const r = await fetch(API + '/api/apollo/search', {
+    const r = await fetch(API + '/api/hunter/discover', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ titles: title ? [title] : [], industry, location, perPage: 15 })
+      body: JSON.stringify({ industry: DISCOVER_INDUSTRY_LABEL[industry], keywords, limit: 15 })
     });
     const d = await r.json();
-    if (d.error) { resultsEl.innerHTML = '<div style="color:#f87171;font-size:13px;">Error: '+esc(d.error)+'</div>'; return; }
-
-    const people = d.people || [];
-    if (!people.length) { resultsEl.innerHTML = '<div style="color:#52525b;font-size:13px;">No Sydney contacts found for that search.</div>'; return; }
-
-    resultsEl.innerHTML = '<div style="font-size:12px;color:#52525b;margin-bottom:10px;">'+people.length+' contacts found in Sydney</div>' +
-      people.map((p,i) => {
-        const loc = p.city ? p.city + ', NSW' : 'Sydney, NSW';
-        return `<div style="display:flex;align-items:center;gap:12px;background:#111;border:1px solid #1a1a1a;border-radius:10px;padding:10px 14px;margin-bottom:6px;">
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:13px;font-weight:500;">${esc(p.name||'')}</div>
-            <div style="font-size:11px;color:#71717a;">${esc(p.title||'')} at ${esc(p.organization_name||'')} · ${esc(loc)}</div>
-          </div>
-          <button onclick="addApolloLead(${i})" style="background:#1a1a1a;border:1px solid #333;color:#fff;font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;flex-shrink:0;">+ Add</button>
-        </div>`;
-      }).join('');
-
-    window._apolloResults = people;
+    if (d.error) {
+      resultsEl.innerHTML = '<div style="color:#f87171;font-size:13px;">'+esc(d.error)+'</div>';
+      if (statusEl) { statusEl.textContent = 'Error'; statusEl.style.color = '#f87171'; }
+      return;
+    }
+    const companies = d.data || [];
+    if (!companies.length) {
+      resultsEl.innerHTML = '<div style="color:#52525b;font-size:13px;">No Sydney companies found for that search. Try different keywords.</div>';
+      if (statusEl) { statusEl.textContent = '0 found'; statusEl.style.color = '#71717a'; }
+      return;
+    }
+    discoverResults = companies;
+    if (statusEl) { statusEl.textContent = companies.length+' companies found'; statusEl.style.color = '#4ade80'; }
+    resultsEl.innerHTML = '<div style="font-size:12px;color:#52525b;margin-bottom:10px;">'+companies.length+' Sydney companies found. Click one to pull contacts.</div>' +
+      companies.map((c,i) => `<div style="display:flex;align-items:center;gap:12px;background:#111;border:1px solid #1a1a1a;border-radius:10px;padding:10px 14px;margin-bottom:6px;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:500;">${esc(c.organization||c.domain)}</div>
+          <div style="font-size:11px;color:#71717a;">${esc(c.domain||'')}${c.emails_count?' &middot; '+(c.emails_count.total||0)+' contacts known':''}</div>
+        </div>
+        <button onclick="pullDiscoverContacts(${i},'${industry}')" style="background:#1a1a1a;border:1px solid #333;color:#fff;font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;flex-shrink:0;">Pull contacts</button>
+      </div>`).join('');
   } catch(e) {
     resultsEl.innerHTML = '<div style="color:#f87171;font-size:13px;">Search failed: '+e.message+'</div>';
   }
 }
 
-function addApolloLead(i) {
-  const p = (window._apolloResults||[])[i]; if (!p) return;
-  const nameParts = (p.name||'').split(' ');
-  const industryMap = {'financial services':'corporate','real estate':'realestate','construction':'construction','automotive':'automotive'};
-  const industry = document.getElementById('apollo-industry').value;
-  const lead = {
-    id: uid(), firstName: nameParts[0]||'', lastName: nameParts.slice(1).join(' ')||'',
-    company: p.organization_name||'', website: p.organization_website_url||'',
-    industry: industryMap[industry]||'corporate', channel: 'email',
-    contact: p.email||'', hunterEmail: p.email||'',
-    notes: p.title?'Title: '+p.title:'', researchNotes:'', companyDesc:'',
-    status:'new', reelId:'', monthlyValue:0, timeline:'[]',
-    contactedDate:null, followup1SentDate:null, followup2SentDate:null,
-    createdAt:new Date().toISOString(), updatedAt:new Date().toISOString()
-  };
-  leads.unshift(lead); save(); apiSaveLead(lead); updateNavBadge(); renderLeads();
-  toast('Added '+lead.firstName+' '+lead.lastName+' to pipeline.');
+async function pullDiscoverContacts(i, industry) {
+  const co = discoverResults[i]; if (!co || !co.domain) return;
+  const resultsEl = document.getElementById('discover-results');
+  toast('Pulling contacts from '+(co.organization||co.domain)+'...');
+  try {
+    const r = await fetch(API+'/api/hunter/domain?domain='+encodeURIComponent(co.domain)+'&limit=10');
+    const d = await r.json();
+    if (d.errors && d.errors.length) { toast('Error: '+(d.errors[0].details||'Could not fetch contacts.')); return; }
+    if (!d.data || !d.data.emails || !d.data.emails.length) { toast('No contacts found at this company.'); return; }
+    const found = d.data.emails.filter(e=>isRelevant(e.position,industry)).map(e=>({
+      firstName:e.first_name||'', lastName:e.last_name||'', email:e.value,
+      position:e.position||'', company:co.organization||co.domain, domain:co.domain,
+      confidence:e.confidence||0
+    }));
+    if (!found.length) { toast('No relevant contacts found at this company.'); return; }
+    document.getElementById('finder-results').style.display='block';
+    document.getElementById('results-heading').textContent=(co.organization||co.domain)+', Sydney';
+    document.getElementById('results-sub').textContent=found.length+' contacts found';
+    renderFoundLeads(found, industry);
+    document.getElementById('results-grid').scrollIntoView({behavior:'smooth', block:'start'});
+  } catch(e) {
+    toast('Could not pull contacts: '+e.message);
+  }
 }
 
 async function findLeads(industry) {
   if (!cfg.hunterKey) { toast('Add your Hunter.io API key in Settings first.'); showPage('settings'); return; }
-  const companies = COMPANIES[industry];
-  if(!confirm('This searches '+companies.length+' companies and uses up to '+companies.length+' Hunter.io requests from your monthly quota. Continue?')) return;
   const stateEl = document.getElementById('state-'+industry);
+  stateEl.innerHTML='<span class="spin">&#8635;</span> Discovering...';
   document.getElementById('finder-progress').style.display='block';
   document.getElementById('finder-results').style.display='none';
   document.getElementById('no-results').style.display='none';
   document.getElementById('results-grid').innerHTML='';
-  stateEl.innerHTML='<span class="spin">&#8635;</span> Searching...';
+  document.getElementById('progress-label').textContent='Finding Sydney companies...';
+  document.getElementById('progress-count').textContent='';
+  document.getElementById('progress-bar').style.width='10%';
+
+  let companies = [];
+  try {
+    const dr = await fetch(API + '/api/hunter/discover', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ industry: DISCOVER_INDUSTRY_LABEL[industry], limit: 12 })
+    });
+    const dd = await dr.json();
+    if (dd.data) companies = dd.data.filter(c=>c.domain);
+  } catch(e) {}
+
+  if (!companies.length) {
+    document.getElementById('finder-progress').style.display='none';
+    stateEl.textContent='0 found'; stateEl.style.color='#71717a';
+    document.getElementById('finder-results').style.display='block';
+    document.getElementById('no-results').style.display='block';
+    document.getElementById('no-results').innerHTML='<p style="color:#71717a;font-size:14px;">No Sydney companies found via Discover for this industry right now.</p><p style="color:#52525b;font-size:12px;margin-top:6px;">Try the manual Discover search above with different keywords.</p>';
+    return;
+  }
+
   let found=[],done=0,errMsg='';
   for (const co of companies) {
-    document.getElementById('progress-label').textContent='Checking '+co.name+'...';
+    document.getElementById('progress-label').textContent='Checking '+(co.organization||co.domain)+'...';
     document.getElementById('progress-count').textContent=done+'/'+companies.length;
     document.getElementById('progress-bar').style.width=(done/companies.length*100)+'%';
     try {
@@ -893,7 +913,7 @@ async function findLeads(industry) {
       const d=await r.json();
       if(d.errors&&d.errors.length){ errMsg=d.errors[0].details||d.errors[0].id||'Hunter.io returned an error.'; }
       else if(d.data&&d.data.emails){
-        found.push(...d.data.emails.filter(e=>isRelevant(e.position,industry)).map(e=>({firstName:e.first_name||'',lastName:e.last_name||'',email:e.value,position:e.position||'',company:co.name,domain:co.domain,confidence:e.confidence||0})));
+        found.push(...d.data.emails.filter(e=>isRelevant(e.position,industry)).map(e=>({firstName:e.first_name||'',lastName:e.last_name||'',email:e.value,position:e.position||'',company:co.organization||co.domain,domain:co.domain,confidence:e.confidence||0})));
       }
     } catch(e){ if(!errMsg) errMsg='Could not reach Hunter.io (network or CORS error).'; }
     done++;
@@ -982,7 +1002,7 @@ function showPage(name,section,label){
   if(bcSection&&bcSep&&bcPage){if(section){bcSection.textContent=section;bcSep.style.display='';bcPage.textContent=label||name;}else{bcSection.textContent='';bcSep.style.display='none';bcPage.textContent=label||name;}}
   if(name==='dashboard') renderDashboard();
   if(name==='leads')     renderLeads();
-  if(name==='finder')    checkApolloStatus();
+  if(name==='finder')    {}
   if(name==='portfolio') renderPortfolio();
   if(name==='settings')  { loadSettings(); checkGmailStatus(); }
   if(name==='bookings')  { renderBookings(); syncBookings(); }
