@@ -305,6 +305,18 @@ app.get('/api/leads/suburb-breakdown', async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// One-time cleanup: remove leads whose suburb is a known non-Sydney city
+const NON_SYDNEY_SUBURBS = ['Melbourne','Brisbane','Boston','Adelaide','Docklands','Southbank','Mooloolaba'];
+app.post('/api/leads/remove-non-sydney', requireWrite, async (req, res) => {
+  try {
+    const r = await query(
+      `DELETE FROM leads WHERE suburb = ANY($1::text[]) RETURNING id, company, suburb`,
+      [NON_SYDNEY_SUBURBS]
+    );
+    res.json({ ok: true, removed: r.rowCount, leads: r.rows });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 app.post('/api/leads', requireWrite, async (req, res) => {
   try {
     const l = req.body;
