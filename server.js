@@ -46,10 +46,12 @@ async function setupSchema() {
       "contactedDate" TEXT DEFAULT NULL,
       "followup1SentDate" TEXT DEFAULT NULL,
       "followup2SentDate" TEXT DEFAULT NULL,
+      suburb TEXT DEFAULT '',
       "createdAt" TEXT NOT NULL,
       "updatedAt" TEXT NOT NULL
     )
   `);
+  await query(`ALTER TABLE leads ADD COLUMN IF NOT EXISTS suburb TEXT DEFAULT ''`).catch(()=>{});
   await query(`
     CREATE TABLE IF NOT EXISTS bookings (
       id TEXT PRIMARY KEY,
@@ -301,14 +303,14 @@ app.post('/api/leads', requireWrite, async (req, res) => {
     await query(`
       INSERT INTO leads (id,"firstName","lastName",company,website,industry,channel,contact,
         "hunterEmail",notes,"researchNotes","companyDesc",status,"reelId","monthlyValue",
-        timeline,"contactedDate","followup1SentDate","followup2SentDate","createdAt","updatedAt")
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)
+        timeline,"contactedDate","followup1SentDate","followup2SentDate",suburb,"createdAt","updatedAt")
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
       ON CONFLICT (id) DO NOTHING
     `, [l.id,l.firstName||'',l.lastName||'',l.company||'',l.website||'',l.industry||'',
         l.channel||'email',l.contact||'',l.hunterEmail||'',l.notes||'',l.researchNotes||'',
         l.companyDesc||'',l.status||'new',l.reelId||'',l.monthlyValue||0,
         l.timeline||'[]',l.contactedDate||null,l.followup1SentDate||null,
-        l.followup2SentDate||null,l.createdAt||now(),now()]);
+        l.followup2SentDate||null,l.suburb||'',l.createdAt||now(),now()]);
     res.json({ ok: true, id: l.id });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
@@ -320,24 +322,24 @@ app.put('/api/leads/:id', requireWrite, async (req, res) => {
       UPDATE leads SET "firstName"=$1,"lastName"=$2,company=$3,website=$4,industry=$5,
         channel=$6,contact=$7,"hunterEmail"=$8,notes=$9,"researchNotes"=$10,"companyDesc"=$11,
         status=$12,"reelId"=$13,"monthlyValue"=$14,timeline=$15,"contactedDate"=$16,
-        "followup1SentDate"=$17,"followup2SentDate"=$18,"updatedAt"=$19
-      WHERE id=$20
+        "followup1SentDate"=$17,"followup2SentDate"=$18,suburb=COALESCE(NULLIF($19,''),suburb),"updatedAt"=$20
+      WHERE id=$21
     `, [l.firstName||'',l.lastName||'',l.company||'',l.website||'',l.industry||'',
         l.channel||'email',l.contact||'',l.hunterEmail||'',l.notes||'',l.researchNotes||'',
         l.companyDesc||'',l.status||'new',l.reelId||'',l.monthlyValue||0,
         l.timeline||'[]',l.contactedDate||null,l.followup1SentDate||null,
-        l.followup2SentDate||null,now(),req.params.id]);
+        l.followup2SentDate||null,l.suburb||'',now(),req.params.id]);
     if (r.rowCount === 0) {
       await query(`
         INSERT INTO leads (id,"firstName","lastName",company,website,industry,channel,contact,
           "hunterEmail",notes,"researchNotes","companyDesc",status,"reelId","monthlyValue",
-          timeline,"contactedDate","followup1SentDate","followup2SentDate","createdAt","updatedAt")
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)
+          timeline,"contactedDate","followup1SentDate","followup2SentDate",suburb,"createdAt","updatedAt")
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
       `, [req.params.id,l.firstName||'',l.lastName||'',l.company||'',l.website||'',l.industry||'',
           l.channel||'email',l.contact||'',l.hunterEmail||'',l.notes||'',l.researchNotes||'',
           l.companyDesc||'',l.status||'new',l.reelId||'',l.monthlyValue||0,
           l.timeline||'[]',l.contactedDate||null,l.followup1SentDate||null,
-          l.followup2SentDate||null,l.createdAt||now(),now()]);
+          l.followup2SentDate||null,l.suburb||'',l.createdAt||now(),now()]);
     }
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -358,14 +360,14 @@ app.post('/api/leads/bulk', requireWrite, async (req, res) => {
       const r = await query(`
         INSERT INTO leads (id,"firstName","lastName",company,website,industry,channel,contact,
           "hunterEmail",notes,"researchNotes","companyDesc",status,"reelId","monthlyValue",
-          timeline,"contactedDate","followup1SentDate","followup2SentDate","createdAt","updatedAt")
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)
+          timeline,"contactedDate","followup1SentDate","followup2SentDate",suburb,"createdAt","updatedAt")
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
         ON CONFLICT (id) DO NOTHING
       `, [l.id,l.firstName||'',l.lastName||'',l.company||'',l.website||'',l.industry||'',
           l.channel||'email',l.contact||'',l.hunterEmail||'',l.notes||'',l.researchNotes||'',
           l.companyDesc||'',l.status||'new',l.reelId||'',l.monthlyValue||0,
           l.timeline||'[]',l.contactedDate||null,l.followup1SentDate||null,
-          l.followup2SentDate||null,l.createdAt||now(),now()]);
+          l.followup2SentDate||null,l.suburb||'',l.createdAt||now(),now()]);
       if (r.rowCount) added++;
     }
     res.json({ ok: true, added });
@@ -399,6 +401,56 @@ app.get('/api/hunter/account', async (req, res) => {
     if (!key) return res.status(400).json({ error: 'Hunter API key not configured.' });
     const r = await fetch(`https://api.hunter.io/v2/account?api_key=${key}`);
     res.json(await r.json());
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── COMPANY ENRICHMENT (suburb/city lookup for grouping) ──────────────────────
+app.get('/api/hunter/company-location', async (req, res) => {
+  try {
+    const key = hunterKey();
+    if (!key) return res.status(400).json({ error: 'Hunter API key not configured.' });
+    const { domain } = req.query;
+    if (!domain) return res.status(400).json({ error: 'Domain required.' });
+    const r = await fetch(`https://api.hunter.io/v2/companies/find?domain=${encodeURIComponent(domain)}&api_key=${key}`);
+    const d = await r.json();
+    if (d.errors) return res.json({ suburb: '' });
+    const geo = d.data?.geo;
+    const suburb = geo?.city || geo?.state || '';
+    res.json({ suburb });
+  } catch(e) { res.json({ suburb: '' }); }
+});
+
+// Backfill suburbs for existing leads missing one, deduped by website to save credits
+app.post('/api/leads/backfill-suburbs', requireWrite, async (req, res) => {
+  try {
+    const key = hunterKey();
+    if (!key) return res.status(400).json({ error: 'Hunter API key not configured.' });
+
+    const r = await query(`SELECT id, website FROM leads WHERE (suburb IS NULL OR suburb='') AND website != ''`);
+    const rows = r.rows;
+    if (!rows.length) return res.json({ ok: true, updated: 0, checked: 0 });
+
+    // Dedupe by website to avoid repeat lookups
+    const domainCache = {};
+    let updated = 0;
+
+    for (const row of rows) {
+      const domain = row.website;
+      if (!domain) continue;
+      if (!(domain in domainCache)) {
+        try {
+          await new Promise(r2 => setTimeout(r2, 300));
+          const cr = await fetch(`https://api.hunter.io/v2/companies/find?domain=${encodeURIComponent(domain)}&api_key=${key}`);
+          const cd = await cr.json();
+          domainCache[domain] = cd.errors ? '' : (cd.data?.geo?.city || cd.data?.geo?.state || '');
+        } catch(e) { domainCache[domain] = ''; }
+      }
+      const suburb = domainCache[domain] || 'Sydney';
+      await query(`UPDATE leads SET suburb=$1, "updatedAt"=$2 WHERE id=$3`, [suburb, now(), row.id]);
+      updated++;
+    }
+
+    res.json({ ok: true, updated, checked: rows.length, uniqueCompanies: Object.keys(domainCache).length });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -557,6 +609,18 @@ async function discoverSydneyCompanies(industry, limit = 12) {
   }
 }
 
+// Look up the suburb/city for a domain via Company Enrichment
+async function lookupSuburb(domain) {
+  const key = hunterKey();
+  if (!key || !domain) return '';
+  try {
+    const r = await fetch(`https://api.hunter.io/v2/companies/find?domain=${encodeURIComponent(domain)}&api_key=${key}`);
+    const d = await r.json();
+    if (d.errors) return '';
+    return d.data?.geo?.city || '';
+  } catch(e) { return ''; }
+}
+
 async function generateLeads() {
   const key = hunterKey();
   if (!key) { console.log('[scheduler] No Hunter key.'); return 0; }
@@ -568,6 +632,7 @@ async function generateLeads() {
       if (!co.domain) continue;
       try {
         await new Promise(r => setTimeout(r, 400));
+        const suburb = await lookupSuburb(co.domain);
         const r = await fetch(`https://api.hunter.io/v2/domain-search?domain=${encodeURIComponent(co.domain)}&api_key=${key}&limit=10`);
         const d = await r.json();
         if (!d.data || !d.data.emails) continue;
@@ -578,10 +643,10 @@ async function generateLeads() {
           await query(`
             INSERT INTO leads (id,"firstName","lastName",company,website,industry,channel,contact,
               "hunterEmail",notes,"researchNotes","companyDesc",status,"reelId","monthlyValue",
-              timeline,"contactedDate","followup1SentDate","followup2SentDate","createdAt","updatedAt")
-            VALUES ($1,$2,$3,$4,$5,$6,'email',$7,$7,$8,'','','new','',0,'[]',null,null,null,$9,$9)
+              timeline,"contactedDate","followup1SentDate","followup2SentDate",suburb,"createdAt","updatedAt")
+            VALUES ($1,$2,$3,$4,$5,$6,'email',$7,$7,$8,'','','new','',0,'[]',null,null,null,$9,$10,$10)
           `, [uid(),e.first_name||'',e.last_name||'',co.name||co.domain,co.domain,industry,e.value,
-              e.position?`Title: ${e.position}`:'',now()]);
+              e.position?`Title: ${e.position}`:'',suburb||'Sydney',now()]);
           totalAdded++;
         }
       } catch(e) { console.error(`[scheduler] Error on ${co.name}:`, e.message); }
