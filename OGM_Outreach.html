@@ -872,7 +872,6 @@ async function pullDiscoverContacts(i, industry) {
 }
 
 async function findLeads(industry) {
-  if (!cfg.hunterKey) { toast('Add your Hunter.io API key in Settings first.'); showPage('settings'); return; }
   const stateEl = document.getElementById('state-'+industry);
   stateEl.innerHTML='<span class="spin">&#8635;</span> Discovering...';
   document.getElementById('finder-progress').style.display='block';
@@ -1140,7 +1139,7 @@ async function runResearch(id,wikiOnly){
   if(btn&&!wikiOnly){btn.textContent='Researching...';btn.disabled=true;}
   const desc=await runWiki(l.company);l.companyDesc=desc||'';
   if(descEl)descEl.textContent=desc||'No Wikipedia entry. Use the research links to dig in manually.';
-  if(!wikiOnly&&!l.hunterEmail&&cfg.hunterKey&&l.website){
+  if(!wikiOnly&&!l.hunterEmail&&l.website){
     const email=await runHunter(l);
     if(email){l.hunterEmail=email;if(!l.contact)l.contact=email;if(emailEl)emailEl.innerHTML='<span style="color:#4ade80;font-family:monospace;">'+esc(email)+'</span> <span style="color:#52525b;">(Hunter.io)</span>';toast('Email found: '+email);}
     else{if(emailEl)emailEl.textContent='No email found. Enter manually.';}
