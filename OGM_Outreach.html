@@ -299,7 +299,30 @@
     <!-- FIND LEADS -->
     <div id="page-finder" class="page" style="padding:40px;">
       <div style="margin-bottom:8px;"><h1 style="font-size:24px;font-weight:700;">Find Leads</h1></div>
-      <p style="color:#71717a;font-size:14px;margin-bottom:28px;">Searches a curated list of Sydney companies via Hunter.io and surfaces real contacts with verified emails. Click an industry to start.</p>
+      <p style="color:#71717a;font-size:14px;margin-bottom:20px;">Search Sydney NSW contacts directly via Apollo, or run the curated company list via Hunter below.</p>
+
+      <!-- Apollo search -->
+      <div style="background:#0f0f0f;border:1px solid #1a1a1a;border-radius:14px;padding:20px;margin-bottom:28px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div style="font-size:14px;font-weight:600;">Apollo search — Sydney NSW only</div>
+          <span id="apollo-status" style="font-size:11px;color:#52525b;"></span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;">
+          <input id="apollo-title" placeholder="Job title e.g. Marketing Director" style="background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" />
+          <select id="apollo-industry" style="background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;">
+            <option value="">Any industry</option>
+            <option value="financial services">Corporate / Finance</option>
+            <option value="real estate">Real estate</option>
+            <option value="construction">Construction</option>
+            <option value="automotive">Automotive</option>
+          </select>
+          <input id="apollo-suburb" placeholder="Suburb (optional)" style="background:#1a1a1a;border:1px solid #333;color:#fff;font-size:13px;padding:9px 12px;border-radius:8px;outline:none;" />
+          <button onclick="runApolloSearch()" style="background:#fff;color:#000;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Search</button>
+        </div>
+        <div id="apollo-results" style="margin-top:16px;"></div>
+      </div>
+
+      <div style="font-size:14px;font-weight:600;margin-bottom:12px;color:#a1a1aa;">Curated Sydney company list (via Hunter)</div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px;">
         <div onclick="findLeads('corporate')" style="background:#111;border:1px solid #222;border-radius:14px;padding:20px;cursor:pointer;transition:border-color 0.15s;" onmouseover="this.style.borderColor='#3f3f46'" onmouseout="this.style.borderColor='#222'">
           <div style="font-size:22px;margin-bottom:10px;">🏦</div>
@@ -780,6 +803,76 @@ const RELEVANT = {
 function isRelevant(pos, ind) { if(!pos) return true; const p=pos.toLowerCase(); return RELEVANT[ind].some(k=>p.includes(k)); }
 
 // FIND LEADS
+// ── APOLLO SEARCH (Sydney-only people search) ─────────────────────────────────
+async function checkApolloStatus() {
+  try {
+    const r = await fetch(API + '/api/apollo/status');
+    const d = await r.json();
+    const el = document.getElementById('apollo-status');
+    if (el) el.textContent = d.configured ? '✓ Connected' : 'Not configured';
+    if (el) el.style.color = d.configured ? '#4ade80' : '#f87171';
+  } catch(e) {}
+}
+
+async function runApolloSearch() {
+  const title = document.getElementById('apollo-title').value.trim();
+  const industry = document.getElementById('apollo-industry').value;
+  const suburb = document.getElementById('apollo-suburb').value.trim();
+  const resultsEl = document.getElementById('apollo-results');
+
+  resultsEl.innerHTML = '<div style="color:#52525b;font-size:13px;padding:12px 0;">Searching Sydney contacts...</div>';
+
+  const location = suburb ? `${suburb}, New South Wales, Australia` : 'Sydney, New South Wales, Australia';
+
+  try {
+    const r = await fetch(API + '/api/apollo/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ titles: title ? [title] : [], industry, location, perPage: 15 })
+    });
+    const d = await r.json();
+    if (d.error) { resultsEl.innerHTML = '<div style="color:#f87171;font-size:13px;">Error: '+esc(d.error)+'</div>'; return; }
+
+    const people = d.people || [];
+    if (!people.length) { resultsEl.innerHTML = '<div style="color:#52525b;font-size:13px;">No Sydney contacts found for that search.</div>'; return; }
+
+    resultsEl.innerHTML = '<div style="font-size:12px;color:#52525b;margin-bottom:10px;">'+people.length+' contacts found in Sydney</div>' +
+      people.map((p,i) => {
+        const loc = p.city ? p.city + ', NSW' : 'Sydney, NSW';
+        return `<div style="display:flex;align-items:center;gap:12px;background:#111;border:1px solid #1a1a1a;border-radius:10px;padding:10px 14px;margin-bottom:6px;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:500;">${esc(p.name||'')}</div>
+            <div style="font-size:11px;color:#71717a;">${esc(p.title||'')} at ${esc(p.organization_name||'')} · ${esc(loc)}</div>
+          </div>
+          <button onclick="addApolloLead(${i})" style="background:#1a1a1a;border:1px solid #333;color:#fff;font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;flex-shrink:0;">+ Add</button>
+        </div>`;
+      }).join('');
+
+    window._apolloResults = people;
+  } catch(e) {
+    resultsEl.innerHTML = '<div style="color:#f87171;font-size:13px;">Search failed: '+e.message+'</div>';
+  }
+}
+
+function addApolloLead(i) {
+  const p = (window._apolloResults||[])[i]; if (!p) return;
+  const nameParts = (p.name||'').split(' ');
+  const industryMap = {'financial services':'corporate','real estate':'realestate','construction':'construction','automotive':'automotive'};
+  const industry = document.getElementById('apollo-industry').value;
+  const lead = {
+    id: uid(), firstName: nameParts[0]||'', lastName: nameParts.slice(1).join(' ')||'',
+    company: p.organization_name||'', website: p.organization_website_url||'',
+    industry: industryMap[industry]||'corporate', channel: 'email',
+    contact: p.email||'', hunterEmail: p.email||'',
+    notes: p.title?'Title: '+p.title:'', researchNotes:'', companyDesc:'',
+    status:'new', reelId:'', monthlyValue:0, timeline:'[]',
+    contactedDate:null, followup1SentDate:null, followup2SentDate:null,
+    createdAt:new Date().toISOString(), updatedAt:new Date().toISOString()
+  };
+  leads.unshift(lead); save(); apiSaveLead(lead); updateNavBadge(); renderLeads();
+  toast('Added '+lead.firstName+' '+lead.lastName+' to pipeline.');
+}
+
 async function findLeads(industry) {
   if (!cfg.hunterKey) { toast('Add your Hunter.io API key in Settings first.'); showPage('settings'); return; }
   const companies = COMPANIES[industry];
@@ -889,6 +982,7 @@ function showPage(name,section,label){
   if(bcSection&&bcSep&&bcPage){if(section){bcSection.textContent=section;bcSep.style.display='';bcPage.textContent=label||name;}else{bcSection.textContent='';bcSep.style.display='none';bcPage.textContent=label||name;}}
   if(name==='dashboard') renderDashboard();
   if(name==='leads')     renderLeads();
+  if(name==='finder')    checkApolloStatus();
   if(name==='portfolio') renderPortfolio();
   if(name==='settings')  { loadSettings(); checkGmailStatus(); }
   if(name==='bookings')  { renderBookings(); syncBookings(); }
@@ -2313,7 +2407,7 @@ OSCAR'S BUSINESS:
 - Produces short-form social media video content (reels) for LinkedIn, Instagram and TikTok
 - Four verticals: Corporate/Finance, Real Estate, Construction, Automotive
 - Brand: strictly black and white, premium and professional
-- Based in Sydney, Australia
+- Based in Sydney, Australia. ONLY targets clients based in Sydney, NSW - never suggest or look up businesses based in other cities or states
 - Solo operator - Oscar films, edits and manages outreach himself
 - Retainer model: Tier 1 $4,000/mo, Tier 2 $4,500/mo, Tier 3 $6,000/mo (all inc. GST)
 - Contact: oscar@oscargreenmedia.com | instagram.com/oscargreenmedia
@@ -2740,7 +2834,7 @@ async function sendJarvis() {
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 1000,
-        system: 'You are Jarvis - a sharp, proactive AI business assistant for Oscar Green at Oscar Green Media. You have tools including web search, Hunter.io company lookup, and full pipeline management. Use tools proactively - if someone mentions a company, offer to look it up. If asked about news or current events, search the web. Write well: emails, captions, strategies, proposals. Be genuinely useful, not just reactive. Keep responses focused and actionable.',
+        system: 'You are Jarvis - a sharp, proactive AI business assistant for Oscar Green at Oscar Green Media. You have tools including web search, Hunter.io company lookup, and full pipeline management. Oscar only works with clients based in Sydney, NSW - when looking up companies or suggesting leads, only consider Sydney-based businesses, not national chains headquartered elsewhere or businesses in other cities. If a company is not Sydney-based, say so and ask if Oscar still wants to proceed. Use tools proactively - if someone mentions a company, offer to look it up. If asked about news or current events, search the web. Write well: emails, captions, strategies, proposals. Be genuinely useful, not just reactive. Keep responses focused and actionable.',
         tools: JARVIS_TOOLS,
         messages: validMessages
       })
