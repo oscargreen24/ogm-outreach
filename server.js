@@ -411,7 +411,7 @@ app.post('/api/hunter/discover', async (req, res) => {
 
     const body = {
       headquarters_location: {
-        include: [{ city: 'Sydney', state: 'New South Wales', country: 'Australia' }]
+        include: [{ city: 'Sydney', state: 'AU-NSW', country: 'AU' }]
       },
       limit: limit || 20
     };
@@ -538,7 +538,7 @@ async function discoverSydneyCompanies(industry, limit = 12) {
   try {
     const body = {
       headquarters_location: {
-        include: [{ city: 'Sydney', state: 'New South Wales', country: 'Australia' }]
+        include: [{ city: 'Sydney', state: 'AU-NSW', country: 'AU' }]
       },
       keywords: { include: [DISCOVER_KEYWORDS[industry]], match: 'any' },
       limit
