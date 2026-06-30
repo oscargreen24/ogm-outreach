@@ -297,6 +297,14 @@ app.get('/api/leads', async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// Diagnostic: see suburb distribution across all leads
+app.get('/api/leads/suburb-breakdown', async (req, res) => {
+  try {
+    const r = await query(`SELECT suburb, COUNT(*) as count FROM leads GROUP BY suburb ORDER BY count DESC`);
+    res.json({ breakdown: r.rows });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 app.post('/api/leads', requireWrite, async (req, res) => {
   try {
     const l = req.body;
