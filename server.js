@@ -209,6 +209,7 @@ app.use(requireAuth);
 const now = () => new Date().toISOString();
 const uid = () => crypto.randomBytes(8).toString('hex');
 const hunterKey = () => process.env.HUNTER_API_KEY || '';
+const apolloKey = () => process.env.APOLLO_API_KEY || '';
 
 // ── LOGIN ─────────────────────────────────────────────────────────────────────
 app.get('/login', (req, res) => {
@@ -402,6 +403,40 @@ app.get('/api/hunter/account', async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── APOLLO PROXY (location-filtered people search) ────────────────────────────
+app.post('/api/apollo/search', async (req, res) => {
+  try {
+    const key = apolloKey();
+    if (!key) return res.status(400).json({ error: 'Apollo API key not configured.' });
+    const { titles, industry, location, perPage } = req.body;
+
+    const body = {
+      person_titles: titles || [],
+      person_locations: location ? [location] : ['Sydney, New South Wales, Australia'],
+      page: 1,
+      per_page: perPage || 10,
+    };
+    if (industry) body.organization_industry_tag_ids = undefined; // Apollo uses keyword search instead
+    if (industry) body.q_keywords = industry;
+
+    const r = await fetch('https://api.apollo.io/v1/mixed_people/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Api-Key': key
+      },
+      body: JSON.stringify(body)
+    });
+    const d = await r.json();
+    if (d.error) return res.status(400).json({ error: d.error });
+    res.json(d);
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/apollo/status', (req, res) => {
+  res.json({ configured: !!apolloKey() });
+});
+
 // ── EMAIL ─────────────────────────────────────────────────────────────────────
 app.post('/api/send', requireWrite, async (req, res) => {
   try {
@@ -487,31 +522,31 @@ const COMPANIES = {
   corporate: [
     {name:'Barrenjoey',domain:'barrenjoey.com'},{name:'Pitcher Partners Sydney',domain:'pitcher.com.au'},
     {name:'Wilsons Advisory',domain:'wilsonsadvisory.com.au'},{name:'Prime Financial Group',domain:'primefinancial.com.au'},
-    {name:'Shaw and Partners',domain:'shaw.com.au'},{name:'Morgans Financial',domain:'morgans.com.au'},
-    {name:'Perpetual',domain:'perpetual.com.au'},{name:'Equity Trustees',domain:'eqt.com.au'},
+    {name:'Shaw and Partners',domain:'shaw.com.au'},{name:'Morgans Financial Sydney',domain:'morgans.com.au'},
     {name:'Clime Investment Management',domain:'clime.com.au'},{name:'FIIG Securities',domain:'fiig.com.au'},
-    {name:'Centennial Asset Management',domain:'centennial.com.au'},{name:'Macquarie Group',domain:'macquarie.com'},
+    {name:'Centennial Asset Management',domain:'centennial.com.au'},{name:'Evans and Partners Sydney',domain:'evansandpartners.com.au'},
+    {name:'Escala Partners',domain:'escalapartners.com.au'},{name:'Stanford Brown',domain:'stanfordbrown.com.au'},
   ],
   realestate: [
-    {name:'Ray White Sydney',domain:'raywhite.com'},{name:'McGrath Estate Agents',domain:'mcgrath.com.au'},
-    {name:'Belle Property',domain:'belleproperty.com'},{name:'LJ Hooker',domain:'ljhooker.com.au'},
-    {name:'Stone Real Estate',domain:'stonerealestategroup.com.au'},{name:'The Agency',domain:'theagency.com.au'},
-    {name:'Raine & Horne',domain:'raineandhorne.com.au'},{name:'Century 21',domain:'century21.com.au'},
-    {name:'Laing+Simmons',domain:'laingandsimmons.com.au'},{name:'Domain',domain:'domain.com.au'},
+    {name:'Ray White Double Bay',domain:'raywhitedoublebay.com.au'},{name:'McGrath Paddington',domain:'mcgrath.com.au'},
+    {name:'Belle Property Mosman',domain:'belleproperty.com'},{name:'Stone Real Estate Sydney',domain:'stonerealestategroup.com.au'},
+    {name:'The Agency Sydney',domain:'theagency.com.au'},{name:'Raine and Horne Newtown',domain:'raineandhorne.com.au'},
+    {name:'Laing+Simmons',domain:'laingandsimmons.com.au'},{name:'BresicWhitney',domain:'bresicwhitney.com.au'},
+    {name:'Ballard Property',domain:'ballardproperty.com.au'},{name:'PPD Real Estate',domain:'ppdgroup.com.au'},
   ],
   construction: [
-    {name:'Multiplex',domain:'multiplex.global'},{name:'Lendlease',domain:'lendlease.com'},
-    {name:'John Holland',domain:'johnholland.com.au'},{name:'Buildcorp',domain:'buildcorp.com.au'},
-    {name:'Hansen Yuncken',domain:'hansenyuncken.com.au'},{name:'Mirvac',domain:'mirvac.com'},
-    {name:'Richard Crookes Constructions',domain:'richardcrookes.com.au'},{name:'Probuild',domain:'probuild.com.au'},
-    {name:'Watpac',domain:'watpac.com.au'},{name:'Built',domain:'built.com.au'},
+    {name:'Buildcorp',domain:'buildcorp.com.au'},{name:'Hansen Yuncken NSW',domain:'hansenyuncken.com.au'},
+    {name:'Richard Crookes Constructions',domain:'richardcrookes.com.au'},{name:'Built NSW',domain:'built.com.au'},
+    {name:'FDC Construction Sydney',domain:'fdcbuilding.com.au'},{name:'Hutchinson Builders Sydney',domain:'hutchinsonbuilders.com.au'},
+    {name:'Roberts Co',domain:'robertsco.com.au'},{name:'Taylor Construction',domain:'taylorconstruction.com.au'},
+    {name:'Ganellen',domain:'ganellen.com.au'},{name:'Toga Group',domain:'toga.com.au'},
   ],
   automotive: [
-    {name:'Eagers Automotive',domain:'eagersautomotive.com.au'},{name:'Peter Warren Automotive',domain:'peterwarren.com.au'},
-    {name:'Trivett',domain:'trivett.com.au'},{name:'Dutton Garage',domain:'duttongarage.com.au'},
-    {name:'Autopact',domain:'autopact.com.au'},{name:'Inchcape Australia',domain:'inchcape.com.au'},
-    {name:'Melbourne City Motors',domain:'melbournecitymotors.com.au'},{name:'Giltrap Group',domain:'giltrap.co.nz'},
-    {name:'CMI Toyota',domain:'cmitoyota.com.au'},{name:'Ateco Automotive',domain:'ateco.com.au'},
+    {name:'Peter Warren Automotive',domain:'peterwarren.com.au'},{name:'Trivett',domain:'trivett.com.au'},
+    {name:'Dutton Garage Sydney',domain:'duttongarage.com.au'},{name:'Autopact',domain:'autopact.com.au'},
+    {name:'Sydney City Toyota',domain:'sydneycitytoyota.com.au'},{name:'Suttons Group',domain:'suttonsmotors.com.au'},
+    {name:'Lakeside Auto Group',domain:'lakeside.com.au'},{name:'Frasers Sydney',domain:'frasers.com.au'},
+    {name:'Zupps Sydney',domain:'zupps.com.au'},{name:'CMG Motor Group',domain:'cmgmotorgroup.com.au'},
   ],
 };
 
