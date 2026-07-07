@@ -1257,41 +1257,92 @@ app.post('/api/ideas/generate', async (req, res) => {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(400).json({ error: 'ANTHROPIC_API_KEY not set.' });
   try {
-    // Step 1: search for what's trending
-    const searchR = await fetch('https://api.anthropic.com/v1/messages', {
+    const headers = { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' };
+
+    // Run agentic web search loop until we get a final text response
+    let messages = [{
+      role: 'user',
+      content: 'Search for what short-form video content is currently trending on Instagram Reels and TikTok in 2025 for videographers and photographers. Look for trending formats, what gets high engagement, and what corporate/real estate/construction/automotive brands are posting that performs well.'
+    }];
+
+    let searchContext = '';
+    let loopCount = 0;
+
+    while (loopCount < 5) {
+      loopCount++;
+      const r = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 2000,
+          tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+          messages
+        })
+      });
+      const d = await r.json();
+
+      if (d.error) throw new Error(d.error.message || JSON.stringify(d.error));
+
+      // Add assistant response to messages
+      messages.push({ role: 'assistant', content: d.content });
+
+      if (d.stop_reason === 'end_turn') {
+        // Extract text from final response
+        searchContext = d.content.filter(b => b.type === 'text').map(b => b.text).join('\n');
+        break;
+      }
+
+      if (d.stop_reason === 'tool_use') {
+        // Process all tool use blocks and add results
+        const toolResults = d.content
+          .filter(b => b.type === 'tool_use')
+          .map(b => ({
+            type: 'tool_result',
+            tool_use_id: b.id,
+            content: 'Search completed. Results provided by web search tool.'
+          }));
+
+        // Also collect any text from this turn
+        const partialText = d.content.filter(b => b.type === 'text').map(b => b.text).join('\n');
+        if (partialText) searchContext += partialText + '\n';
+
+        messages.push({ role: 'user', content: toolResults });
+      } else {
+        // Unknown stop reason — extract whatever text we have
+        searchContext = d.content.filter(b => b.type === 'text').map(b => b.text).join('\n');
+        break;
+      }
+    }
+
+    if (!searchContext.trim()) searchContext = 'Focus on current trends: authentic BTS content, before/after reveals, POV shooting, time-lapses, client reaction videos, and educational gear/settings content.';
+
+    // Step 2: generate tailored ideas using the search context
+    const ideasR = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+      headers,
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 2000,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages: [{
           role: 'user',
-          content: 'Search for what short-form video content is currently trending on Instagram Reels and TikTok in 2025 for videographers and photographers. Look for: trending formats, what gets high engagement, what corporate/real estate/construction/automotive brands are posting that performs well. Search for "trending instagram reels videographer 2025" and "viral real estate video content 2025" and "corporate brand instagram reels trending".'
+          content: `Based on this research about what's currently trending on Instagram and TikTok:\n\n${searchContext}\n\nGenerate exactly 12 short-form video ideas for Oscar Green, a Sydney-based videographer and photographer who shoots for corporate/finance, real estate, construction, and automotive clients. Each idea must be filmable solo with professional gear and a gimbal/drone, based on what is actually trending and getting engagement right now.\n\nReturn ONLY a valid JSON array, no markdown fences, no explanation, no extra text. Each item must have exactly these fields: {"idea":"short punchy title under 30 chars","format":"format type","heat":"High or Medium","tags":["tag1","tag2"],"desc":"2 sentences: what to film and why it performs well"}`
         }]
       })
     });
-    const searchD = await searchR.json();
-    const searchContext = (searchD.content || []).map(b => b.type === 'text' ? b.text : '').filter(Boolean).join('\n');
 
-    // Step 2: use that context to generate tailored ideas
-    const ideasR = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1500,
-        messages: [{
-          role: 'user',
-          content: `Based on this research about what's currently trending on Instagram and TikTok:\n\n${searchContext}\n\nGenerate exactly 12 short-form video ideas for Oscar Green, a Sydney-based videographer and photographer who shoots for corporate/finance, real estate, construction, and automotive clients. Each idea must be:\n- Filmable solo with professional camera gear and a gimbal/drone\n- Based on what is ACTUALLY trending and getting engagement right now\n- Specific and actionable (not generic)\n- Varied across the 4 industries\n\nReturn ONLY a JSON array, no markdown, no explanation. Each item: {"idea":"short punchy title under 30 chars","format":"e.g. 60s reel / POV / before-after / talking head / timelapse","heat":"High|Medium","tags":["tag1","tag2"],"desc":"2 sentence description of what to film and why it performs well"}`
-        }]
-      })
-    });
     const ideasD = await ideasR.json();
-    const txt = (ideasD.content || []).map(b => b.type === 'text' ? b.text : '').filter(Boolean).join('');
-    const clean = txt.replace(/```json|```/g, '').trim();
-    const ideas = JSON.parse(clean);
+    if (ideasD.error) throw new Error(ideasD.error.message || JSON.stringify(ideasD.error));
+
+    let txt = (ideasD.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+    // Strip any markdown fences
+    txt = txt.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+    // Extract just the JSON array if there's surrounding text
+    const arrMatch = txt.match(/\[[\s\S]*\]/);
+    if (!arrMatch) throw new Error('No JSON array found in response');
+    const ideas = JSON.parse(arrMatch[0]);
     res.json({ ok: true, ideas });
+
   } catch(e) {
     console.error('[ideas] Error:', e.message);
     res.status(500).json({ error: e.message });
