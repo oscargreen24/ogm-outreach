@@ -2139,7 +2139,30 @@ const saveSaved = () => localStorage.setItem('ogm_saved_ideas', JSON.stringify(s
 
 let expandedIdeaIdx = null;
 
+function toggleSaveIdea(i) {
+  const r = REEL_IDEAS[i];
+  const existingIdx = savedIdeas.findIndex(s => s.idea === r.idea);
+  if (existingIdx >= 0) {
+    savedIdeas.splice(existingIdx, 1);
+    toast('Removed from saved ideas.');
+  } else {
+    savedIdeas.push({...r, savedAt: new Date().toISOString()});
+    toast('Saved for later.');
+  }
+  saveSaved();
+  // Re-render ideas and saved section only — do NOT touch calendar
+  expandedIdeaIdx = null;
+  renderIdeasGrid();
+  renderSavedIdeas();
+}
+
 function renderIdeasPage(){
+  renderIdeasGrid();
+  renderSavedIdeas();
+  renderIdeasCalendar();
+}
+
+function renderIdeasGrid(){
   const grid = document.getElementById('ideas-grid'); if(!grid) return;
   const heatColour = h => h==='High' ? '#052e16' : '#1c1007';
   const heatText   = h => h==='High' ? '#4ade80' : '#fbbf24';
@@ -2168,33 +2191,18 @@ function renderIdeasPage(){
       ` : ''}
     </div>`;
   }).join('');
-  renderSavedIdeas();
-  renderIdeasCalendar();
 }
 
 function toggleIdeaExpand(i) {
   expandedIdeaIdx = expandedIdeaIdx === i ? null : i;
-  renderIdeasPage();
-}
-
-function toggleSaveIdea(i) {
-  const r = REEL_IDEAS[i];
-  const existingIdx = savedIdeas.findIndex(s => s.idea === r.idea);
-  if (existingIdx >= 0) {
-    savedIdeas.splice(existingIdx, 1);
-    toast('Removed from saved ideas.');
-  } else {
-    savedIdeas.push({...r, savedAt: new Date().toISOString()});
-    toast('Saved for later.');
-  }
-  saveSaved();
-  renderIdeasPage();
+  renderIdeasGrid();
 }
 
 function removeSavedIdea(i) {
   savedIdeas.splice(i, 1);
   saveSaved();
-  renderIdeasPage();
+  renderSavedIdeas();
+  renderIdeasGrid();
 }
 
 function addSavedIdeaToCalendar(i) {
