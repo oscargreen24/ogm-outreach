@@ -95,6 +95,20 @@ async function setupSchema() {
       "createdAt" TEXT NOT NULL
     )
   `);
+  await query(`
+    CREATE TABLE IF NOT EXISTS draft_queue (
+      id TEXT PRIMARY KEY,
+      "leadId" TEXT NOT NULL,
+      touch INTEGER NOT NULL,
+      subject TEXT DEFAULT '',
+      body TEXT DEFAULT '',
+      channel TEXT DEFAULT 'email',
+      status TEXT DEFAULT 'pending',
+      "createdAt" TEXT NOT NULL,
+      "updatedAt" TEXT NOT NULL
+    )
+  `);
+  await query(`ALTER TABLE leads ADD COLUMN IF NOT EXISTS enriched BOOLEAN DEFAULT false`).catch(()=>{});
   console.log('[db] Schema ready.');
 }
 
@@ -690,6 +704,226 @@ app.get('/api/generate-leads/status', async (req, res) => {
 
 cron.schedule('0 21 * * *', () => { console.log('[cron] 7am Sydney'); generateLeads(); });
 cron.schedule('0 9 * * *',  () => { console.log('[cron] 7pm Sydney'); generateLeads(); });
+
+// ── AGENT 1: LEAD ENRICHMENT ──────────────────────────────────────────────────
+// Runs on new leads - searches web for company info and drops into research notes
+async function enrichNewLeads() {
+  const key = process.env.ANTHROPIC_API_KEY;
+  if (!key) return;
+  const res = await query(`SELECT id, "firstName", "lastName", company, website, industry FROM leads WHERE (enriched IS NULL OR enriched=false) AND company!='' LIMIT 10`);
+  if (!res.rows.length) return;
+  console.log(`[enrich] Enriching ${res.rows.length} leads...`);
+  for (const l of res.rows) {
+    try {
+      const r = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 300,
+          messages: [{ role: 'user', content: `In 2-3 sentences, write a brief factual summary of the company "${l.company}" based in Sydney, Australia (industry: ${l.industry}). Focus on what they do, their size/reputation, and anything notable. Be factual and concise. No fluff.` }]
+        })
+      });
+      const d = await r.json();
+      const summary = d.content?.[0]?.text?.trim() || '';
+      if (summary) {
+        await query(`UPDATE leads SET "researchNotes"=$1, enriched=true, "updatedAt"=$2 WHERE id=$3 AND ("researchNotes" IS NULL OR "researchNotes"='')`, [summary, now(), l.id]);
+        console.log(`[enrich] Enriched: ${l.firstName} ${l.lastName} at ${l.company}`);
+      } else {
+        await query(`UPDATE leads SET enriched=true WHERE id=$1`, [l.id]);
+      }
+      await new Promise(r => setTimeout(r, 1000));
+    } catch(e) { console.error(`[enrich] Error on ${l.company}:`, e.message); }
+  }
+}
+
+app.post('/api/agents/enrich', requireWrite, async (req, res) => {
+  try { await enrichNewLeads(); res.json({ ok: true }); }
+  catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── AGENT 2: FOLLOW-UP DRAFTER ────────────────────────────────────────────────
+// Auto-drafts follow-up emails for overdue leads and puts them in draft_queue
+async function draftFollowUps() {
+  const key = process.env.ANTHROPIC_API_KEY;
+  if (!key) return 0;
+
+  const res = await query(`SELECT * FROM leads WHERE status IN ('contacted','followup1_sent') ORDER BY "updatedAt" ASC`);
+  const allLeads = res.rows;
+  let drafted = 0;
+
+  for (const l of allLeads) {
+    // Check if overdue
+    let overdue = false;
+    let touch = 2;
+    if (l.status === 'contacted' && l.contactedDate) {
+      const days = Math.floor((Date.now() - new Date(l.contactedDate).getTime()) / 86400000);
+      if (days >= 5) { overdue = true; touch = 2; }
+    }
+    if (l.status === 'followup1_sent' && l.followup1SentDate) {
+      const days = Math.floor((Date.now() - new Date(l.followup1SentDate).getTime()) / 86400000);
+      if (days >= 5) { overdue = true; touch = 3; }
+    }
+    if (!overdue) continue;
+
+    // Check if already drafted
+    const existing = await query(`SELECT id FROM draft_queue WHERE "leadId"=$1 AND touch=$2 AND status='pending'`, [l.id, touch]);
+    if (existing.rowCount) continue;
+
+    // Draft with Claude
+    try {
+      const context = l.researchNotes ? `Company context: ${l.researchNotes}` : '';
+      const touchLabel = touch === 2 ? 'first follow-up' : 'second and final follow-up';
+      const r = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 400,
+          messages: [{ role: 'user', content: `Write a brief ${touchLabel} email from Oscar Green (Sydney videographer/photographer, 8+ years experience) to ${l.firstName} ${l.lastName} at ${l.company} (${l.industry} industry). ${context} Keep it to 3-4 sentences max. Reference Oscar's portfolio at www.oscargreenmedia.com. No em dashes. Sign off as Oscar Green, Oscar Green Media, oscar@oscargreenmedia.com. Return ONLY the email body, no subject line.` }]
+        })
+      });
+      const d = await r.json();
+      const body = d.content?.[0]?.text?.trim() || '';
+      if (!body) continue;
+
+      const subject = touch === 2 ? `Following up: ${l.company}` : `Last note: ${l.company}`;
+      const draftId = require('crypto').randomUUID().replace(/-/g,'').slice(0,16);
+      await query(`INSERT INTO draft_queue (id,"leadId",touch,subject,body,channel,status,"createdAt","updatedAt") VALUES ($1,$2,$3,$4,$5,$6,'pending',$7,$7)`,
+        [draftId, l.id, touch, subject, body, l.channel||'email', now()]);
+      drafted++;
+      console.log(`[drafter] Drafted touch ${touch} for ${l.firstName} ${l.lastName}`);
+      await new Promise(r => setTimeout(r, 800));
+    } catch(e) { console.error(`[drafter] Error:`, e.message); }
+  }
+  console.log(`[drafter] Created ${drafted} drafts.`);
+  return drafted;
+}
+
+app.post('/api/agents/draft-followups', requireWrite, async (req, res) => {
+  try { const drafted = await draftFollowUps(); res.json({ ok: true, drafted }); }
+  catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── DRAFT QUEUE ENDPOINTS ─────────────────────────────────────────────────────
+app.get('/api/drafts', async (req, res) => {
+  try {
+    const r = await query(`
+      SELECT d.*, l."firstName", l."lastName", l.company, l.industry, l.contact, l."hunterEmail"
+      FROM draft_queue d JOIN leads l ON d."leadId"=l.id
+      WHERE d.status='pending' ORDER BY d."createdAt" DESC
+    `);
+    res.json({ drafts: r.rows });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.put('/api/drafts/:id', requireWrite, async (req, res) => {
+  try {
+    const { subject, body } = req.body;
+    await query(`UPDATE draft_queue SET subject=$1,body=$2,"updatedAt"=$3 WHERE id=$4`, [subject,body,now(),req.params.id]);
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/drafts/:id/dismiss', requireWrite, async (req, res) => {
+  try {
+    await query(`UPDATE draft_queue SET status='dismissed',"updatedAt"=$1 WHERE id=$2`, [now(),req.params.id]);
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/drafts/:id/sent', requireWrite, async (req, res) => {
+  try {
+    const { touch } = req.body;
+    const draftRes = await query(`SELECT * FROM draft_queue WHERE id=$1`, [req.params.id]);
+    if (!draftRes.rowCount) return res.status(404).json({ error: 'Draft not found' });
+    const draft = draftRes.rows[0];
+    await query(`UPDATE draft_queue SET status='sent',"updatedAt"=$1 WHERE id=$2`, [now(),req.params.id]);
+    if (touch === 2) await query(`UPDATE leads SET status='followup1_sent',"followup1SentDate"=$1,"updatedAt"=$1 WHERE id=$2`, [now().slice(0,10),draft.leadId]);
+    if (touch === 3) await query(`UPDATE leads SET status='followup2_sent',"followup2SentDate"=$1,"updatedAt"=$1 WHERE id=$2`, [now().slice(0,10),draft.leadId]);
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── AGENT 3: DAILY DIGEST ─────────────────────────────────────────────────────
+// Runs every morning, generates a Jarvis briefing summary of what needs attention
+async function generateDailyDigest() {
+  const leadsRes = await query(`SELECT * FROM leads ORDER BY "createdAt" DESC`);
+  const allLeads = leadsRes.rows;
+  const draftsRes = await query(`SELECT COUNT(*) as n FROM draft_queue WHERE status='pending'`);
+  const pendingDrafts = parseInt(draftsRes.rows[0].n);
+
+  const overdue = allLeads.filter(l => {
+    if (['won','not_interested','followup2_sent','replied','meeting'].includes(l.status)) return false;
+    if (l.status === 'contacted' && l.contactedDate) {
+      return Math.floor((Date.now() - new Date(l.contactedDate).getTime()) / 86400000) >= 5;
+    }
+    if (l.status === 'followup1_sent' && l.followup1SentDate) {
+      return Math.floor((Date.now() - new Date(l.followup1SentDate).getTime()) / 86400000) >= 5;
+    }
+    return false;
+  });
+
+  const newLeads = allLeads.filter(l => {
+    const created = new Date(l.createdAt);
+    return (Date.now() - created.getTime()) < 24 * 3600000 && l.status === 'new';
+  });
+
+  const replied = allLeads.filter(l => l.status === 'replied');
+  const won = allLeads.filter(l => l.status === 'won');
+  const mrr = won.reduce((s,l) => s+(l.monthlyValue||0), 0);
+
+  const digest = {
+    date: new Date().toISOString(),
+    overdueCount: overdue.length,
+    overdueLeads: overdue.slice(0,5).map(l=>({id:l.id,name:`${l.firstName} ${l.lastName}`,company:l.company,status:l.status})),
+    newLeadsToday: newLeads.length,
+    pendingDrafts,
+    repliedLeads: replied.length,
+    mrr
+  };
+
+  await query(`INSERT INTO config (key,value) VALUES ('daily_digest',$1) ON CONFLICT (key) DO UPDATE SET value=$1`, [JSON.stringify(digest)]);
+  console.log(`[digest] Daily digest saved. ${overdue.length} overdue, ${pendingDrafts} drafts pending.`);
+  return digest;
+}
+
+app.get('/api/agents/digest', async (req, res) => {
+  try {
+    const r = await query(`SELECT value FROM config WHERE key='daily_digest'`);
+    if (!r.rowCount) return res.json({ digest: null });
+    res.json({ digest: JSON.parse(r.rows[0].value) });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/agents/run-all', requireWrite, async (req, res) => {
+  try {
+    const [digest, drafted] = await Promise.all([
+      generateDailyDigest(),
+      draftFollowUps(),
+    ]);
+    enrichNewLeads().catch(e => console.error('[enrich]', e.message));
+    res.json({ ok: true, digest, drafted });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// Cron: run all agents every morning at 7am Sydney (9pm UTC)
+cron.schedule('30 20 * * *', async () => {
+  console.log('[cron] Running morning agents...');
+  try {
+    await generateDailyDigest();
+    await draftFollowUps();
+    await enrichNewLeads();
+  } catch(e) { console.error('[cron] Agent error:', e.message); }
+});
+
+// Cron: enrich new leads every 2 hours
+cron.schedule('0 */2 * * *', async () => {
+  try { await enrichNewLeads(); }
+  catch(e) { console.error('[enrich] Cron error:', e.message); }
+});
+
+
 
 // ── MORNING BRIEF ─────────────────────────────────────────────────────────────
 async function sendMorningBrief() {
