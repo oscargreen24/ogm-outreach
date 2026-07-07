@@ -3228,13 +3228,17 @@ function renderCalendar() {
     const isCurrentMonth = dayNum >= 1 && dayNum <= lastDay.getDate();
     const date = isCurrentMonth ? new Date(calYear, calMonth, dayNum) : null;
     const isToday = date && date.toDateString() === today.toDateString();
+    const isPast = date && date < today && !isToday;
 
     const dayEvents = isCurrentMonth ? calEvents.filter(e => {
       const eStart = new Date(e.start?.dateTime || e.start?.date);
       return eStart.getFullYear() === calYear && eStart.getMonth() === calMonth && eStart.getDate() === dayNum;
     }) : [];
 
-    html += `<div onclick="${isCurrentMonth ? `openNewEventModalDate('${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}')` : ''}" style="min-height:90px;padding:8px 6px;border-right:1px solid #1a1a1a;border-bottom:1px solid #1a1a1a;${isCurrentMonth?'cursor:pointer;':'opacity:0.3;'}${isToday?'background:#111;':''}" onmouseover="if(${isCurrentMonth}&&!this.querySelector('.ev-item'))this.style.background='#0d0d0d'" onmouseout="this.style.background='${isToday?'#111':'transparent'}'">
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}`;
+    const clickable = isCurrentMonth && !isPast;
+
+    html += `<div onclick="${clickable ? `openNewEventModalDate('${dateStr}')` : ''}" style="min-height:90px;padding:8px 6px;border-right:1px solid #1a1a1a;border-bottom:1px solid #1a1a1a;${clickable?'cursor:pointer;':''}${!isCurrentMonth||isPast?'opacity:0.3;':''}${isToday?'background:#111;':''}" ${clickable?`onmouseover="this.style.background='#0d0d0d'" onmouseout="this.style.background='${isToday?'#111':'transparent'}'"`:''}>
       <div style="font-size:12px;font-weight:${isToday?'700':'400'};color:${isToday?'#fff':'#52525b'};margin-bottom:4px;${isToday?'background:#fff;color:#000;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;':''}">${isCurrentMonth?dayNum:''}</div>
       ${dayEvents.slice(0,3).map(e => {
         const title = e.summary || 'Untitled';
@@ -3281,7 +3285,9 @@ function showEventDetail(id, title) {
 
 function openNewEventModal() {
   const today = new Date().toISOString().slice(0,10);
-  document.getElementById('ev-date').value = today;
+  const dateEl = document.getElementById('ev-date');
+  dateEl.value = today;
+  dateEl.min = today;
   document.getElementById('ev-title').value = '';
   document.getElementById('ev-location').value = '';
   document.getElementById('ev-desc').value = '';
@@ -3290,7 +3296,10 @@ function openNewEventModal() {
 }
 
 function openNewEventModalDate(date) {
-  document.getElementById('ev-date').value = date;
+  const today = new Date().toISOString().slice(0,10);
+  const dateEl = document.getElementById('ev-date');
+  dateEl.value = date;
+  dateEl.min = today;
   document.getElementById('ev-title').value = '';
   document.getElementById('ev-location').value = '';
   document.getElementById('ev-desc').value = '';
