@@ -1283,7 +1283,7 @@ app.post('/api/ideas/generate', async (req, res) => {
         max_tokens: 1500,
         messages: [{
           role: 'user',
-          content: `Based on this research about what's currently trending on Instagram and TikTok:\n\n${searchContext}\n\nGenerate exactly 12 short-form video ideas for Oscar Green, a Sydney-based videographer and photographer who shoots for corporate/finance, real estate, construction, and automotive clients. Each idea must be:\n- Filmable solo with professional camera gear and a gimbal/drone\n- Based on what is ACTUALLY trending and getting engagement right now\n- Specific and actionable (not generic)\n- Varied across the 4 industries\n\nReturn ONLY a JSON array, no markdown, no explanation. Each item: {"idea":"specific idea title","format":"e.g. 60s reel / POV / before-after / talking head / timelapse","heat":"High|Medium","tags":["tag1","tag2"]}`
+          content: `Based on this research about what's currently trending on Instagram and TikTok:\n\n${searchContext}\n\nGenerate exactly 12 short-form video ideas for Oscar Green, a Sydney-based videographer and photographer who shoots for corporate/finance, real estate, construction, and automotive clients. Each idea must be:\n- Filmable solo with professional camera gear and a gimbal/drone\n- Based on what is ACTUALLY trending and getting engagement right now\n- Specific and actionable (not generic)\n- Varied across the 4 industries\n\nReturn ONLY a JSON array, no markdown, no explanation. Each item: {"idea":"short punchy title under 30 chars","format":"e.g. 60s reel / POV / before-after / talking head / timelapse","heat":"High|Medium","tags":["tag1","tag2"],"desc":"2 sentence description of what to film and why it performs well"}`
         }]
       })
     });
