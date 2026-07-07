@@ -2107,40 +2107,53 @@ function renderBookings() {
 
 // ── REEL IDEAS ────────────────────────────────────────────────────────────────
 const REEL_IDEAS = [
-  {idea:'Day in the life - videographer on set',format:'Vlog / BTS',heat:'High',tags:['BTS','Creator']},
-  {idea:'Before/after colour grade reveal',format:'Transition',heat:'High',tags:['Editing','Tutorial']},
-  {idea:'Gear bag walkthrough',format:'Educational',heat:'Medium',tags:['Gear','Creator']},
-  {idea:'POV: golden hour shoot in Sydney',format:'Aesthetic / POV',heat:'High',tags:['Cinematic','Sydney']},
-  {idea:'Client reaction - first reel delivery',format:'Testimonial',heat:'High',tags:['Client','Authentic']},
-  {idea:'30-second property listing reveal',format:'Real estate',heat:'High',tags:['Real estate','Business']},
-  {idea:'Time-lapse - construction site start to finish',format:'Time-lapse',heat:'Medium',tags:['Construction','Cinematic']},
-  {idea:'Porsche walk-around - golden hour',format:'Automotive',heat:'High',tags:['Automotive','Cinematic']},
-  {idea:'"What I charge vs what you get" breakdown',format:'Educational',heat:'High',tags:['Business','Creator']},
-  {idea:'Finance firm office ambience shoot',format:'Corporate BTS',heat:'Medium',tags:['Corporate','BTS']},
-  {idea:'Packing the car for a shoot - ASMR',format:'ASMR / Lifestyle',heat:'Medium',tags:['Creator','Lifestyle']},
-  {idea:'Camera settings I use for every shoot',format:'Tutorial',heat:'Medium',tags:['Tutorial','Gear']},
+  {idea:'Day in the life',format:'Vlog / BTS',heat:'High',tags:['BTS','Creator'],desc:'Follow a full shoot day from packing the car to delivery. Raw, authentic, shows your process. Performs well because it humanises the work.'},
+  {idea:'Before/after grade reveal',format:'Transition',heat:'High',tags:['Editing','Tutorial'],desc:'Side-by-side or wipe transition showing raw footage vs colour-graded final. Simple to make, consistently high engagement.'},
+  {idea:'Gear bag walkthrough',format:'Educational',heat:'Medium',tags:['Gear','Creator'],desc:'Pull everything out and explain what you use and why. Attracts other videographers and impresses clients with your kit.'},
+  {idea:'POV: golden hour in Sydney',format:'Aesthetic / POV',heat:'High',tags:['Cinematic','Sydney'],desc:'First-person perspective of setting up and shooting at a Sydney location at golden hour. Dreamy, shareable, great for reach.'},
+  {idea:'Client first reel reaction',format:'Testimonial',heat:'High',tags:['Client','Authentic'],desc:'Film the moment a client sees their finished reel for the first time. Genuine reactions are among the most shared content formats right now.'},
+  {idea:'30-sec property reveal',format:'Real estate',heat:'High',tags:['Real estate','Business'],desc:'Cinematic walkthrough of a property condensed to 30 seconds. Show the key rooms, natural light, and a money shot at the end.'},
+  {idea:'Construction site time-lapse',format:'Time-lapse',heat:'Medium',tags:['Construction','Cinematic'],desc:'Compress days or weeks of a build into 30-60 seconds. Set up a fixed camera and let it run. Builders love this for social proof.'},
+  {idea:'Porsche walk-around',format:'Automotive',heat:'High',tags:['Automotive','Cinematic'],desc:'Golden hour walk-around with gimbal. Low angles, reflections, slow motion. Tag the dealership and the brand for massive reach potential.'},
+  {idea:'What I charge breakdown',format:'Educational',heat:'High',tags:['Business','Creator'],desc:'Transparent breakdown of what a client gets for the price. Builds trust and attracts serious inquiries. One of the top-performing formats for service businesses.'},
+  {idea:'Corporate office ambience',format:'Corporate BTS',heat:'Medium',tags:['Corporate','BTS'],desc:'Slow, cinematic shots of a corporate office during a shoot day. Great for showing the calibre of clients you work with.'},
+  {idea:'Packing the car ASMR',format:'ASMR / Lifestyle',heat:'Medium',tags:['Creator','Lifestyle'],desc:'Satisfying flat-lay or overhead shot of packing camera gear. No talking needed — let the sounds do the work. Niche but loyal audience.'},
+  {idea:'Camera settings per shoot type',format:'Tutorial',heat:'Medium',tags:['Tutorial','Gear'],desc:'Quick breakdown of the settings you use for real estate vs automotive vs corporate. Educational, saves as a reference, gets saved and shared.'},
 ];
 
 let calendarItems = JSON.parse(localStorage.getItem('ogm_cal_items')||'[]');
 const saveCal = () => localStorage.setItem('ogm_cal_items', JSON.stringify(calendarItems));
 
+let expandedIdeaIdx = null;
+
 function renderIdeasPage(){
   const grid = document.getElementById('ideas-grid'); if(!grid) return;
   const heatColour = h => h==='High' ? '#052e16' : '#1c1007';
   const heatText   = h => h==='High' ? '#4ade80' : '#fbbf24';
-  grid.innerHTML = REEL_IDEAS.map((r,i) =>
-    '<div class="idea-card" style="cursor:pointer;" onclick="addIdeaToCalendar('+i+')" title="Click to add to calendar">' +
-      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">' +
-        '<div style="font-size:13px;font-weight:500;color:#e5e5e5;line-height:1.4;">'+esc(r.idea)+'</div>' +
-        '<span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px;background:'+heatColour(r.heat)+';color:'+heatText(r.heat)+';flex-shrink:0;">'+r.heat+'</span>' +
-      '</div>' +
-      '<div style="font-size:11px;color:#52525b;">'+esc(r.format)+'</div>' +
-      '<div style="display:flex;gap:5px;flex-wrap:wrap;">' +
-        r.tags.map(t=>'<span style="font-size:10px;background:#1a1a1a;border:1px solid #222;color:#52525b;padding:1px 6px;border-radius:4px;">'+esc(t)+'</span>').join('') +
-      '</div>' +
-    '</div>'
-  ).join('');
+  grid.innerHTML = REEL_IDEAS.map((r,i) => {
+    const isExpanded = expandedIdeaIdx === i;
+    const shortTitle = r.idea.length > 28 ? r.idea.slice(0,28)+'…' : r.idea;
+    return `<div class="idea-card" style="cursor:pointer;transition:border-color 0.15s;${isExpanded?'border-color:#3f3f46;grid-column:span 1;':''}" onclick="toggleIdeaExpand(${i})">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <div style="font-size:13px;font-weight:500;color:#e5e5e5;line-height:1.3;">${esc(isExpanded?r.idea:shortTitle)}</div>
+        <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px;background:${heatColour(r.heat)};color:${heatText(r.heat)};flex-shrink:0;">${r.heat}</span>
+      </div>
+      <div style="font-size:11px;color:#52525b;">${esc(r.format)}</div>
+      ${isExpanded ? `
+        <div style="font-size:12px;color:#a1a1aa;line-height:1.7;border-top:1px solid #1a1a1a;padding-top:10px;margin-top:2px;">${esc(r.desc||'')}</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;">
+          ${r.tags.map(t=>`<span style="font-size:10px;background:#1a1a1a;border:1px solid #222;color:#52525b;padding:1px 6px;border-radius:4px;">${esc(t)}</span>`).join('')}
+        </div>
+        <button onclick="event.stopPropagation();addIdeaToCalendar(${i})" style="background:#fff;color:#000;border:none;padding:8px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;width:100%;margin-top:2px;">+ Add to calendar</button>
+      ` : ''}
+    </div>`;
+  }).join('');
   renderIdeasCalendar();
+}
+
+function toggleIdeaExpand(i) {
+  expandedIdeaIdx = expandedIdeaIdx === i ? null : i;
+  renderIdeasPage();
 }
 
 function addIdeaToCalendar(idx){
