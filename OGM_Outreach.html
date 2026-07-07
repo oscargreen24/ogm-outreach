@@ -305,7 +305,7 @@
       <!-- Hunter Discover search -->
       <div style="background:#0f0f0f;border:1px solid #1a1a1a;border-radius:14px;padding:20px;margin-bottom:28px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-          <div style="font-size:14px;font-weight:600;">Discover companies — Sydney NSW only</div>
+          <div style="font-size:14px;font-weight:600;">Discover companies - Sydney NSW only</div>
           <span id="discover-status" style="font-size:11px;color:#52525b;"></span>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;">
@@ -1179,58 +1179,95 @@ function saveDetail(id){
 
 // TEMPLATES
 const SUBJECTS={
-  corporate:{1:'Short-form video content for [co]',2:'Following up: [co]',3:'Last note: [co]'},
+  corporate:{1:'Video content for [co]',2:'Following up: [co]',3:'Last note: [co]'},
   realestate:{1:'Video content for your listings and brand',2:'Following up: [co]',3:'Last one from me'},
   construction:{1:'Turning your projects into content',2:'Following up: [co]',3:'Last note from me'},
-  automotive:{1:'Short-form video content for [co]',2:'Following up: [co]',3:'Last message: [co]'},
+  automotive:{1:'Video content for [co]',2:'Following up: [co]',3:'Last message: [co]'},
 };
 const TMPLS={
   corporate:{
     email:{
-      1:"Hi [first],\n\nI came across [co] and wanted to reach out. [insight].\n\nMy name is Oscar. I am a Sydney-based videographer with over 8 years of experience producing short-form video content for corporate and financial services brands. I work with firms to deliver 8 to 10 reels per month, the kind that build genuine credibility with clients on LinkedIn and Instagram rather than just filling a feed.\n\nWould it be worth a quick chat to see if it could be a good fit?\n\n[signature]",
-      2:"Hi [first],\n\nJust following up on my last note. Here is a recent example of my work: [add reel link]. Happy to put together a brief tailored to [co] if that would be useful.\n\n[signature]",
+      1:"Hi [first],\n\nI am Oscar, a Sydney-based videographer and photographer with over 8 years of experience. I work with corporate and financial services brands to produce photo and video content that performs on social.\n\nYou can see my work at www.oscargreenmedia.com.\n\nWould it be worth a quick chat to see if it could be a good fit for [co]?\n\n[signature]",
+      2:"Hi [first],\n\nJust following up on my last note. Happy to put together a brief tailored to [co] if that would be useful.\n\nwww.oscargreenmedia.com\n\n[signature]",
       3:"Hi [first],\n\nLast one from me. Happy to reconnect whenever the timing is right.\n\n[signature]",
     },
     instagram:{
-      1:"Hey [first], [insight].\n\nI am a Sydney videographer with 8+ years experience creating short-form content for finance and corporate brands. Happy to share some examples if it is of interest.\n\nWorth a chat?",
-      2:"Hey [first], just following up. Here is a recent example: [add reel link]. Happy to chat if the timing works.",
+      1:"Hey [first],\n\nI am a Sydney videographer and photographer with 8+ years experience working with corporate and finance brands.\n\nYou can see my work at www.oscargreenmedia.com.\n\nWorth a chat?",
+      2:"Hey [first], following up on my last message. www.oscargreenmedia.com if you want to see my work. Happy to chat if the timing works.",
       3:"Hey [first], last one from me. Happy to reconnect whenever. [myname]",
     },
   },
   realestate:{
     email:{
-      1:"Hi [first],\n\nI noticed some of the properties you are marketing and wanted to reach out. [insight].\n\nI am Oscar, a Sydney-based videographer with over 8 years of experience working with real estate agents to produce listing videos and brand content that builds a following between sales. The goal is content that actually drives enquiry, not just looks good.\n\nIs this something you are looking to improve?\n\n[signature]",
-      2:"Hi [first],\n\nFollowing up on my last note. Here is a recent example of my work: [add reel link]. Happy to put something together for you on a trial basis.\n\n[signature]",
+      1:"Hi [first],\n\nI am Oscar, a Sydney-based videographer and photographer with over 8 years of experience. I work with real estate agents to produce listing videos and brand content that builds a profile and drives enquiry.\n\nYou can see my work at www.oscargreenmedia.com.\n\nIs this something you are looking to improve at [co]?\n\n[signature]",
+      2:"Hi [first],\n\nFollowing up on my last note. Happy to put something together for you if you would like to see what is possible.\n\nwww.oscargreenmedia.com\n\n[signature]",
       3:"Hi [first],\n\nLast one from me. Happy to reconnect whenever it makes sense.\n\n[signature]",
     },
     instagram:{
-      1:"Hey [first], [insight].\n\nI am a Sydney videographer with 8+ years experience creating listing content and short-form social for real estate agents. Happy to show you some examples if you are keen.\n\nWorth a chat?",
-      2:"Hey [first], following up on my last message. Here is a recent example: [add reel link]. Happy to chat if it is of interest.",
+      1:"Hey [first],\n\nI am a Sydney videographer and photographer with 8+ years experience creating listing and brand content for real estate agents.\n\nwww.oscargreenmedia.com if you want to see my work.\n\nWorth a chat?",
+      2:"Hey [first], following up on my last message. www.oscargreenmedia.com. Happy to chat if it is of interest.",
       3:"Hey [first], last one from me. Happy to reconnect whenever. [myname]",
     },
   },
   construction:{
     email:{
-      1:"Hi [first],\n\nI came across [co] and wanted to get in touch. [insight].\n\nI am Oscar, a Sydney-based videographer with over 8 years of experience documenting construction projects. I work with builders to produce time-lapses, before and afters, site progress reels and project reveals. Content that shows clients exactly what you are capable of before they even pick up the phone.\n\nIs this something you are currently doing?\n\n[signature]",
-      2:"Hi [first],\n\nQuick follow-up on my last note. Here is a short example of my work: [add reel link]. Happy to walk you through how it could work for [co].\n\n[signature]",
+      1:"Hi [first],\n\nI am Oscar, a Sydney-based videographer and photographer with over 8 years of experience. I work with builders and construction companies to document their projects - time-lapses, before and afters, site progress and project reveals.\n\nYou can see my work at www.oscargreenmedia.com.\n\nIs this something [co] is currently doing?\n\n[signature]",
+      2:"Hi [first],\n\nFollowing up on my last note. Happy to walk you through what would be possible for [co].\n\nwww.oscargreenmedia.com\n\n[signature]",
       3:"Hi [first],\n\nLast one from me. If there is a project coming up where this could be useful, happy to reconnect.\n\n[signature]",
     },
     instagram:{
-      1:"Hey [first], [insight].\n\nI am a Sydney videographer with 8+ years experience documenting construction projects. Time-lapses, reveals, before and afters. Content that turns your builds into new leads.\n\nWorth a chat?",
-      2:"Hey [first], following up on my last message. Here is a recent example: [add reel link]. Happy to chat if it is of interest.",
+      1:"Hey [first],\n\nI am a Sydney videographer and photographer with 8+ years experience documenting construction projects. Time-lapses, reveals, before and afters.\n\nwww.oscargreenmedia.com if you want to see my work.\n\nWorth a chat?",
+      2:"Hey [first], following up on my last message. www.oscargreenmedia.com. Happy to chat if it is of interest.",
       3:"Hey [first], last one from me. Happy to reconnect whenever. [myname]",
     },
   },
   automotive:{
     email:{
-      1:"Hi [first],\n\nI have been following [co] and wanted to reach out. [insight].\n\nI am Oscar, a Sydney-based videographer with over 8 years of experience producing automotive video content for dealerships. Walk-arounds, delivery moments, lifestyle content. The kind that moves inventory and builds a brand people actually follow.\n\nWould you be open to a quick call?\n\n[signature]",
-      2:"Hi [first],\n\nFollowing up on my last note. Here is a recent example of my work: [add reel link]. Happy to put something together for your team.\n\n[signature]",
+      1:"Hi [first],\n\nI am Oscar, a Sydney-based videographer and photographer with over 8 years of experience. I work with dealerships to produce walk-arounds, delivery moments and lifestyle content that moves inventory and builds a brand worth following.\n\nYou can see my work at www.oscargreenmedia.com.\n\nWould you be open to a quick call?\n\n[signature]",
+      2:"Hi [first],\n\nFollowing up on my last note. Happy to put something together for [co] if you would like to see what is possible.\n\nwww.oscargreenmedia.com\n\n[signature]",
       3:"Hi [first],\n\nLast message from me. Happy to reconnect whenever the timing suits.\n\n[signature]",
     },
     instagram:{
-      1:"Hey [first], [insight].\n\nI am a Sydney videographer with 8+ years experience creating automotive content. Walk-arounds, delivery moments, lifestyle reels. Stuff that makes cars sell and builds the brand.\n\nWorth a chat?",
-      2:"Hey [first], following up on my last message. Here is a recent example: [add reel link]. Happy to chat.",
+      1:"Hey [first],\n\nI am a Sydney videographer and photographer with 8+ years experience creating automotive content. Walk-arounds, delivery moments, lifestyle reels.\n\nwww.oscargreenmedia.com if you want to see my work.\n\nWorth a chat?",
+      2:"Hey [first], following up on my last message. www.oscargreenmedia.com. Happy to chat.",
       3:"Hey [first], last one from me. Happy to reconnect whenever. [myname]",
+    },
+  },
+};
+
+const SUBJECTS_B={
+  corporate:{1:'Quick question about [co]',2:'One more thought: [co]',3:'Last note: [co]'},
+  realestate:{1:'Video content for your listings and brand',2:'Following up on the video idea',3:'Last one from me'},
+  construction:{1:'Documenting [co] projects',2:'Following up on the content idea',3:'Last note from me'},
+  automotive:{1:'Short-form video for [co]',2:'Following up: [co]',3:'Last message from me'},
+};
+const TMPLS_B={
+  corporate:{
+    email:{
+      1:"Hi [first],\n\nQuick question - is [co] producing regular photo or video content at the moment?\n\nI am Oscar, a Sydney-based videographer and photographer with over 8 years of experience working with corporate and financial services brands.\n\nYou can see my work at www.oscargreenmedia.com.\n\nWould you be open to a 10-minute call?\n\n[signature]",
+      2:"Hi [first],\n\nFollowing up from last week. Happy to put a brief together specifically for [co] if that would be useful.\n\nwww.oscargreenmedia.com\n\n[signature]",
+      3:"Hi [first],\n\nLast message from me. Happy to reconnect whenever the timing suits.\n\n[signature]",
+    },
+  },
+  realestate:{
+    email:{
+      1:"Hi [first],\n\nI am Oscar, a Sydney-based videographer and photographer with over 8 years of experience producing listing videos and brand content for real estate agents.\n\nYou can see my work at www.oscargreenmedia.com.\n\nWorth a quick chat?\n\n[signature]",
+      2:"Hi [first],\n\nFollowing up on my last note. Happy to organise something for [co] if you would like to see what is possible.\n\nwww.oscargreenmedia.com\n\n[signature]",
+      3:"Hi [first],\n\nLast one from me. Happy to chat whenever the timing is right.\n\n[signature]",
+    },
+  },
+  construction:{
+    email:{
+      1:"Hi [first],\n\nI am Oscar, a Sydney-based videographer and photographer with over 8 years of experience documenting construction projects. Time-lapses, project reveals, before and afters.\n\nYou can see my work at www.oscargreenmedia.com.\n\nWorth a call?\n\n[signature]",
+      2:"Hi [first],\n\nFollowing up on my last note. Happy to walk you through what would be possible for [co].\n\nwww.oscargreenmedia.com\n\n[signature]",
+      3:"Hi [first],\n\nLast one. If there is a project coming up, happy to reconnect.\n\n[signature]",
+    },
+  },
+  automotive:{
+    email:{
+      1:"Hi [first],\n\nI am Oscar, a Sydney-based videographer and photographer with over 8 years of experience producing content for dealerships. Walk-arounds, delivery moments, lifestyle reels.\n\nYou can see my work at www.oscargreenmedia.com.\n\nOpen to a quick call?\n\n[signature]",
+      2:"Hi [first],\n\nFollowing up on my last note. Happy to chat whenever suits.\n\nwww.oscargreenmedia.com\n\n[signature]",
+      3:"Hi [first],\n\nLast message from me. Happy to reconnect whenever.\n\n[signature]",
     },
   },
 };
@@ -1697,42 +1734,7 @@ function markReply(id){
 
 // ── A/B TEMPLATES ─────────────────────────────────────────────────────────────
 // Variant B templates - alternate subject lines and openers
-const SUBJECTS_B={
-  corporate:{1:'Quick question about [co]',2:'One more thought: [co]',3:'Last note: [co]'},
-  realestate:{1:'Video content for your listings and brand',2:'Following up on the video idea',3:'Last one from me'},
-  construction:{1:'Documenting [co] projects',2:'Following up on the content idea',3:'Last note from me'},
-  automotive:{1:'Short-form video for [co]',2:'Following up: [co]',3:'Last message from me'},
-};
-const TMPLS_B={
-  corporate:{
-    email:{
-      1:"Hi [first],\n\nQuick question - is [co] producing regular short-form video content at the moment?\n\nI am Oscar, a Sydney-based videographer with over 8 years of experience. I partner with financial services firms to produce 8 to 10 reels per month. The kind that builds genuine trust with clients on LinkedIn rather than just filling a content calendar.\n\nWould you be open to a 10-minute call?\n\n[signature]",
-      2:"Hi [first],\n\nFollowing up from last week. Here is an example of the work I produce: [add reel link]. Happy to put a brief together specifically for [co] if that would be useful.\n\n[signature]",
-      3:"Hi [first],\n\nLast message from me. Happy to reconnect whenever the timing suits.\n\n[signature]",
-    },
-  },
-  realestate:{
-    email:{
-      1:"Hi [first],\n\nI noticed [co] online. [insight].\n\nI am Oscar, a Sydney-based videographer with over 8 years of experience. I produce listing videos and brand content for agents that builds a profile between campaigns, not just during them.\n\nWorth a quick chat?\n\n[signature]",
-      2:"Hi [first],\n\nFollowing up on my last note. Here is a recent example of my work: [add reel link]. Happy to organise a trial shoot if you would like to see what is possible.\n\n[signature]",
-      3:"Hi [first],\n\nLast one from me. Happy to chat whenever the timing is right.\n\n[signature]",
-    },
-  },
-  construction:{
-    email:{
-      1:"Hi [first],\n\nI have been following [co]. [insight].\n\nI am Oscar, a Sydney-based videographer with over 8 years of experience documenting construction projects. Time-lapses, project reveals, before and afters. Content that wins you the next job before you even tender.\n\nWorth a call?\n\n[signature]",
-      2:"Hi [first],\n\nFollowing up on my last note. Here is a recent example of my work: [add reel link]. Happy to walk you through what would be possible for [co].\n\n[signature]",
-      3:"Hi [first],\n\nLast one. If there is a project coming up, happy to reconnect.\n\n[signature]",
-    },
-  },
-  automotive:{
-    email:{
-      1:"Hi [first],\n\nI have been following [co] and wanted to reach out. [insight].\n\nI am Oscar, a Sydney-based videographer with over 8 years of experience producing automotive content for dealerships. Walk-arounds, delivery moments, lifestyle reels. Content that moves cars and builds a brand worth following.\n\nOpen to a quick call?\n\n[signature]",
-      2:"Hi [first],\n\nFollowing up on my last note. Here is a recent example of my work: [add reel link]. Happy to chat whenever suits.\n\n[signature]",
-      3:"Hi [first],\n\nLast message from me. Happy to reconnect whenever.\n\n[signature]",
-    },
-  },
-};
+
 // Track which variant each lead uses (A if even id char, B if odd - simple 50/50 split)
 function getVariant(l){return (parseInt(l.id.charCodeAt(0),36)%2===0)?'A':'B';}
 function buildMsgAB(l,touch){
