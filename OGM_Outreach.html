@@ -644,11 +644,21 @@
     <div id="page-ideas" class="page" style="padding:32px 36px;">
       <div class="page-header" style="margin-bottom:28px;">
         <div style="display:flex;align-items:center;justify-content:space-between;">
-          <div><div class="page-title">Reel ideas</div><div class="page-sub">Viral formats you can shoot with your own footage. Click a card to add it to your calendar.</div></div>
+          <div><div class="page-title">Reel ideas</div><div class="page-sub">Click a card to expand, save for later or add to your calendar.</div></div>
           <button onclick="generateMoreIdeas()" style="background:#fff;color:#000;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">⚡ Refresh from trends</button>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;" id="ideas-grid"></div>
+
+      <!-- Saved ideas -->
+      <div id="saved-ideas-section" style="margin-bottom:24px;display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div style="font-size:13px;font-weight:600;color:#e5e5e5;">Saved for later <span id="saved-badge" style="font-size:11px;background:#1a1a1a;border:1px solid #333;color:#818cf8;padding:2px 8px;border-radius:999px;margin-left:6px;"></span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;" id="saved-ideas-grid"></div>
+      </div>
+
+      <!-- Calendar -->
       <div style="background:#0f0f0f;border:1px solid #1a1a1a;border-radius:12px;padding:20px;">
         <div style="font-size:13px;font-weight:600;margin-bottom:14px;color:#e5e5e5;">Your content calendar</div>
         <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;" id="ideas-calendar"></div>
@@ -2124,6 +2134,9 @@ const REEL_IDEAS = [
 let calendarItems = JSON.parse(localStorage.getItem('ogm_cal_items')||'[]');
 const saveCal = () => localStorage.setItem('ogm_cal_items', JSON.stringify(calendarItems));
 
+let savedIdeas = JSON.parse(localStorage.getItem('ogm_saved_ideas')||'[]');
+const saveSaved = () => localStorage.setItem('ogm_saved_ideas', JSON.stringify(savedIdeas));
+
 let expandedIdeaIdx = null;
 
 function renderIdeasPage(){
@@ -2132,11 +2145,15 @@ function renderIdeasPage(){
   const heatText   = h => h==='High' ? '#4ade80' : '#fbbf24';
   grid.innerHTML = REEL_IDEAS.map((r,i) => {
     const isExpanded = expandedIdeaIdx === i;
+    const isSaved = savedIdeas.some(s => s.idea === r.idea);
     const shortTitle = r.idea.length > 28 ? r.idea.slice(0,28)+'…' : r.idea;
-    return `<div class="idea-card" style="cursor:pointer;transition:border-color 0.15s;${isExpanded?'border-color:#3f3f46;grid-column:span 1;':''}" onclick="toggleIdeaExpand(${i})">
+    return `<div class="idea-card" style="cursor:pointer;transition:border-color 0.15s;${isExpanded?'border-color:#3f3f46;':''}" onclick="toggleIdeaExpand(${i})">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
         <div style="font-size:13px;font-weight:500;color:#e5e5e5;line-height:1.3;">${esc(isExpanded?r.idea:shortTitle)}</div>
-        <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px;background:${heatColour(r.heat)};color:${heatText(r.heat)};flex-shrink:0;">${r.heat}</span>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+          ${isSaved?'<span style="font-size:10px;color:#818cf8;">saved</span>':''}
+          <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px;background:${heatColour(r.heat)};color:${heatText(r.heat)};">${r.heat}</span>
+        </div>
       </div>
       <div style="font-size:11px;color:#52525b;">${esc(r.format)}</div>
       ${isExpanded ? `
@@ -2144,16 +2161,100 @@ function renderIdeasPage(){
         <div style="display:flex;gap:5px;flex-wrap:wrap;">
           ${r.tags.map(t=>`<span style="font-size:10px;background:#1a1a1a;border:1px solid #222;color:#52525b;padding:1px 6px;border-radius:4px;">${esc(t)}</span>`).join('')}
         </div>
-        <button onclick="event.stopPropagation();addIdeaToCalendar(${i})" style="background:#fff;color:#000;border:none;padding:8px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;width:100%;margin-top:2px;">+ Add to calendar</button>
+        <div style="display:flex;gap:8px;margin-top:2px;">
+          <button onclick="event.stopPropagation();toggleSaveIdea(${i})" style="flex:1;background:#1a1a1a;border:1px solid #333;color:${isSaved?'#818cf8':'#a1a1aa'};padding:8px 14px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;">${isSaved?'✓ Saved':'Save for later'}</button>
+          <button onclick="event.stopPropagation();addIdeaToCalendar(${i})" style="flex:1;background:#fff;color:#000;border:none;padding:8px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">+ Add to calendar</button>
+        </div>
       ` : ''}
     </div>`;
   }).join('');
+  renderSavedIdeas();
   renderIdeasCalendar();
 }
 
 function toggleIdeaExpand(i) {
   expandedIdeaIdx = expandedIdeaIdx === i ? null : i;
   renderIdeasPage();
+}
+
+function toggleSaveIdea(i) {
+  const r = REEL_IDEAS[i];
+  const existingIdx = savedIdeas.findIndex(s => s.idea === r.idea);
+  if (existingIdx >= 0) {
+    savedIdeas.splice(existingIdx, 1);
+    toast('Removed from saved ideas.');
+  } else {
+    savedIdeas.push({...r, savedAt: new Date().toISOString()});
+    toast('Saved for later.');
+  }
+  saveSaved();
+  renderIdeasPage();
+}
+
+function removeSavedIdea(i) {
+  savedIdeas.splice(i, 1);
+  saveSaved();
+  renderIdeasPage();
+}
+
+function addSavedIdeaToCalendar(i) {
+  const r = savedIdeas[i];
+  // Find index in REEL_IDEAS or use the saved data directly
+  const idx = REEL_IDEAS.findIndex(x => x.idea === r.idea);
+  if (idx >= 0) {
+    addIdeaToCalendar(idx);
+  } else {
+    // Not in current list — add directly
+    const today = new Date();
+    const todayDow = (today.getDay()+6)%7;
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - todayDow);
+    let slot = todayDow;
+    let eventDate = new Date(startOfWeek);
+    eventDate.setDate(startOfWeek.getDate() + slot);
+    const used = calendarItems.map(c=>c.date);
+    while(used.includes(eventDate.toISOString().slice(0,10)) && slot < 14) {
+      slot++; eventDate = new Date(startOfWeek); eventDate.setDate(startOfWeek.getDate()+slot);
+    }
+    const dateStr = eventDate.toISOString().slice(0,10);
+    calendarItems.push({idea:r.idea, format:r.format, date:dateStr, addedAt:new Date().toISOString()});
+    saveCal();
+    fetch(API+'/api/calendar/events', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({summary:r.idea, description:'Format: '+r.format+'\nFrom OGM Reel Ideas.', start:{date:dateStr}, end:{date:dateStr}})
+    }).then(()=>toast('Added to calendar and Google Calendar.')).catch(()=>toast('Added to calendar.'));
+    renderIdeasCalendar();
+  }
+}
+
+function renderSavedIdeas() {
+  const section = document.getElementById('saved-ideas-section');
+  const grid = document.getElementById('saved-ideas-grid');
+  const badge = document.getElementById('saved-badge');
+  if (!section || !grid) return;
+
+  if (badge) badge.textContent = savedIdeas.length;
+
+  if (!savedIdeas.length) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+
+  const heatColour = h => h==='High' ? '#052e16' : '#1c1007';
+  const heatText   = h => h==='High' ? '#4ade80' : '#fbbf24';
+
+  grid.innerHTML = savedIdeas.map((r,i) => `
+    <div class="idea-card" style="border-color:#1a1a2e;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+        <div style="font-size:13px;font-weight:500;color:#e5e5e5;line-height:1.3;">${esc(r.idea)}</div>
+        <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px;background:${heatColour(r.heat)};color:${heatText(r.heat)};flex-shrink:0;">${r.heat}</span>
+      </div>
+      <div style="font-size:11px;color:#52525b;">${esc(r.format)}</div>
+      ${r.desc ? `<div style="font-size:11px;color:#71717a;line-height:1.6;">${esc(r.desc)}</div>` : ''}
+      <div style="display:flex;gap:8px;margin-top:4px;">
+        <button onclick="removeSavedIdea(${i})" style="flex:1;background:#1a1a1a;border:1px solid #333;color:#71717a;padding:7px 10px;border-radius:7px;font-size:11px;cursor:pointer;">Remove</button>
+        <button onclick="addSavedIdeaToCalendar(${i})" style="flex:2;background:#fff;color:#000;border:none;padding:7px 10px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;">+ Add to calendar</button>
+      </div>
+    </div>
+  `).join('');
 }
 
 function addIdeaToCalendar(idx){
