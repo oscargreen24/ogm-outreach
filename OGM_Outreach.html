@@ -199,6 +199,10 @@
 
   </div>
   <div style="padding:8px 8px 10px;border-top:1px solid #1a1a1a;">
+    <div class="nav-item" id="nav-agents" onclick="showPage('agents','','Agents')">
+      <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" stroke-width="2"/><path stroke-width="2" stroke-linecap="round" d="M8 21h8M12 17v4"/><circle cx="8.5" cy="10" r="1.5" fill="currentColor" stroke="none"/><circle cx="15.5" cy="10" r="1.5" fill="currentColor" stroke="none"/><path stroke-width="1.5" stroke-linecap="round" d="M9.5 13s1-1 2.5-1 2.5 1 2.5 1"/></svg>
+      Agents
+    </div>
     <div class="nav-item" id="nav-settings" onclick="showPage('settings','','Settings')">
       <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke-width="2"/><path stroke-width="2" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
       Settings
@@ -368,6 +372,43 @@
           <p style="color:#52525b;font-size:12px;margin-top:6px;">Hunter.io may not have data for these domains yet. Try a different industry or add leads manually.</p>
         </div>
       </div>
+    </div>
+
+    <!-- AGENTS -->
+    <div id="page-agents" class="page" style="padding:32px 36px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div><div class="page-title">Agents</div><div class="page-sub">Running automatically in the background. You review and approve — nothing sends without you.</div></div>
+        <button onclick="runAllAgents()" id="agents-run-btn" style="background:#fff;color:#000;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Run all now</button>
+      </div>
+
+      <!-- Agent status cards -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:24px;margin-bottom:28px;">
+        <div style="background:#0f0f0f;border:1px solid #1a1a1a;border-radius:12px;padding:18px;">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#52525b;margin-bottom:10px;">Reply scanner</div>
+          <div style="font-size:13px;font-weight:600;color:#4ade80;">Active</div>
+          <div style="font-size:11px;color:#52525b;margin-top:4px;">Scans Gmail hourly. Updates lead status automatically when a reply comes in.</div>
+        </div>
+        <div style="background:#0f0f0f;border:1px solid #1a1a1a;border-radius:12px;padding:18px;">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#52525b;margin-bottom:10px;">Lead enrichment</div>
+          <div style="font-size:13px;font-weight:600;color:#4ade80;" id="enrich-status">Active</div>
+          <div style="font-size:11px;color:#52525b;margin-top:4px;">Runs every 2 hours. Auto-fills research notes for new leads using AI.</div>
+        </div>
+        <div style="background:#0f0f0f;border:1px solid #1a1a1a;border-radius:12px;padding:18px;">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#52525b;margin-bottom:10px;">Follow-up drafter</div>
+          <div style="font-size:13px;font-weight:600;color:#4ade80;" id="drafter-status">Active</div>
+          <div style="font-size:11px;color:#52525b;margin-top:4px;">Runs every morning. Drafts follow-ups for overdue leads. You approve before sending.</div>
+        </div>
+      </div>
+
+      <!-- Daily digest -->
+      <div style="background:#0f0f0f;border:1px solid #1a1a1a;border-radius:12px;padding:20px;margin-bottom:24px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:14px;">Today's digest</div>
+        <div id="digest-content" style="font-size:13px;color:#52525b;">Loading...</div>
+      </div>
+
+      <!-- Draft queue -->
+      <div style="font-size:14px;font-weight:600;margin-bottom:12px;">Draft queue <span id="draft-badge" style="font-size:11px;background:#1a1a1a;border:1px solid #333;color:#fbbf24;padding:2px 8px;border-radius:999px;margin-left:6px;"></span></div>
+      <div id="draft-queue-list" style="display:flex;flex-direction:column;gap:8px;"></div>
     </div>
 
     <!-- SETTINGS -->
@@ -1012,7 +1053,7 @@ function showPage(name,section,label){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.querySelectorAll('.nav-sub-item').forEach(n=>n.classList.remove('active'));
   const pg=document.getElementById('page-'+name);if(pg)pg.classList.add('active');
-  const navMap={dashboard:'nav-dashboard',leads:'nav-leads',finder:'nav-leads',ab:'nav-leads',bulk:'nav-leads',funnel:'nav-leads',competitors:'nav-competitors',bookings:'nav-bookings',calendar:'nav-calendar',proposals:'nav-proposals',revenue:'nav-revenue',portfolio:'nav-portfolio',ideas:'nav-ideas',settings:'nav-settings'};
+  const navMap={dashboard:'nav-dashboard',leads:'nav-leads',finder:'nav-leads',ab:'nav-leads',bulk:'nav-leads',funnel:'nav-leads',competitors:'nav-competitors',bookings:'nav-bookings',calendar:'nav-calendar',proposals:'nav-proposals',revenue:'nav-revenue',portfolio:'nav-portfolio',ideas:'nav-ideas',agents:'nav-agents',settings:'nav-settings'};
   const an=document.getElementById(navMap[name]);if(an)an.classList.add('active');
   const subMap={leads:'nav-leads-sub',finder:'nav-finder-sub',ab:'nav-ab-sub',bulk:'nav-bulk-sub',funnel:'nav-funnel-sub'};
   if(subMap[name]){const s=document.getElementById(subMap[name]);if(s)s.classList.add('active');}
@@ -1025,6 +1066,7 @@ function showPage(name,section,label){
   if(name==='finder')    {}
   if(name==='portfolio') renderPortfolio();
   if(name==='settings')  { loadSettings(); checkGmailStatus(); }
+  if(name==='agents')    renderAgentsPage();
   if(name==='bookings')  { renderBookings(); syncBookings(); }
   if(name==='calendar')  { loadCalendarEvents(); }
   if(name==='revenue')   renderRevenue();
@@ -2584,6 +2626,124 @@ async function scanGmailReplies() {
 
 async function connectGmail() {
   window.location.href = API + '/api/gmail/auth';
+}
+
+// ── AGENTS PAGE ───────────────────────────────────────────────────────────────
+async function renderAgentsPage() {
+  loadDigest();
+  loadDraftQueue();
+}
+
+async function loadDigest() {
+  const el = document.getElementById('digest-content');
+  if (!el) return;
+  try {
+    const r = await fetch(API + '/api/agents/digest');
+    const d = await r.json();
+    if (!d.digest) {
+      el.innerHTML = '<span style="color:#52525b;">No digest yet. Click "Run all now" to generate one.</span>';
+      return;
+    }
+    const dg = d.digest;
+    const date = new Date(dg.date).toLocaleDateString('en-AU', {weekday:'long',day:'numeric',month:'long'});
+    el.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">
+        <div style="background:#111;border-radius:8px;padding:12px;"><div style="font-size:20px;font-weight:700;color:${dg.overdueCount>0?'#fbbf24':'#4ade80'};">${dg.overdueCount}</div><div style="font-size:10px;color:#52525b;margin-top:2px;">Overdue follow-ups</div></div>
+        <div style="background:#111;border-radius:8px;padding:12px;"><div style="font-size:20px;font-weight:700;color:#818cf8;">${dg.pendingDrafts}</div><div style="font-size:10px;color:#52525b;margin-top:2px;">Drafts awaiting approval</div></div>
+        <div style="background:#111;border-radius:8px;padding:12px;"><div style="font-size:20px;font-weight:700;color:#60a5fa;">${dg.newLeadsToday}</div><div style="font-size:10px;color:#52525b;margin-top:2px;">New leads today</div></div>
+        <div style="background:#111;border-radius:8px;padding:12px;"><div style="font-size:20px;font-weight:700;color:#4ade80;">$${(dg.mrr||0).toLocaleString('en-AU')}</div><div style="font-size:10px;color:#52525b;margin-top:2px;">Current MRR</div></div>
+      </div>
+      ${dg.overdueLeads&&dg.overdueLeads.length ? `<div style="font-size:11px;color:#52525b;margin-bottom:8px;">Overdue follow-ups:</div>${dg.overdueLeads.map(l=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #1a1a1a;"><div><span style="font-size:13px;">${esc(l.name)}</span> <span style="font-size:11px;color:#52525b;">at ${esc(l.company)}</span></div><button onclick="showPage('leads')" style="font-size:11px;color:#a1a1aa;background:none;border:1px solid #333;padding:3px 10px;border-radius:6px;cursor:pointer;">View</button></div>`).join('')}` : '<div style="color:#4ade80;font-size:13px;">No overdue follow-ups.</div>'}
+      <div style="font-size:10px;color:#3f3f46;margin-top:12px;">Last updated ${date}</div>
+    `;
+  } catch(e) {
+    el.innerHTML = '<span style="color:#f87171;">Could not load digest.</span>';
+  }
+}
+
+async function loadDraftQueue() {
+  const el = document.getElementById('draft-queue-list');
+  const badge = document.getElementById('draft-badge');
+  if (!el) return;
+  try {
+    const r = await fetch(API + '/api/drafts');
+    const d = await r.json();
+    const drafts = d.drafts || [];
+    if (badge) badge.textContent = drafts.length || '';
+    if (!drafts.length) {
+      el.innerHTML = '<div style="color:#52525b;font-size:13px;padding:16px 0;">No drafts waiting. The follow-up drafter will add them here when leads go overdue.</div>';
+      return;
+    }
+    el.innerHTML = drafts.map(dr => `
+      <div id="draft-${dr.id}" style="background:#0f0f0f;border:1px solid #1a1a1a;border-radius:12px;padding:18px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div style="font-size:13px;font-weight:600;">${esc(dr.firstName+' '+dr.lastName)} <span style="color:#52525b;font-weight:400;">at</span> ${esc(dr.company)}</div>
+            <div style="font-size:11px;color:#52525b;margin-top:2px;">Touch ${dr.touch} &middot; ${dr.channel} &middot; ${IND_LABELS[dr.industry]||dr.industry}</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button onclick="openDraftModal('${dr.id}')" style="background:#1a1a1a;border:1px solid #333;color:#fff;font-size:12px;padding:7px 14px;border-radius:7px;cursor:pointer;">Edit and send</button>
+            <button onclick="dismissDraft('${dr.id}')" style="background:none;border:1px solid #333;color:#71717a;font-size:12px;padding:7px 14px;border-radius:7px;cursor:pointer;">Dismiss</button>
+          </div>
+        </div>
+        <div style="font-size:11px;color:#71717a;margin-bottom:6px;">Subject: ${esc(dr.subject)}</div>
+        <div style="font-size:12px;color:#a1a1aa;background:#111;border-radius:8px;padding:12px;white-space:pre-wrap;font-family:inherit;line-height:1.6;max-height:120px;overflow:hidden;">${esc(dr.body.slice(0,300))}${dr.body.length>300?'...':''}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    el.innerHTML = '<div style="color:#f87171;font-size:13px;">Could not load drafts.</div>';
+  }
+}
+
+function openDraftModal(draftId) {
+  const el = document.getElementById('draft-'+draftId);
+  if (!el) return;
+  // Get the draft data from what's rendered
+  fetch(API + '/api/drafts').then(r=>r.json()).then(d => {
+    const dr = (d.drafts||[]).find(x=>x.id===draftId);
+    if (!dr) return;
+    const email = dr.hunterEmail || dr.contact || '';
+    // Build Gmail URL
+    const gmailUrl = 'https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(email)+'&su='+encodeURIComponent(dr.subject)+'&body='+encodeURIComponent(dr.body);
+    window.open(gmailUrl, '_blank');
+    // Mark as sent after a moment
+    setTimeout(() => {
+      if (confirm('Did you send the email to '+dr.firstName+'?')) {
+        markDraftSent(draftId, dr.touch);
+      }
+    }, 2000);
+  });
+}
+
+async function markDraftSent(draftId, touch) {
+  try {
+    await fetch(API+'/api/drafts/'+draftId+'/sent', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({touch})});
+    toast('Marked as sent. Lead status updated.');
+    await syncLeads();
+    loadDraftQueue();
+    loadDigest();
+  } catch(e) { toast('Could not update.'); }
+}
+
+async function dismissDraft(draftId) {
+  try {
+    await fetch(API+'/api/drafts/'+draftId+'/dismiss', {method:'POST'});
+    toast('Draft dismissed.');
+    loadDraftQueue();
+  } catch(e) { toast('Could not dismiss.'); }
+}
+
+async function runAllAgents() {
+  const btn = document.getElementById('agents-run-btn');
+  if (btn) { btn.disabled=true; btn.textContent='Running...'; }
+  try {
+    const r = await fetch(API+'/api/agents/run-all', {method:'POST'});
+    const d = await r.json();
+    toast(`Done. ${d.drafted||0} follow-up drafts created.`);
+    loadDigest();
+    loadDraftQueue();
+  } catch(e) { toast('Could not run agents.'); }
+  if (btn) { btn.disabled=false; btn.textContent='Run all now'; }
 }
 
 async function backfillSuburbs() {
