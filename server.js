@@ -1252,6 +1252,52 @@ app.post('/api/jarvis/chat', async (req, res) => {
   }
 });
 
+// ── REEL IDEAS GENERATOR (with web search for trending content) ───────────────
+app.post('/api/ideas/generate', async (req, res) => {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return res.status(400).json({ error: 'ANTHROPIC_API_KEY not set.' });
+  try {
+    // Step 1: search for what's trending
+    const searchR = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 2000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{
+          role: 'user',
+          content: 'Search for what short-form video content is currently trending on Instagram Reels and TikTok in 2025 for videographers and photographers. Look for: trending formats, what gets high engagement, what corporate/real estate/construction/automotive brands are posting that performs well. Search for "trending instagram reels videographer 2025" and "viral real estate video content 2025" and "corporate brand instagram reels trending".'
+        }]
+      })
+    });
+    const searchD = await searchR.json();
+    const searchContext = (searchD.content || []).map(b => b.type === 'text' ? b.text : '').filter(Boolean).join('\n');
+
+    // Step 2: use that context to generate tailored ideas
+    const ideasR = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1500,
+        messages: [{
+          role: 'user',
+          content: `Based on this research about what's currently trending on Instagram and TikTok:\n\n${searchContext}\n\nGenerate exactly 12 short-form video ideas for Oscar Green, a Sydney-based videographer and photographer who shoots for corporate/finance, real estate, construction, and automotive clients. Each idea must be:\n- Filmable solo with professional camera gear and a gimbal/drone\n- Based on what is ACTUALLY trending and getting engagement right now\n- Specific and actionable (not generic)\n- Varied across the 4 industries\n\nReturn ONLY a JSON array, no markdown, no explanation. Each item: {"idea":"specific idea title","format":"e.g. 60s reel / POV / before-after / talking head / timelapse","heat":"High|Medium","tags":["tag1","tag2"]}`
+        }]
+      })
+    });
+    const ideasD = await ideasR.json();
+    const txt = (ideasD.content || []).map(b => b.type === 'text' ? b.text : '').filter(Boolean).join('');
+    const clean = txt.replace(/```json|```/g, '').trim();
+    const ideas = JSON.parse(clean);
+    res.json({ ok: true, ideas });
+  } catch(e) {
+    console.error('[ideas] Error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── GMAIL OAUTH ───────────────────────────────────────────────────────────────
 const GMAIL_CLIENT_ID     = process.env.GMAIL_CLIENT_ID     || '';
 const GMAIL_CLIENT_SECRET = process.env.GMAIL_CLIENT_SECRET || '';
