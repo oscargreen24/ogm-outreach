@@ -2146,12 +2146,38 @@ function renderIdeasPage(){
 function addIdeaToCalendar(idx){
   const r = REEL_IDEAS[idx];
   const today = new Date();
-  // Find next empty day in the next 7 days
+  const todayDow = (today.getDay()+6)%7; // Mon=0
+
+  // Find next available day that is today or in the future
   const used = calendarItems.map(c=>c.dayOffset);
-  let slot = 0; while(used.includes(slot) && slot<14) slot++;
+  let slot = todayDow; // start from today
+  while(used.includes(slot) && slot < 14) slot++;
+
   calendarItems.push({idx, idea:r.idea, format:r.format, dayOffset:slot, addedAt:new Date().toISOString()});
-  saveCal(); renderIdeasCalendar();
-  toast('Added to calendar - '+r.idea.slice(0,30)+'...');
+  saveCal();
+
+  // Push to Google Calendar
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - todayDow);
+  const eventDate = new Date(startOfWeek);
+  eventDate.setDate(startOfWeek.getDate() + slot);
+  const dateStr = eventDate.toISOString().slice(0,10);
+
+  fetch(API+'/api/calendar/events', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      summary: r.idea,
+      description: 'Format: '+r.format+'\nAdded from OGM Reel Ideas.',
+      start: { date: dateStr },
+      end:   { date: dateStr }
+    })
+  }).then(res=>res.json()).then(d=>{
+    if(d.ok) toast('Added to calendar and Google Calendar.');
+    else toast('Added to calendar (Google Calendar sync failed — check auth).');
+  }).catch(()=>toast('Added to calendar (Google Calendar offline).'));
+
+  renderIdeasCalendar();
 }
 
 function removeCalItem(i){ calendarItems.splice(i,1); saveCal(); renderIdeasCalendar(); }
@@ -2160,16 +2186,20 @@ function renderIdeasCalendar(){
   const cal = document.getElementById('ideas-calendar'); if(!cal) return;
   const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   const today = new Date();
-  const startOfWeek = new Date(today); startOfWeek.setDate(today.getDate() - ((today.getDay()+6)%7));
+  const todayDow = (today.getDay()+6)%7;
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - todayDow);
+
   cal.innerHTML = days.map((d,i) => {
     const dt = new Date(startOfWeek); dt.setDate(startOfWeek.getDate()+i);
     const isToday = dt.toDateString()===today.toDateString();
+    const isPast = dt < today && !isToday;
     const items = calendarItems.filter(c=>c.dayOffset===i);
-    return '<div style="background:#111;border:1px solid '+(isToday?'#3f3f46':'#1a1a1a')+';border-radius:8px;padding:10px;min-height:100px;">' +
+    return '<div style="background:#111;border:1px solid '+(isToday?'#3f3f46':'#1a1a1a')+';border-radius:8px;padding:10px;min-height:100px;opacity:'+(isPast?'0.4':'1')+';pointer-events:'+(isPast?'none':'auto')+'">' +
       '<div style="font-size:10px;color:#52525b;margin-bottom:2px;">'+d+'</div>' +
       '<div style="font-size:13px;font-weight:600;color:'+(isToday?'#fff':'#71717a')+';margin-bottom:8px;">'+dt.getDate()+'</div>' +
       items.map((c,ci) =>
-        '<div style="font-size:10px;background:#1a1a1a;border:1px solid #222;border-radius:4px;padding:4px 6px;margin-bottom:4px;color:#a1a1aa;cursor:pointer;position:relative;" onclick="removeCalItem(calendarItems.indexOf(calendarItems.filter(x=>x.dayOffset==='+i+')['+ci+']))">'+
+        '<div style="font-size:10px;background:#1a1a1a;border:1px solid #222;border-radius:4px;padding:4px 6px;margin-bottom:4px;color:#a1a1aa;cursor:pointer;position:relative;" onclick="removeCalItem(calendarItems.indexOf(calendarItems.filter(x=>x.dayOffset==='+i+')['+ci+']))" title="Click to remove">'+
         esc(c.idea.length>28?c.idea.slice(0,28)+'…':c.idea)+'</div>'
       ).join('') +
     '</div>';
