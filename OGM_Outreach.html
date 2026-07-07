@@ -2146,23 +2146,26 @@ function renderIdeasPage(){
 function addIdeaToCalendar(idx){
   const r = REEL_IDEAS[idx];
   const today = new Date();
-  const todayDow = (today.getDay()+6)%7; // Mon=0
+  const todayDow = (today.getDay()+6)%7;
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - todayDow);
 
-  // Find next available day that is today or in the future
-  const used = calendarItems.map(c=>c.dayOffset);
-  let slot = todayDow; // start from today
-  while(used.includes(slot) && slot < 14) slot++;
+  // Find next available day from today
+  const used = calendarItems.map(c=>c.date);
+  let slot = todayDow;
+  let eventDate = new Date(startOfWeek);
+  eventDate.setDate(startOfWeek.getDate() + slot);
+  while(used.includes(eventDate.toISOString().slice(0,10)) && slot < 14) {
+    slot++;
+    eventDate = new Date(startOfWeek);
+    eventDate.setDate(startOfWeek.getDate() + slot);
+  }
+  const dateStr = eventDate.toISOString().slice(0,10);
 
-  calendarItems.push({idx, idea:r.idea, format:r.format, dayOffset:slot, addedAt:new Date().toISOString()});
+  calendarItems.push({idx, idea:r.idea, format:r.format, date:dateStr, addedAt:new Date().toISOString()});
   saveCal();
 
   // Push to Google Calendar
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - todayDow);
-  const eventDate = new Date(startOfWeek);
-  eventDate.setDate(startOfWeek.getDate() + slot);
-  const dateStr = eventDate.toISOString().slice(0,10);
-
   fetch(API+'/api/calendar/events', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -2180,7 +2183,29 @@ function addIdeaToCalendar(idx){
   renderIdeasCalendar();
 }
 
-function removeCalItem(i){ calendarItems.splice(i,1); saveCal(); renderIdeasCalendar(); }
+function removeCalItem(i){
+  calendarItems.splice(i,1);
+  saveCal();
+  renderIdeasCalendar();
+}
+
+function moveCalItem(i, newDate) {
+  if (!calendarItems[i]) return;
+  calendarItems[i].date = newDate;
+  saveCal();
+  // Update Google Calendar if we had a gcalId — for now just push a new one
+  fetch(API+'/api/calendar/events', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      summary: calendarItems[i].idea,
+      description: 'Format: '+calendarItems[i].format+'\nAdded from OGM Reel Ideas.',
+      start: { date: newDate },
+      end:   { date: newDate }
+    })
+  }).then(()=>toast('Date updated in Google Calendar.')).catch(()=>{});
+  renderIdeasCalendar();
+}
 
 function renderIdeasCalendar(){
   const cal = document.getElementById('ideas-calendar'); if(!cal) return;
@@ -2189,21 +2214,39 @@ function renderIdeasCalendar(){
   const todayDow = (today.getDay()+6)%7;
   const startOfWeek = new Date(today);
   startOfWeek.setDate(today.getDate() - todayDow);
+  const todayStr = today.toISOString().slice(0,10);
 
   cal.innerHTML = days.map((d,i) => {
     const dt = new Date(startOfWeek); dt.setDate(startOfWeek.getDate()+i);
-    const isToday = dt.toDateString()===today.toDateString();
-    const isPast = dt < today && !isToday;
-    const items = calendarItems.filter(c=>c.dayOffset===i);
+    const dateStr = dt.toISOString().slice(0,10);
+    const isToday = dateStr === todayStr;
+    const isPast = dateStr < todayStr;
+    const items = calendarItems.map((c,ci)=>({...c,_i:ci})).filter(c=>c.date===dateStr);
+
     return '<div style="background:#111;border:1px solid '+(isToday?'#3f3f46':'#1a1a1a')+';border-radius:8px;padding:10px;min-height:100px;opacity:'+(isPast?'0.4':'1')+';pointer-events:'+(isPast?'none':'auto')+'">' +
       '<div style="font-size:10px;color:#52525b;margin-bottom:2px;">'+d+'</div>' +
       '<div style="font-size:13px;font-weight:600;color:'+(isToday?'#fff':'#71717a')+';margin-bottom:8px;">'+dt.getDate()+'</div>' +
-      items.map((c,ci) =>
-        '<div style="font-size:10px;background:#1a1a1a;border:1px solid #222;border-radius:4px;padding:4px 6px;margin-bottom:4px;color:#a1a1aa;cursor:pointer;position:relative;" onclick="removeCalItem(calendarItems.indexOf(calendarItems.filter(x=>x.dayOffset==='+i+')['+ci+']))" title="Click to remove">'+
-        esc(c.idea.length>28?c.idea.slice(0,28)+'…':c.idea)+'</div>'
+      items.map(c =>
+        '<div style="font-size:10px;background:#1a1a1a;border:1px solid #222;border-radius:4px;padding:4px 6px;margin-bottom:4px;color:#a1a1aa;position:relative;">' +
+          '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:4px;">' +
+            '<span>'+esc(c.idea.length>24?c.idea.slice(0,24)+'…':c.idea)+'</span>' +
+            '<div style="display:flex;gap:3px;flex-shrink:0;">' +
+              '<button onclick="showMovePicker('+c._i+')" title="Change date" style="background:none;border:none;color:#52525b;cursor:pointer;font-size:11px;padding:0 1px;">✎</button>' +
+              '<button onclick="removeCalItem('+c._i+')" title="Remove" style="background:none;border:none;color:#52525b;cursor:pointer;font-size:11px;padding:0 1px;">×</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
       ).join('') +
     '</div>';
   }).join('');
+}
+
+function showMovePicker(i) {
+  const item = calendarItems[i]; if(!item) return;
+  const todayStr = new Date().toISOString().slice(0,10);
+  const newDate = prompt('Move "'+item.idea.slice(0,40)+'" to date (YYYY-MM-DD):', item.date);
+  if (!newDate || newDate < todayStr) { if(newDate) toast('Cannot move to a past date.'); return; }
+  moveCalItem(i, newDate);
 }
 
 async function generateMoreIdeas(){
