@@ -2216,6 +2216,18 @@ function renderIdeasCalendar(){
   startOfWeek.setDate(today.getDate() - todayDow);
   const todayStr = today.toISOString().slice(0,10);
 
+  // Build options for dropdown — today through Sunday
+  const dropdownOptions = days.map((d,i) => {
+    const dt = new Date(startOfWeek); dt.setDate(startOfWeek.getDate()+i);
+    const dateStr = dt.toISOString().slice(0,10);
+    const isPast = dateStr < todayStr;
+    return { d, dateStr, dayNum: dt.getDate(), isPast };
+  }).filter(o => !o.isPast);
+
+  const optionsHtml = dropdownOptions.map(o =>
+    `<option value="${o.dateStr}">${o.d} ${o.dayNum}</option>`
+  ).join('');
+
   cal.innerHTML = days.map((d,i) => {
     const dt = new Date(startOfWeek); dt.setDate(startOfWeek.getDate()+i);
     const dateStr = dt.toISOString().slice(0,10);
@@ -2228,14 +2240,15 @@ function renderIdeasCalendar(){
       <div style="font-size:15px;font-weight:700;color:${isToday?'#fff':'#71717a'};margin-bottom:8px;">${dt.getDate()}</div>
       ${items.map(c => `
         <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:6px;padding:6px 8px;margin-bottom:6px;">
-          <div style="font-size:11px;color:#e5e5e5;line-height:1.4;margin-bottom:6px;">${esc(c.idea.length>32?c.idea.slice(0,32)+'…':c.idea)}</div>
+          <div style="font-size:11px;color:#e5e5e5;line-height:1.4;margin-bottom:4px;">${esc(c.idea.length>32?c.idea.slice(0,32)+'…':c.idea)}</div>
           <div style="font-size:10px;color:#52525b;margin-bottom:6px;">${esc(c.format)}</div>
           <div style="display:flex;align-items:center;gap:4px;">
-            <input type="date" value="${c.date}" min="${todayStr}"
-              onchange="moveCalItem(${c._i},this.value)"
-              style="background:#111;border:1px solid #333;color:#a1a1aa;font-size:10px;padding:3px 6px;border-radius:5px;cursor:pointer;flex:1;outline:none;font-family:inherit;">
+            <select onchange="moveCalItem(${c._i},this.value)"
+              style="background:#111;border:1px solid #333;color:#a1a1aa;font-size:11px;padding:3px 6px;border-radius:5px;cursor:pointer;flex:1;outline:none;font-family:inherit;">
+              ${dropdownOptions.map(o=>`<option value="${o.dateStr}"${o.dateStr===c.date?' selected':''}>${o.d} ${o.dayNum}</option>`).join('')}
+            </select>
             <button onclick="removeCalItem(${c._i})" title="Remove"
-              style="background:#1c1c1e;border:1px solid #333;color:#71717a;font-size:11px;padding:3px 7px;border-radius:5px;cursor:pointer;flex-shrink:0;line-height:1;">×</button>
+              style="background:#1c1c1e;border:1px solid #333;color:#71717a;font-size:11px;padding:3px 7px;border-radius:5px;cursor:pointer;flex-shrink:0;">×</button>
           </div>
         </div>
       `).join('')}
