@@ -645,7 +645,7 @@
       <div class="page-header" style="margin-bottom:28px;">
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div><div class="page-title">Reel ideas</div><div class="page-sub">Viral formats you can shoot with your own footage. Click a card to add it to your calendar.</div></div>
-          <button onclick="generateMoreIdeas()" style="background:#fff;color:#000;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">⚡ Generate more</button>
+          <button onclick="generateMoreIdeas()" style="background:#fff;color:#000;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">⚡ Refresh from trends</button>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;" id="ideas-grid"></div>
@@ -2257,21 +2257,23 @@ function renderIdeasCalendar(){
 }
 
 async function generateMoreIdeas(){
-  toast('Opening idea generator...');
-  // Use Anthropic API to generate more ideas
   const btn = document.querySelector('[onclick="generateMoreIdeas()"]');
-  if(btn){btn.textContent='Generating...';btn.disabled=true;}
+  if(btn){ btn.textContent='Searching trends...'; btn.disabled=true; }
+  toast('Searching Instagram and TikTok trends...');
   try {
-    const r = await fetch(API+'/api/jarvis/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:'Give me 6 viral short-form video ideas for a Sydney videographer who films for corporate finance, real estate, construction and automotive clients. Ideas should be filmable solo with your own gear and footage. Format: JSON array, each item: {"idea":"...","format":"...","heat":"High|Medium","tags":["...","..."]}. Return ONLY the JSON array, no markdown.'}]})});
+    const r = await fetch(API+'/api/ideas/generate', { method:'POST', headers:{'Content-Type':'application/json'} });
     const d = await r.json();
-    const txt = d.content.map(x=>x.text||'').join('');
-    const clean = txt.replace(/```json|```/g,'').trim();
-    const newIdeas = JSON.parse(clean);
-    REEL_IDEAS.push(...newIdeas);
+    if(d.error){ toast('Error: '+d.error); return; }
+    if(!d.ideas || !d.ideas.length){ toast('No ideas returned — try again.'); return; }
+    // Replace all ideas with fresh trending ones
+    REEL_IDEAS.length = 0;
+    REEL_IDEAS.push(...d.ideas);
     renderIdeasPage();
-    toast(newIdeas.length+' new ideas added!');
-  } catch(e){ toast('Could not generate ideas - check your connection.'); }
-  if(btn){btn.textContent='⚡ Generate more';btn.disabled=false;}
+    toast('✓ '+d.ideas.length+' trending ideas loaded from the web.');
+  } catch(e){
+    toast('Could not generate ideas — check your connection.');
+  }
+  if(btn){ btn.textContent='⚡ Refresh from trends'; btn.disabled=false; }
 }
 
 // ── A/B RESULTS PAGE ──────────────────────────────────────────────────────────
